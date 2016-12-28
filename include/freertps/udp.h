@@ -1,11 +1,31 @@
+// Copyright 2016 Open Source Robotics Foundation, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifndef FREERTPS_UDP_H
 #define FREERTPS_UDP_H
 
-#include "freertps/time.h"
 #include <stdint.h>
 #include <stdbool.h>
+
 #include "freertps/id.h"
+#include "freertps/time.h"
 //#include "freertps/psm.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 /////////////////////////////////////////////////////////////////////
 // TYPES
@@ -37,13 +57,19 @@ typedef struct
 
 #define FRUDP_FLAGS_ACKNACK_FINAL      0x02
 
-#define FRUDP_SUBMSG_ID_ACKNACK        0x06
-#define FRUDP_SUBMSG_ID_HEARTBEAT      0x07
-#define FRUDP_SUBMSG_ID_INFO_TS        0x09
-#define FRUDP_SUBMSG_ID_INFO_DEST      0x0e
-#define FRUPG_SUBMSG_ID_HEARTBEAT_FRAG 0x13
-#define FRUDP_SUBMSG_ID_DATA           0x15
-#define FRUDP_SUBMSG_ID_DATA_FRAG      0x16
+#define FRUDP_SUBMSG_ID_PAD            0x01 /* Pad */
+#define FRUDP_SUBMSG_ID_ACKNACK        0x06 /* AckNack */
+#define FRUDP_SUBMSG_ID_HEARTBEAT      0x07 /* Heartbeat */
+#define FRUDP_SUBMSG_ID_GAP            0x08 /* Gap */
+#define FRUDP_SUBMSG_ID_INFO_TS        0x09 /* InfoTimestamp */
+#define FRUDP_SUBMSG_ID_INFO_SRC       0x0c /* InfoSource */
+#define FRUDP_SUBMSG_ID_INFO_REPLY_IP4 0x0d /* InfoReplyIp4 */
+#define FRUDP_SUBMSG_ID_INFO_DEST      0x0e /* InfoDestination */
+#define FRUDP_SUBMSG_ID_INFO_REPLY     0x0f /* InfoReply */
+#define FRUDP_SUBMSG_ID_NACK_FRAG      0x12 /* NackFrag */
+#define FRUPG_SUBMSG_ID_HEARTBEAT_FRAG 0x13 /* HeartbeatFrag */
+#define FRUDP_SUBMSG_ID_DATA           0x15 /* Data */
+#define FRUDP_SUBMSG_ID_DATA_FRAG      0x16 /* DataFrag */
 
 typedef struct frudp_submsg_header
 {
@@ -220,7 +246,7 @@ uint16_t frudp_ucast_user_port(void);
 uint16_t frudp_mcast_user_port(void);
 uint16_t frudp_spdp_port(void);
 
-const char *frudp_ip4_ntoa(const uint32_t addr);
+//const char *frudp_ip4_ntoa(const uint32_t addr);
 
 bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s);
 
@@ -234,4 +260,7 @@ frudp_msg_t *frudp_init_msg(frudp_msg_t *buf);
 
 extern const struct rtps_psm g_rtps_psm_udp;
 
+#ifdef __cplusplus
+}
 #endif
+#endif // FREERTPS_UDP_H

@@ -1,3 +1,17 @@
+// Copyright 2016 Open Source Robotics Foundation, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifndef FREERTPS_H
 #define FREERTPS_H
 
@@ -22,14 +36,24 @@ typedef void (*freertps_msg_cb_t)(const void *msg);
 #include "freertps/system.h"
 #include "freertps/pub.h"
 #include "freertps/sub.h"
+#include "uart_if.h"
 
 // maybe make this smarter someday
+#ifdef DEBUG
+#define FREERTPS_DEBUG(...) \
+  do { Report("[freertps DEBUG] "); Report(__VA_ARGS__); } while (0)
+#else
+#define FREERTPS_DEBUG(...) ((void)0)
+#endif
+
 #define FREERTPS_INFO(...) \
-  do { printf("freertps INFO : "); printf(__VA_ARGS__); } while (0)
+  do { Report("[freertps INFO] "); Report(__VA_ARGS__); } while (0)
+#define FREERTPS_WARNING(...) \
+  do { Report("[freertps WARNING] "); Report(__VA_ARGS__); } while (0)
 #define FREERTPS_ERROR(...) \
-  do { printf("freertps ERROR: "); printf(__VA_ARGS__); } while (0)
+  do { Error("[freertps ERROR] "); Error(__VA_ARGS__); } while (0)
 #define FREERTPS_FATAL(...) \
-  do { printf("freertps FATAL: "); printf(__VA_ARGS__); } while (0)
+  do { Error("[freertps FATAL] "); Error(__VA_ARGS__); } while (0)
 
 typedef union rtps_active_psms
 {
@@ -64,5 +88,4 @@ void freertps_start(void);
 #ifdef __cplusplus
 }
 #endif
-
-#endif
+#endif // FREERTPS_H

@@ -7,7 +7,6 @@
 
 void enet_init(void);
 
-extern const uint8_t g_enet_mac[6];
 typedef enum { ENET_LINK_DOWN, ENET_LINK_UP } enet_link_status_t;
 enet_link_status_t enet_get_link_status(void);
 
@@ -30,6 +29,8 @@ uint_fast8_t enet_process_rx_ring(void); // process the rx queue
 #define   ENET_MAX_ALLOWED_UDP_PORTS 4
 #endif
 bool enet_allow_udp_port(const uint16_t port);
+void enet_add_mcast_rx(const uint32_t group, const uint16_t port);
+void enet_add_ucast_rx(const uint16_t port);
 
 /////////////////////////////////////////////////////////////////////////
 // these functions must be provided by a chip-specific library

@@ -1,3 +1,17 @@
+// Copyright 2016 Open Source Robotics Foundation, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #ifndef FREERTPS_DISCO_H
 #define FREERTPS_DISCO_H
 
@@ -6,6 +20,11 @@
 #include <stdint.h>
 #include "freertps/part.h"
 #include "freertps/config.h"
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
 #define FRUDP_PID_PAD                           0x0000
 #define FRUDP_PID_SENTINEL                      0x0001
@@ -18,8 +37,13 @@
 #define FRUDP_PID_RELIABILITY                   0x001a
 #define FRUDP_PID_LIVELINESS                    0x001b
 #define FRUDP_PID_DURABILITY                    0x001d
+#define FRUDP_PID_DURABILITY_SERVICE            0x001e
 #define FRUDP_PID_PRESENTATION                  0x0021
+#define FRUDP_PID_DEADLINE                      0x0023
 #define FRUDP_PID_PARTITION                     0x0029
+#define FRUDP_PID_USER_DATA                     0x002c
+#define FRUDP_PID_GROUP_DATA                    0x002d
+#define FRUDP_PID_TOPIC_DATA                    0x002e
 #define FRUDP_PID_DEFAULT_UNICAST_LOCATOR       0x0031
 #define FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR   0x0032
 #define FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR 0x0033
@@ -45,17 +69,21 @@
 #define FRUDP_BUILTIN_EP_PARTICIPANT_MESSAGE_DATA_WRITER 0x00000400
 #define FRUDP_BUILTIN_EP_PARTICIPANT_MESSAGE_DATA_READER 0x00000800
 
+#define FRUDP_DISCO_TX_BUFLEN 1536
+
 void frudp_disco_init(void);
 void frudp_disco_fini(void);
 
 void frudp_disco_start(void); /// must be called to kick off discovery
 void frudp_disco_tick(void);  /// must be called periodically to broadcast SPDP
 
-#define FRUDP_DISCO_TX_BUFLEN 1536
 extern uint8_t g_frudp_disco_tx_buf[FRUDP_DISCO_TX_BUFLEN];
 extern uint16_t g_frudp_disco_tx_buf_wpos;
 
 extern frudp_part_t g_frudp_disco_parts[FRUDP_DISCO_MAX_PARTS];
 extern int g_frudp_disco_num_parts;
 
+#ifdef __cplusplus
+}
 #endif
+#endif // FREERTPS_DISCO_H
