@@ -22,6 +22,8 @@ extern "C"
 {
 #endif
 
+#define FREERTPS_IPV4_BYTE(val,index)                  ( (val >> (index*8)) & 0xFF )
+
 // todo: something clever with inlining someday, if this matters
 uint32_t freertps_htonl(uint32_t u);
 uint16_t freertps_htons(uint16_t u);

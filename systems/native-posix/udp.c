@@ -365,3 +365,11 @@ void freertps_timer_set_freq(uint32_t freq, freertps_timer_cb_t cb)
   g_timer_period = 1.0 / (double)freq;
   g_timer_cb = cb;
 }
+
+long getIp() {
+    return g_frudp_tx_addr.sin_addr.s_addr;
+}
+
+long getNetwork() {
+    return 0;
+}

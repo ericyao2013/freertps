@@ -260,6 +260,10 @@ frudp_msg_t *frudp_init_msg(frudp_msg_t *buf);
 
 extern const struct rtps_psm g_rtps_psm_udp;
 
+long getIp();
+
+long getNetwork();
+
 #ifdef __cplusplus
 }
 #endif

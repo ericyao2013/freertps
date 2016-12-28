@@ -1,3 +1,17 @@
+// Copyright 2016 Open Source Robotics Foundation, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include "freertps/sub.h"
 #include "freertps/udp.h"
 #include "freertps/id.h"
@@ -14,8 +28,10 @@ uint32_t g_frudp_num_readers = 0;
 
 void frudp_add_reader(const frudp_reader_t *match)
 {
+//  FREERTPS_DEBUG("frudp_add_reader(0x%08x)\r\n", match->reader_eid);
   if (g_frudp_num_readers >= FRUDP_MAX_READERS)
     return;
+
   // make sure that in the meantime, we haven't already added this
   bool found = false;
   for (unsigned j = 0; !found && j < g_frudp_num_readers; j++)
@@ -24,18 +40,19 @@ void frudp_add_reader(const frudp_reader_t *match)
     if (frudp_guid_identical(&r->writer_guid, &match->writer_guid))
       found = true;
   }
+
   if (found)
   {
-    printf("found reader already; skipping duplicate add\n");
+    FREERTPS_INFO("found reader already; skipping duplicate add\n");
     return;
   }
 
   g_frudp_readers[g_frudp_num_readers] = *match;
   g_frudp_num_readers++;
   /*
-  printf("add_reader(");
+  FREERTPS_INFO("add_reader(");
   frudp_print_guid(&match->writer_guid);
-  printf(" => %08x)\r\n", (unsigned)freertps_htonl(match->reader_eid.u));
+  FREERTPS_INFO(" => %08x)\r\n", (unsigned)freertps_htonl(match->reader_eid.u));
   */
 }
 
@@ -43,10 +60,9 @@ void frudp_add_user_sub(const char *topic_name,
                         const char *type_name,
                         freertps_msg_cb_t msg_cb)
 {
-  frudp_eid_t sub_eid = frudp_create_user_id
-                          (FRUDP_ENTITY_KIND_USER_READER_NO_KEY);
-  printf("frudp_add_user_sub(%s, %s) on EID 0x%08x\r\n",
-      topic_name, type_name, (unsigned)freertps_htonl(sub_eid.u));
+  frudp_eid_t sub_eid = frudp_create_user_id(FRUDP_ENTITY_KIND_USER_READER_NO_KEY);
+  FREERTPS_DEBUG("frudp_add_user_sub(%s, %s) on EID 0x%08x\r\n", topic_name, type_name, (unsigned)freertps_htonl(sub_eid.u));
+
   frudp_sub_t sub;
   // for now, just copy the pointers. maybe in the future we can/should have
   // an option for storage of various kind (static, malloc, etc.) for copies.
@@ -64,10 +80,11 @@ void frudp_add_sub(const frudp_sub_t *s)
 {
   if (g_frudp_num_subs >= FRUDP_MAX_SUBS - 1)
     return; // no room. sorry.
+
   g_frudp_subs[g_frudp_num_subs] = *s;
-  printf("sub %d: reader_eid = 0x%08x\r\n",
-      g_frudp_num_subs, freertps_htonl((unsigned)s->reader_eid.u));
   g_frudp_num_subs++;
+
+  FREERTPS_INFO("sub %d: reader_eid = 0x%08x\r\n", g_frudp_num_subs, freertps_htonl((unsigned)s->reader_eid.u));
   //frudp_subscribe(s->entity_id, g_frudp_entity_id_unknown, NULL, s->msg_cb);
 }
 
@@ -76,9 +93,10 @@ void frudp_print_readers(void)
   for (unsigned i = 0; i < g_frudp_num_readers; i++)
   {
     frudp_reader_t *match = &g_frudp_readers[i];
-    printf("    sub %d: writer = ", (int)i); //%08x, reader = %08x\n",
-    frudp_print_guid(&match->writer_guid);
-    printf(" => %08x\r\n", (unsigned)freertps_htonl(match->reader_eid.u));
+    FREERTPS_INFO("\tsub %d: writer = %s  => %08x\r\n",
+                  (int)i,
+                  frudp_print_guid(&match->writer_guid),
+                  (unsigned)freertps_htonl(match->reader_eid.u));
   }
 }
 

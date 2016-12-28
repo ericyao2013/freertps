@@ -36,7 +36,14 @@ typedef void (*freertps_msg_cb_t)(const void *msg);
 #include "freertps/system.h"
 #include "freertps/pub.h"
 #include "freertps/sub.h"
-#include "uart_if.h"
+
+#ifndef Report
+#define Report(...) printf(__VA_ARGS__)
+#endif
+
+#ifndef Error
+#define Error(...) printf(__VA_ARGS__)
+#endif
 
 // maybe make this smarter someday
 #ifdef DEBUG

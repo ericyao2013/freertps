@@ -1,8 +1,29 @@
-#include "freertps/sedp.h"
-#include "freertps/freertps.h"
-#include "freertps/qos.h"
-#include "freertps/spdp.h"
+// Copyright 2016 Open Source Robotics Foundation, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #include <string.h>
+
+#include "freertps/freertps.h"
+#include "freertps/sedp.h"
+#include "freertps/spdp.h"
+#include "freertps/qos.h"
+
+
+// todo: an option to generate SEDP messages on-the-fly as requested,
+// rather than buffering them in precious SRAM. or maybe auto-generate the
+// pub/sub messages and hold them in flash. That would be way better.
+#define SEDP_MSG_BUF_LEN 1024
 
 ////////////////////////////////////////////////////////////////////////////
 // local constants
@@ -11,31 +32,34 @@ static const frudp_eid_t g_sedp_pub_reader_id = { .u = 0xc7030000 };
 static const frudp_eid_t g_sedp_sub_writer_id = { .u = 0xc2040000 };
 static const frudp_eid_t g_sedp_sub_reader_id = { .u = 0xc7040000 };
 
+static sedp_topic_info_t g_topic_info;
+
 ////////////////////////////////////////////////////////////////////////////
 // local functions
 static void frudp_sedp_rx_pub_data(frudp_receiver_state_t *rcvr,
                                    const frudp_submsg_t *submsg,
                                    const uint16_t scheme,
                                    const uint8_t *data);
+
 static void frudp_sedp_rx_sub_data(frudp_receiver_state_t *rcvr,
                                    const frudp_submsg_t *submsg,
                                    const uint16_t scheme,
                                    const uint8_t *data);
+
 static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
                                       const frudp_submsg_t *submsg,
                                       const uint16_t scheme,
                                       const uint8_t *data,
                                       const bool is_pub);
+
 static void frudp_sedp_bcast(void);
+
 ////////////////////////////////////////////////////////////////////////////
 // static globals
 static fr_time_t frudp_sedp_last_bcast;
 frudp_pub_t *g_sedp_sub_pub = NULL; // SEDP subscription publication
 frudp_pub_t *g_sedp_pub_pub = NULL; // SEDP publication publication
-// todo: an option to generate SEDP messages on-the-fly as requested,
-// rather than buffering them in precious SRAM. or maybe auto-generate the
-// pub/sub messages and hold them in flash. That would be way better.
-#define SEDP_MSG_BUF_LEN 1024
+
 //static uint8_t frudp_pub_sample_t[SEDP_MSG_BUF_LEN];
 static uint8_t g_sedp_sub_writer_data_buf[SEDP_MSG_BUF_LEN * FRUDP_MAX_SUBS];
 static uint8_t g_sedp_pub_writer_data_buf[SEDP_MSG_BUF_LEN * FRUDP_MAX_PUBS];
@@ -46,7 +70,9 @@ static uint8_t g_sedp_msg_buf[SEDP_MSG_BUF_LEN];
 
 void frudp_sedp_init(void)
 {
-  FREERTPS_INFO("sedp init\r\n");
+  _SEDP_DEBUG("frudp_sedp_init()\r\n");
+  _SEDP_INFO("SEDP => Simple Endpoint Discovery Protocol\r\n");
+
   for (int i = 0; i < FRUDP_MAX_SUBS; i++)
   {
     frudp_submsg_data_t *d = 
@@ -54,6 +80,7 @@ void frudp_sedp_init(void)
     d->writer_sn = g_frudp_sn_unknown;
     g_sedp_sub_writer_data_submsgs[i] = d;
   }
+
   for (int i = 0; i < FRUDP_MAX_PUBS; i++)
   {
     frudp_submsg_data_t *d = 
@@ -61,6 +88,7 @@ void frudp_sedp_init(void)
     d->writer_sn = g_frudp_sn_unknown;
     g_sedp_pub_writer_data_submsgs[i] = d;
   }
+
   g_sedp_sub_pub = frudp_create_pub(
     NULL, // no topic name
     NULL, // no type name
@@ -96,35 +124,38 @@ void frudp_sedp_init(void)
 
 void frudp_sedp_start(void)
 {
+  _SEDP_DEBUG("frudp_sedp_start()\r\n");
   // go through and send SEDP messages for all of our subscriptions
   for (int i = 0; i < g_frudp_num_subs; i++)
   {
     if (g_frudp_subs[i].topic_name) // user subs have topic names
     {
-      printf("sending SEDP message about subscription [%s]\r\n",
-         g_frudp_subs[i].topic_name);
-      sedp_publish_sub(&g_frudp_subs[i]);
+      _SEDP_DEBUG("sending SEDP message about subscription [%s]\r\n",
+                  g_frudp_subs[i].topic_name);
+      frudp_sedp_publish_sub(&g_frudp_subs[i]);
     }
   }
+
   // now go through and send SEDP messages for all our publications
   for (int i = 0; i < g_frudp_num_pubs; i++)
   {
     if (g_frudp_pubs[i].topic_name)
     {
-      printf("sending SEDP message about publication [%s]\r\n",
-          g_frudp_pubs[i].topic_name);
-      sedp_publish_pub(&g_frudp_pubs[i]);
+      _SEDP_DEBUG("sending SEDP message about publication [%s]\r\n",
+                  g_frudp_pubs[i].topic_name);
+      frudp_sedp_publish_pub(&g_frudp_pubs[i]);
     }
   }
 }
 
 void frudp_sedp_fini(void)
 {
-  FREERTPS_INFO("sedp fini\r\n");
+  _SEDP_DEBUG("sedp fini\r\n");
 }
 
 void frudp_sedp_tick(void)
 {
+  _SEDP_DEBUG("frudp_sedp_tick()\r\n");
   const fr_time_t t = fr_time_now();
   if (fr_time_diff(&t, &frudp_sedp_last_bcast).seconds >= 1)
   {
@@ -150,36 +181,31 @@ static void frudp_sedp_rx_sub_data(frudp_receiver_state_t *rcvr,
   frudp_sedp_rx_pubsub_data(rcvr, submsg, scheme, data, false);
 }
 
-typedef struct{
-  frudp_guid_t guid;
-  char topic_name[FRUDP_MAX_TOPIC_NAME_LEN];
-  char type_name[FRUDP_MAX_TYPE_NAME_LEN];
-} sedp_topic_info_t;
-
-static sedp_topic_info_t g_topic_info;
-
 static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
 {
-  printf("sedp pub: [%s / %s] num_subs = %d\r\n",
+  _SEDP_DEBUG("frudp_sedp_rx_pub_info()\r\n");
+  _SEDP_INFO("    SEDP pub: [%s / %s] num_subs = %d\r\n",
       info->topic_name ? info->topic_name : "",
       info->type_name ? info->type_name : "",
       (int)g_frudp_num_subs);
+
   // look to see if we are subscribed to this topic
   for (unsigned i = 0; i < g_frudp_num_subs; i++)
   {
     frudp_sub_t *sub = &g_frudp_subs[i];
-#ifdef SEDP_VERBOSE
-    printf("comparing incoming SEDP pub to our subscriber %s of type %s\r\n",
+    _SEDP_DEBUG("\tcomparing incoming SEDP pub to our subscriber %s of type %s\r\n",
            (sub->topic_name ? sub->topic_name : "(no name)"),
            (sub->type_name  ? sub->type_name  : "(no type)"));
-#endif
+
     if (!sub->topic_name || !sub->type_name)
       continue; // sanity check. some built-ins don't have names.
+
     if (!strcmp(sub->topic_name, info->topic_name) &&
         !strcmp(sub->type_name, info->type_name))
     {
-      printf("    hooray! found a topic we care about: [%s]\n",
-          sub->topic_name);
+      _SEDP_INFO("\thooray! found a topic we care about: [%s]\r\n",
+                 sub->topic_name);
+
       // see if we already have a matched reader for this writer
       bool found = false;
       for (unsigned j = 0; !found && j < g_frudp_num_readers; j++)
@@ -188,6 +214,7 @@ static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
         if (frudp_guid_identical(&match->writer_guid, &info->guid))
           found = true;
       }
+
       if (!found)
       {
         frudp_reader_t r;
@@ -201,48 +228,53 @@ static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
         frudp_add_reader(&r);
       }
       else
-        printf("boring, we already knew about it.\n");
+        _SEDP_INFO("\tboring, we already knew about it.\r\n");
     }
   }
 }
 
-//#define SEDP_VERBOSE
 static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
 {
-  printf("sedp sub: [%s]\r\n", info->topic_name ? info->topic_name : "");
+  _SEDP_DEBUG("frudp_sedp_rx_sub_info()\r\n");
+  _SEDP_INFO("\tSEDP sub: [%s]\r\n", info->topic_name ? info->topic_name : "");
+
   // look to see if we publish this topic
   for (unsigned i = 0; i < g_frudp_num_pubs; i++)
   {
     frudp_pub_t *pub = &g_frudp_pubs[i];
-#ifdef SEDP_VERBOSE
-    printf("comparing incoming SEDP sub to our publisher %s of type %s\r\n",
+    _SEDP_INFO("\tcomparing incoming SEDP sub to our publisher %s of type %s\r\n",
            (pub->topic_name ? pub->topic_name : "(no name)"),
            (pub->type_name  ? pub->type_name  : "(no type)"));
-#endif
            
-    if (!pub->topic_name || !pub->type_name)
+    if (!pub->topic_name || !pub->type_name) {
+      _SEDP_INFO("\tSEDP empty topic or type\r\n");
       continue; // sanity check. some built-ins don't have names.
-    if (strcmp(pub->topic_name, info->topic_name))
+    }
+
+    if (strcmp(pub->topic_name, info->topic_name)) {
+      _SEDP_INFO("\tSEDP not the same topic\r\n");
       continue; // not the same topic. move along.
-    if (strcmp(pub->type_name, info->type_name))
-    {
-      printf("    SEDP type mismatch: [%s] != [%s]\r\n",
-             pub->type_name, info->type_name);
+    }
+
+    if (strcmp(pub->type_name, info->type_name)) {
+      _SEDP_INFO("\tSEDP type mismatch: [%s] != [%s]\r\n",
+                 pub->type_name, info->type_name);
       continue;
     }
-    printf("    hooray! heard a request for a topic we publish: [%s]\r\n",
-           pub->topic_name);
+
+    _SEDP_INFO("\thooray! heard a request for a topic we publish: [%s]\r\n",
+               pub->topic_name);
+
     // see if we already have a writer for this subscriber
     bool found = false;
-    for (unsigned j = 0; !found && j < g_frudp_num_writers; j++)
-    {
+    for (unsigned j = 0; !found && j < g_frudp_num_writers; j++) {
       frudp_writer_t *w = &g_frudp_writers[j];
-      if (frudp_guid_identical(&w->reader_guid, &info->guid))
-      {
-        printf("    nah, already had it in our list of readers\r\n");
+      if (frudp_guid_identical(&w->reader_guid, &info->guid)) {
+        _SEDP_INFO("\tnah, already had it in our list of readers\r\n");
         found = true;
       }
     }
+
     if (!found)
     {
       frudp_writer_t w;
@@ -250,6 +282,8 @@ static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
       w.writer_eid = pub->writer_eid;
       frudp_add_writer(&w);
     }
+    else
+      _SEDP_INFO("\tboring, we already knew about it.\r\n");
   }
 }
 
@@ -259,14 +293,14 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
                                       const uint8_t *data,
                                       const bool is_pub)
 {
-#ifdef SEDP_VERBOSE
-  printf("  sedp_writer data rx\r\n");
-#endif
-  if (scheme != FRUDP_SCHEME_PL_CDR_LE)
-  {
-    FREERTPS_ERROR("expected sedp data to be PL_CDR_LE. bailing...\r\n");
+  _SEDP_DEBUG("frudp_sedp_rx_pubsub_data()\r\n");
+  _SEDP_INFO("    SEDP rx:\r\n");
+
+  if (scheme != FRUDP_SCHEME_PL_CDR_LE) {
+    _SEDP_ERROR("expected SEDP data to be PL_CDR_LE. bailing...\r\n");
     return;
   }
+
   memset(&g_topic_info, 0, sizeof(sedp_topic_info_t));
   frudp_parameter_list_item_t *item = (frudp_parameter_list_item_t *)data;
   while ((uint8_t *)item < submsg->contents + submsg->header.len)
@@ -274,105 +308,79 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     const frudp_parameterid_t pid = item->pid;
     if (pid == FRUDP_PID_SENTINEL)
       break;
+
     const uint8_t *pval = item->value;
-    if (pid == FRUDP_PID_ENDPOINT_GUID)
-    {
+        _SPDP_DEBUG("\tunhandled SEDP rx param 0x%x len %d\r\n",
+                      (unsigned)pid, item->len);
+
+    if (pid == FRUDP_PID_ENDPOINT_GUID) {
       frudp_guid_t *guid = (frudp_guid_t *)pval;
       memcpy(&g_topic_info.guid, guid, sizeof(frudp_guid_t));
-#ifdef SEDP_VERBOSE
-      //memcpy(&part->guid_prefix, &guid->guid_prefix, FRUDP_GUID_PREFIX_LEN);
-      uint8_t *p = guid->prefix.prefix;
-      printf("    endpoint guid 0x%02x%02x%02x%02x"
-                                 "%02x%02x%02x%02x"
-                                 "%02x%02x%02x%02x"
-                                 "%02x%02x%02x%02x\n",
-             p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7],
-             p[8], p[9], p[10], p[11],
-             p[12], p[13], p[14], p[15]);
-#endif
+      _SEDP_INFO("\tSEDP endpoint guid : \t%s\r\n",
+                 frudp_print_guid_prefix(&guid->prefix));
+
       //if (guid->entity_id.u == 0x03010000)
-      //  printf("found entity 0x103\n");
+      //  _info("found entity 0x103\n");
     }
+
     else if (pid == FRUDP_PID_TOPIC_NAME)
     {
       if (frudp_parse_string(g_topic_info.topic_name,
                              sizeof(g_topic_info.topic_name),
-                             (frudp_rtps_string_t *)pval))
-      {
-#ifdef SEDP_PRINT_TOPICS
-        printf("    topic name: [%s]\r\n", g_topic_info.topic_name);
-#endif
-      }
-      else
-        FREERTPS_ERROR("couldn't parse topic name\n");
+                             (frudp_rtps_string_t *)pval)) {
+        _SEDP_INFO("\tSEDP topic name: \t\t[%s]\r\n", g_topic_info.topic_name);
+      } else _SEDP_ERROR("\tcouldn't parse topic name\r\n");
     }
+
     else if (pid == FRUDP_PID_TYPE_NAME)
     {
       if (frudp_parse_string(g_topic_info.type_name,
                              sizeof(g_topic_info.type_name),
-                             (frudp_rtps_string_t *)pval))
-      {
-#ifdef SEDP_VERBOSE
-        printf("    type name: [%s]\r\n", g_topic_info.type_name);
-#endif
-      }
-      else
-        FREERTPS_ERROR("couldn't parse type name\r\n");
+                             (frudp_rtps_string_t *)pval)) {
+        _SEDP_INFO("\tSEDP type name: \t\t[%s]\r\n", g_topic_info.type_name);
+      } else _SEDP_ERROR("\tcouldn't parse type name\r\n");
     }
+
     else if (pid == FRUDP_PID_RELIABILITY)
     {
       frudp_qos_reliability_t *qos = (frudp_qos_reliability_t *)pval;
-      if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT)
-      {
-#ifdef SEDP_VERBOSE
-        printf("    reliability QoS: [best-effort]\r\n");
-#endif
+      if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT) {
+        _SEDP_INFO("\tSEDP reliability QoS: \t[best-effort]\r\n");
       }
-      else if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_RELIABLE)
-      {
-#ifdef SEDP_VERBOSE
-        printf("    reliability QoS: [reliable]\r\n");
-#endif
+      else if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_RELIABLE) {
+        _SEDP_INFO("\tSEDP reliability QoS: \t[reliable]\r\n");
       }
-      else
-        FREERTPS_ERROR("unhandled reliability kind: %d\r\n", (int)qos->kind);
+      else _SEDP_ERROR("\tunhandled reliability kind: %d\r\n", (int)qos->kind);
     }
     else if (pid == FRUDP_PID_HISTORY)
     {
       frudp_qos_history_t *qos = (frudp_qos_history_t *)pval;
       if (qos->kind == FRUDP_QOS_HISTORY_KIND_KEEP_LAST)
       {
-#ifdef SEDP_VERBOSE
-        printf("    history QoS: [keep last %d]\r\n", (int)qos->depth);
-#endif
+        _SEDP_INFO("\thistory QoS: \t[keep last %d]\r\n", (int)qos->depth);
       }
       else if (qos->kind == FRUDP_QOS_HISTORY_KIND_KEEP_ALL)
       {
-#ifdef SEDP_VERBOSE
-        printf("    history QoS: [keep all]\r\n");
-#endif
+        _SEDP_INFO("\thistory QoS: \t[keep all]\r\n");
       }
-      else
-        FREERTPS_ERROR("unhandled history kind: %d\r\n", (int)qos->kind);
+      else _SEDP_ERROR("\tunhandled history kind: %d\r\n", (int)qos->kind);
     }
     else if (pid == FRUDP_PID_TRANSPORT_PRIORITY)
     {
-#ifdef SEDP_VERBOSE
-      uint32_t priority = *((uint32_t *)pval);
-      printf("    transport priority: %d\r\n", (int)priority);
-#endif
+      _SEDP_INFO("\ttransport priority: \t%d\r\n", (int)*((uint32_t *)pval));
     }
     // now, advance to next item in list...
     item = (frudp_parameter_list_item_t *)(((uint8_t *)item) + 4 + item->len);
   }
+
   // make sure we have received all necessary parameters
   if (!strlen(g_topic_info.type_name) ||
       !strlen(g_topic_info.topic_name) ||
-      frudp_guid_identical(&g_topic_info.guid, &g_frudp_guid_unknown))
-  {
-    FREERTPS_ERROR("insufficient SEDP information\r\n");
+      frudp_guid_identical(&g_topic_info.guid, &g_frudp_guid_unknown)) {
+    _SEDP_ERROR("\tinsufficient SEDP information\r\n");
     return;
   }
+
   if (is_pub) // this is information about someone else's publication
     frudp_sedp_rx_pub_info(&g_topic_info);
   else // this is information about someone else's subscription
@@ -381,19 +389,22 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
 
 static void frudp_sedp_bcast(void)
 {
+  _SEDP_DEBUG("   frudp_sedp_bcast()\r\n");
   //frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_frudp_discovery_tx_buf);
   //fr_time_t t = fr_time_now();
 }
 
-static void sedp_publish(const char *topic_name,
+static void frudp_sedp_publish(const char *topic_name,
                          const char *type_name,
                          frudp_pub_t *pub,
                          const frudp_eid_t eid,
                          const bool is_pub) // is this for a pub or a sub
 {
+  _SEDP_DEBUG("frudp_sedp_publish()\r\n");
   // first make sure we have an spdp packet out first
-  printf("sedp publish [%s] via SEDP EID 0x%08x\r\n",
+  _SEDP_INFO("\tSEDP publish [%s] via SEDP EID 0x%08x\r\n",
       topic_name, (unsigned)freertps_htonl(pub->writer_eid.u));
+
   frudp_submsg_data_t *d = (frudp_submsg_data_t *)g_sedp_msg_buf;
   d->header.id = FRUDP_SUBMSG_ID_DATA;
   d->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN |
@@ -414,20 +425,24 @@ static void sedp_publish(const char *topic_name,
   inline_qos_param->len = 16;
   memcpy(inline_qos_param->value, &reader_guid, 16);
   */
+
   /////////////////////////////////////////////////////////////
   frudp_encapsulation_scheme_t *scheme =
     (frudp_encapsulation_scheme_t *)((uint8_t *)d->data);
   scheme->scheme = freertps_htons(FRUDP_SCHEME_PL_CDR_LE);
   scheme->options = 0;
+
   /////////////////////////////////////////////////////////////
   frudp_parameter_list_item_t *param =
     (frudp_parameter_list_item_t *)(((uint8_t *)scheme) + sizeof(*scheme));
+
   /////////////////////////////////////////////////////////////
   param->pid = FRUDP_PID_PROTOCOL_VERSION;
   param->len = 4;
   param->value[0] = 2;
   param->value[1] = 1;
   param->value[2] = param->value[3] = 0; // pad to 4-byte boundary
+
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_VENDOR_ID;
@@ -435,6 +450,7 @@ static void sedp_publish(const char *topic_name,
   param->value[0] = (FREERTPS_VENDOR_ID >> 8) & 0xff;
   param->value[1] = FREERTPS_VENDOR_ID & 0xff;
   param->value[2] = param->value[3] = 0; // pad to 4-byte boundary
+
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_ENDPOINT_GUID;
@@ -443,7 +459,11 @@ static void sedp_publish(const char *topic_name,
   guid.prefix = g_frudp_config.guid_prefix;
   guid.eid = eid;
   memcpy(param->value, &guid, 16);
-  //printf("reader_guid = 0x%08x\n", htonl(reader_guid.entity_id.u));
+
+//#ifdef VERBOSE_SEDP
+//  FREERTPS_INFO("reader_guid = 0x%08x\n", htonl(reader_guid.entity_id.u));
+//#endif
+
   /////////////////////////////////////////////////////////////
   if (topic_name)
   {
@@ -457,6 +477,7 @@ static void sedp_publish(const char *topic_name,
     //param->value[4 + topic_len + 1] = 0; // null-terminate plz
     param->len = (4 + topic_len + 1 + 3) & ~0x3; // params must be 32-bit aligned
   }
+
   /////////////////////////////////////////////////////////////
   if (type_name)
   {
@@ -468,6 +489,7 @@ static void sedp_publish(const char *topic_name,
     memcpy(param->value + 4, type_name, type_len + 1);
     param->len = (4 + type_len + 1 + 3) & ~0x3; // params must be 32-bit aligned
   }
+
   /////////////////////////////////////////////////////////////
   // todo: follow the "reliable" flag in the subscription structure
   FRUDP_PLIST_ADVANCE(param);
@@ -477,6 +499,7 @@ static void sedp_publish(const char *topic_name,
   reliability->kind = FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT;
   reliability->max_blocking_time.sec = 0;
   reliability->max_blocking_time.nanosec = 0x19999999; // todo: figure this out
+
   /////////////////////////////////////////////////////////////
   /*
   FRUDP_PLIST_ADVANCE(param);
@@ -487,6 +510,7 @@ static void sedp_publish(const char *topic_name,
   presentation->coherent_access = 0;
   presentation->ordered_access = 0;
   */
+
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_SENTINEL;
@@ -496,45 +520,48 @@ static void sedp_publish(const char *topic_name,
   frudp_publish(pub, d); // this will be either on the sub or pub publisher
 }
 
-void sedp_publish_sub(frudp_sub_t *sub)
+void frudp_sedp_publish_sub(frudp_sub_t *sub)
 {
   if (!g_sedp_sub_pub)
   {
-    printf("woah there partner.\r\n"
+    _SEDP_INFO("woah there partner.\r\n"
            "you need to call frudp_part_create()\r\n");
     return;
   }
-  printf("sedp_publish_sub(%s)\r\n", sub->topic_name);
-  sedp_publish(sub->topic_name,
+
+  _SEDP_DEBUG("sedp_publish_sub(%s)\r\n", sub->topic_name);
+  frudp_sedp_publish(sub->topic_name,
                sub->type_name,
                g_sedp_sub_pub,
                sub->reader_eid,
                false); // false means "this is for a subscription"
 }
 
-void sedp_publish_pub(frudp_pub_t *pub)
+void frudp_sedp_publish_pub(frudp_pub_t *pub)
 {
   if (!g_sedp_pub_pub)
   {
-    printf("woah there partner.\r\n"
+    _SEDP_INFO("woah there partner.\r\n"
            "you need to call frudp_part_create()\r\n");
     return;
   }
-  printf("sedp_publish_pub(%s)\r\n", pub->topic_name);
-  sedp_publish(pub->topic_name,
+
+  _SEDP_DEBUG("sedp_publish_pub(%s)\r\n", pub->topic_name);
+  frudp_sedp_publish(pub->topic_name,
                pub->type_name,
                g_sedp_pub_pub,
                pub->writer_eid,
                true); // true means "this is for a publication"
 }
 
-void sedp_add_builtin_endpoints(frudp_part_t *part)
+void frudp_sedp_add_builtin_endpoints(frudp_part_t *part)
 {
-  printf("adding endpoints for ");
-  frudp_print_guid_prefix(&part->guid_prefix);
-  printf("\r\n");
+  _SEDP_DEBUG("frudp_sedp_add_builtin_endpoints()\r\n");
+  _SEDP_INFO("    adding endpoints for %s\r\n",
+             frudp_print_guid_prefix(&part->guid_prefix));
 
-  frudp_reader_t pub_reader; // this reads the remote peer's publications
+  // this reads the remote peer's publications
+  frudp_reader_t pub_reader;
   pub_reader.writer_guid = g_frudp_guid_unknown;
   frudp_stuff_guid(&pub_reader.writer_guid,
                    &part->guid_prefix,
@@ -547,7 +574,8 @@ void sedp_add_builtin_endpoints(frudp_part_t *part)
   pub_reader.reliable = true;
   frudp_add_reader(&pub_reader);
 
-  frudp_reader_t sub_reader; // this reads the remote peer's subscriptions
+  // this reads the remote peer's subscriptions
+  frudp_reader_t sub_reader;
   sub_reader.writer_guid = g_frudp_guid_unknown;
   frudp_stuff_guid(&sub_reader.writer_guid,
                    &part->guid_prefix,
