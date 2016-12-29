@@ -1,3 +1,4 @@
+add_definitions(-DUSE_CC3200)
 add_library(freertps_system_ti_cc3200
             bswap.c
             enet_mac.c

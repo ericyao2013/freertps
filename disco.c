@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/freertps.h"
 #include "freertps/disco.h"
 #include "freertps/spdp.h"
 #include "freertps/sedp.h"

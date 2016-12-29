@@ -37,30 +37,32 @@ typedef void (*freertps_msg_cb_t)(const void *msg);
 #include "freertps/pub.h"
 #include "freertps/sub.h"
 
-#ifndef Report
-#define Report(...) printf(__VA_ARGS__)
-#endif
+#ifdef USE_CC3200
+#include "uart_if.h"
 
-#ifndef Error
-#define Error(...) printf(__VA_ARGS__)
+#define LOG_REPORT(...) Report(__VA_ARGS__)
+#define LOG_ERROR(...) Error(__VA_ARGS__)
+#else
+#define LOG_REPORT(...) printf(__VA_ARGS__)
+#define LOG_ERROR(...) printf(__VA_ARGS__)
 #endif
 
 // maybe make this smarter someday
 #ifdef DEBUG
 #define FREERTPS_DEBUG(...) \
-  do { Report("[freertps DEBUG] "); Report(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[freertps DEBUG] "); LOG_REPORT(__VA_ARGS__); } while (0)
 #else
 #define FREERTPS_DEBUG(...) ((void)0)
 #endif
 
 #define FREERTPS_INFO(...) \
-  do { Report("[freertps INFO] "); Report(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[freertps INFO] "); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_WARNING(...) \
-  do { Report("[freertps WARNING] "); Report(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[freertps WARNING] "); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_ERROR(...) \
-  do { Error("[freertps ERROR] "); Error(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[freertps ERROR] "); LOG_ERROR(__VA_ARGS__); } while (0)
 #define FREERTPS_FATAL(...) \
-  do { Error("[freertps FATAL] "); Error(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[freertps FATAL] "); LOG_ERROR(__VA_ARGS__); } while (0)
 
 typedef union rtps_active_psms
 {
