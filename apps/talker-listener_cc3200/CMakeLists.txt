@@ -1,0 +1,1 @@
+freertps_add_executable(talker-listener_cc3200 talker-listener_cc3200.c)
