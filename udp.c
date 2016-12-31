@@ -109,8 +109,11 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   }
 
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
-  FREERTPS_INFO("===============================================\r\n");
-  FREERTPS_INFO("Receive message %d bytes\r\n", rx_len);
+  FREERTPS_INFO("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
+  FREERTPS_INFO("Receive message %d bytes from %s:%d to %s:%d\r\n",
+                rx_len,
+                frudp_print_ip(src_addr), src_port,
+                frudp_print_ip(dst_addr), dst_port);
 #endif
 
   memcpy(rcvr.src_guid_prefix.prefix,
@@ -386,7 +389,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
 {
   frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)submsg;
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
-  FREERTPS_DEBUG("rx data flags = %d\r\n", 0x0f7 & submsg->header.flags);
+  FREERTPS_DEBUG("    rx data flags = %d\r\n", 0x0f7 & submsg->header.flags);
 #endif
   // todo: care about endianness
   const bool q = submsg->header.flags & 0x02;
@@ -394,7 +397,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
   const bool k = submsg->header.flags & 0x08;
   if (k)
   {
-    FREERTPS_ERROR("ahhhh i don't know how to handle keyed data yet\r\n");
+    FREERTPS_ERROR("    ahhhh i don't know how to handle keyed data yet\r\n");
     return false;
   }
   uint8_t *inline_qos_start = (uint8_t *)(&data_submsg->octets_to_inline_qos) +
@@ -408,7 +411,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
     while ((uint8_t *)item < submsg->contents + submsg->header.len)
     {
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
-        FREERTPS_DEBUG("data inline QoS param 0x%x len %d\r\n", (unsigned)item->pid, item->len);
+        FREERTPS_DEBUG("    data inline QoS param 0x%x len %d\r\n", (unsigned)item->pid, item->len);
 #endif
       const frudp_parameterid_t pid = item->pid;
       //const uint8_t *pval = item->value;
@@ -421,13 +424,13 @@ static bool frudp_rx_data(RX_MSG_ARGS)
   }
   const uint16_t scheme = freertps_ntohs(*((uint16_t *)data_start));
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
-  FREERTPS_DEBUG("rx scheme = 0x%04x\r\n", scheme);
+  FREERTPS_DEBUG("    rx scheme = 0x%04x\r\n", scheme);
 #endif
   uint8_t *data = data_start + 4;
   frudp_guid_t writer_guid;
   frudp_stuff_guid(&writer_guid, &rcvr->src_guid_prefix, &data_submsg->writer_id);
 #ifdef VERBOSE_DATA
-  FREERTPS_DEBUG("  DATA %s => 0x%08x  : %d\r\n",
+  FREERTPS_DEBUG("    DATA %s => 0x%08x  : %d\r\n",
                  frudp_print_guid(&writer_guid),
                  (unsigned)freertps_htonl(data_submsg->reader_id.u),
                  (int)data_submsg->writer_sn.low);

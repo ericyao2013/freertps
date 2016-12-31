@@ -140,12 +140,12 @@ void frudp_send_sedp_msgs(frudp_part_t *part)
     hb_submsg->count = 0;
     submsg_wpos += 4 + hb_submsg->header.len;
     int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
-    uint32_t dst_addr = part->metatraffic_unicast_locator.addr.udp4.addr;
+    uint32_t dst_addr = freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr);
     uint16_t dst_port = part->metatraffic_unicast_locator.port;
     _SEDP_INFO("\tsending %d bytes of SEDP pub catchup messages to %s:%d\r\n",
            payload_len, frudp_print_ip(dst_addr), dst_port);
 
-    frudp_tx(freertps_htonl(dst_addr), dst_port, (const uint8_t *)msg, payload_len);
+    frudp_tx(dst_addr, dst_port, (const uint8_t *)msg, payload_len);
   }
   else
     _SEDP_WARNING("\tno SEDP pub data to send to new participant\r\n");
@@ -553,6 +553,8 @@ bool frudp_publish_user_msg(frudp_pub_t *pub,
   //FREERTPS_INFO("rtps udp payload = %d bytes\n", (int)udp_payload_len);
 
   // now, iterate through all matched-writers and send the message as needed
+  if (g_frudp_num_writers >0)
+  {
   for (int i = 0; i < g_frudp_num_writers; i++)
   {
     frudp_writer_t *w = &g_frudp_writers[i];
@@ -596,6 +598,11 @@ bool frudp_publish_user_msg(frudp_pub_t *pub,
                (const uint8_t *)msg,
                udp_payload_len);
     }
+  }
+  } else {
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+  FREERTPS_DEBUG("publish user msg %d bytes, but no node to send...\r\n", (int)payload_len);
+#endif
   }
 
   pub->next_sn.low++; // todo: 64-bit
