@@ -14,7 +14,7 @@ int main(int argc, char **argv)
 {
   printf("hello, world!\r\n");
   freertps_system_init();
-  freertps_create_sub("chatter", 
+  freertps_create_sub("/chatter",
                       "std_msgs::msg::dds_::String_",
                       chatter_cb);
   freertps_start(); // all pubs/subs are created. let's start!

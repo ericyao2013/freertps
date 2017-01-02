@@ -16,7 +16,7 @@ int main(int argc, char **argv)
   printf("sending %d messages at %.3f-second intervals\n", n_msg, target_dt);
   freertps_system_init();
   frudp_pub_t *pub = freertps_create_pub(
-      "chatter", "std_msgs::msg::dds_::String_");
+      "/chatter", "std_msgs::msg::dds_::String_");
   frudp_disco_start();
   char msg[64] = {0};
   for (int pub_count = 0;

@@ -110,7 +110,7 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
 
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
   char src_ip[16] = {0};
-  mem_copy(src_ip, frudp_print_ip(src_addr), 16);
+  memcpy(src_ip, frudp_print_ip(src_addr), 16);
 
   FREERTPS_INFO("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
   FREERTPS_INFO("Receive message %d bytes from %s:%d to %s:%d\r\n",

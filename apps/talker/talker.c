@@ -6,7 +6,7 @@ int main(int argc, char **argv)
 {
   freertps_system_init();
   frudp_pub_t *pub = freertps_create_pub
-                       ("chatter",
+                       ("/chatter",
                         std_msgs__string__type.rtps_typename);
   frudp_disco_start();
 
