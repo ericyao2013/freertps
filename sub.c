@@ -93,7 +93,7 @@ void frudp_print_readers(void)
   for (unsigned i = 0; i < g_frudp_num_readers; i++)
   {
     frudp_reader_t *match = &g_frudp_readers[i];
-    FREERTPS_INFO("\tsub %d: writer = %s  => %08x\r\n",
+    FREERTPS_INFO("\tsub\t%d: writer = %s  => %08x\r\n",
                   (int)i,
                   frudp_print_guid(&match->writer_guid),
                   (unsigned)freertps_htonl(match->reader_eid.u));

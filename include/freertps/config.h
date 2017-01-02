@@ -25,7 +25,7 @@ extern "C"
 
 // default multicast group is 239.255.0.1
 #define FRUDP_DEFAULT_MCAST_GROUP 0xefff0001
-//#define FRUDP_DOMAIN_ID  0
+#define FRUDP_DOMAIN_ID  0
 
 #define FRUDP_MAX_PUBS 10
 #define FRUDP_MAX_SUBS 10
@@ -38,14 +38,21 @@ extern "C"
 
 typedef struct
 {
+  /** GUID prefix */
   frudp_guid_prefix_t guid_prefix;
+
+  /** Participant ID*/
   int participant_id;
+
+  /** Domain ID */
   uint32_t domain_id;
+
+  /** Unicast Address */
   uint32_t unicast_addr;
 } frudp_config_t;
 extern frudp_config_t g_frudp_config;
 
-//#define DEBUG
+#define DEBUG
 
 #define EXCESSIVELY_VERBOSE_MSG_RX
 //#define VERBOSE_MSG_RX

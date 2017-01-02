@@ -27,6 +27,7 @@
 
 #include "simplelink.h"
 #include "network_if.h"
+#include "uart_if.h"
 
 uint8_t *getMacAddress()
 {
@@ -85,6 +86,12 @@ bool frudp_tx(const uint32_t dst_addr,
               const uint8_t *tx_data,
               const uint16_t tx_len)
 {
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+  FREERTPS_INFO(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+  FREERTPS_INFO("Sending message %d bytes to %s:%d\r\n",
+                tx_len, frudp_print_ip(dst_addr), dst_port);
+#endif
+
   if ((dst_addr & 0xe0000000) == 0xe0000000)
   {
     // ipv4 multicast

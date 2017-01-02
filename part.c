@@ -14,7 +14,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "freertps/udp.h"
 #include "freertps/disco.h"
 #include "freertps/part.h"
@@ -50,8 +49,8 @@ bool frudp_part_create(void)
     return false;
   }
 
+  g_frudp_config.domain_id = FRUDP_DOMAIN_ID;
   FREERTPS_INFO("Create domain id %d\r\n", (int)g_frudp_config.domain_id);
-  //g_frudp_config.domain_id = domain_id;
   if (!frudp_init_participant_id())
   {
     FREERTPS_ERROR("unable to initialize participant ID\r\n");

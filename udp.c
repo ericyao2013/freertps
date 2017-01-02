@@ -61,7 +61,7 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
 
 bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
               const uint32_t dst_addr, const uint16_t dst_port,
-              const uint8_t *rx_data  , const uint16_t rx_len)
+              const uint8_t *rx_data,  const uint16_t rx_len)
 {
   /*
   struct in_addr ina;
@@ -109,10 +109,13 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   }
 
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
+  char src_ip[16] = {0};
+  mem_copy(src_ip, frudp_print_ip(src_addr), 16);
+
   FREERTPS_INFO("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
   FREERTPS_INFO("Receive message %d bytes from %s:%d to %s:%d\r\n",
                 rx_len,
-                frudp_print_ip(src_addr), src_port,
+                src_ip, src_port,
                 frudp_print_ip(dst_addr), dst_port);
 #endif
 
@@ -336,7 +339,7 @@ static bool frudp_rx_info_ts(RX_MSG_ARGS)
     rcvr->timestamp = *t_msg;
 #if defined(VERBOSE_INFO_TS) || defined(EXCESSIVELY_VERBOSE_MSG_RX)
     //FREERTPS_INFO("about to read %08x\r\n", (unsigned)submsg->contents);
-    FREERTPS_INFO("    Timestamp %.6f\r\n",
+    FREERTPS_INFO("    Timestamp\t%.6f\r\n",
                       (double)(rcvr->timestamp.seconds) +
                       ((double)(rcvr->timestamp.fraction)) / ULONG_MAX);
 #endif
@@ -496,7 +499,8 @@ static bool frudp_rx_data(RX_MSG_ARGS)
       (unsigned)freertps_htonl(data_submsg->reader_id.u),
       (int)data_submsg->writer_sn.low);
     */
-    FREERTPS_INFO("    couldn't find a matched reader for this DATA: %s\r\n", frudp_print_guid(&writer_guid));
+    FREERTPS_INFO("    couldn't find a matched reader for this DATA: %s\r\n",
+                  frudp_print_guid(&writer_guid));
     FREERTPS_INFO("    available readers:\r\n");
     for (unsigned i = 0; i < g_frudp_num_readers; i++)
     {
@@ -525,6 +529,7 @@ bool frudp_generic_init(void)
   frudp_add_ucast_rx(frudp_ucast_builtin_port());
   frudp_add_ucast_rx(frudp_ucast_user_port());
   frudp_disco_init();
+
   return true;
 }
 
@@ -608,11 +613,13 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   static int s_acknack_count = 1;
   // find the participant we are trying to talk to
   frudp_part_t *part = frudp_part_find(guid_prefix);
+
   if (!part)
   {
     FREERTPS_ERROR("tried to acknack an unknown participant\r\n");
     return; // woah.
   }
+
   frudp_msg_t *msg = (frudp_msg_t *)g_frudp_disco_tx_buf;
   frudp_init_msg(msg);
 #ifdef VERBOSE_TX_ACKNACK
@@ -638,6 +645,7 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   *p_count = s_acknack_count++;
   uint8_t *p_next_submsg = (uint8_t *)p_count + 4;
   int payload_len = p_next_submsg - (uint8_t *)msg;
+
   frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr),
            part->metatraffic_unicast_locator.port,
            (const uint8_t *)msg, payload_len);

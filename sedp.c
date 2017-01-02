@@ -184,7 +184,7 @@ static void frudp_sedp_rx_sub_data(frudp_receiver_state_t *rcvr,
 static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
 {
   _SEDP_DEBUG("frudp_sedp_rx_pub_info()\r\n");
-  _SEDP_INFO("    SEDP pub: [%s / %s] num_subs = %d\r\n",
+  _SEDP_INFO("        SEDP pub:\t\t[%s / %s] num_subs = %d\r\n",
       info->topic_name ? info->topic_name : "",
       info->type_name ? info->type_name : "",
       (int)g_frudp_num_subs);
@@ -236,7 +236,7 @@ static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
 static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
 {
   _SEDP_DEBUG("frudp_sedp_rx_sub_info()\r\n");
-  _SEDP_INFO("\tSEDP sub: [%s]\r\n", info->topic_name ? info->topic_name : "");
+  _SEDP_INFO("\t\t\tSEDP sub:\t\t[%s]\r\n", info->topic_name ? info->topic_name : "");
 
   // look to see if we publish this topic
   for (unsigned i = 0; i < g_frudp_num_pubs; i++)
@@ -316,7 +316,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     if (pid == FRUDP_PID_ENDPOINT_GUID) {
       frudp_guid_t *guid = (frudp_guid_t *)pval;
       memcpy(&g_topic_info.guid, guid, sizeof(frudp_guid_t));
-      _SEDP_INFO("\tSEDP endpoint guid : \t%s\r\n",
+      _SEDP_INFO("\tSEDP endpoint guid : \t\t%s\r\n",
                  frudp_print_guid_prefix(&guid->prefix));
 
       //if (guid->entity_id.u == 0x03010000)
@@ -345,10 +345,10 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     {
       frudp_qos_reliability_t *qos = (frudp_qos_reliability_t *)pval;
       if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT) {
-        _SEDP_INFO("\tSEDP reliability QoS: \t[best-effort]\r\n");
+        _SEDP_INFO("\tSEDP reliability QoS: \t\t[best-effort]\r\n");
       }
       else if (qos->kind == FRUDP_QOS_RELIABILITY_KIND_RELIABLE) {
-        _SEDP_INFO("\tSEDP reliability QoS: \t[reliable]\r\n");
+        _SEDP_INFO("\tSEDP reliability QoS: \t\t[reliable]\r\n");
       }
       else _SEDP_ERROR("\tunhandled reliability kind: %d\r\n", (int)qos->kind);
     }

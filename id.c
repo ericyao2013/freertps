@@ -77,8 +77,7 @@ bool frudp_guid_prefix_identical(frudp_guid_prefix_t * const a,
                                  frudp_guid_prefix_t * const b)
 {
 //  FREERTPS_DEBUG("frudp_guid_prefix_identical(a,b)\r\n");
-  int i;
-  for ( i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
+  for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
     if (a->prefix[i] != b->prefix[i])
       return false;
   return true;
@@ -90,8 +89,8 @@ bool frudp_guid_identical(const frudp_guid_t * const a,
 //  FREERTPS_DEBUG("frudp_guid_identical(a,b)\r\n");
   if (a->eid.u != b->eid.u)
     return false;
-  int i;
-  for ( i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
+
+  for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
     if (a->prefix.prefix[i] != b->prefix.prefix[i])
       return false;
   return true;

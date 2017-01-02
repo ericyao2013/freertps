@@ -77,8 +77,7 @@ void enet_init(void)
 {
   FREERTPS_DEBUG("enet_init()\r\n");
   // set up the RAM pool for reception
-  int i;
-  for ( i = 0; i < ENET_RXPOOL_NPTR; i++)
+  for (int i = 0; i < ENET_RXPOOL_NPTR; i++)
     g_enet_rxpool_start[i] = &g_enet_rxpool[ENET_RXPOOL_OFFSET];
   // chain into the MAC-provided initialization
   enet_mac_init();
@@ -128,12 +127,11 @@ uint_fast8_t enet_process_rx_ring(void)
 //  FREERTPS_DEBUG("enet_process_rx_ring()\r\n");
   uint_fast8_t num_pkts_rx = 0;
 
-  int i;
   int iStatus;
-  _i16 iAddrSize = sizeof(SlSockAddrIn_t);
+  SlSocklen_t iAddrSize = sizeof(SlSockAddrIn_t);
   int sTestBufLen = 1500;
 
-  for (i = 0; i < g_enet_allowed_udp_sockets_wpos; ++i) {
+  for (int i = 0; i < g_enet_allowed_udp_sockets_wpos; ++i) {
     SlSockAddrIn_t  sAddr;
     unsigned char g_cBsdBuf[sTestBufLen];
     short iSockID = g_enet_allowed_udp_sockets[i];
@@ -142,9 +140,34 @@ uint_fast8_t enet_process_rx_ring(void)
     if( iStatus < 0 && iStatus != SL_EAGAIN ) { sl_Close(iSockID);
         ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
+//    SlSockAddrIn_t sin;
+//    if (getsockname(iSockID, (struct sockaddr *)&sin, &iAddrSize) == -1)
+//        perror("getsockname");
+//    else
+//        printf("port number %d\n", ntohs(sin.sin_port));
+
     if ( iStatus != SL_EAGAIN ) {
       //FREERTPS_INFO("eth dispatch @ %8u\r\n", (unsigned)SYSTIME);
-      frudp_rx(sAddr.sin_addr.s_addr, sAddr.sin_port, 0, 0, g_cBsdBuf, iStatus);
+      const uint32_t src_addr = freertps_htonl(sAddr.sin_addr.s_addr);
+      const uint16_t src_port = freertps_htons(sAddr.sin_port);
+      const uint16_t dst_port = g_enet_allowed_udp_ports[i];
+
+      uint32_t dst_addr = getIp();
+      if (frudp_mcast_builtin_port() == dst_port || frudp_mcast_user_port() == dst_port)
+      {
+          dst_addr = FRUDP_DEFAULT_MCAST_GROUP;
+      }
+
+#ifdef DEBUG
+      char src_ip[16] = {0};
+      mem_copy(src_ip, frudp_print_ip(src_addr), 16);
+      FREERTPS_DEBUG("Receive data %d bytes from %s:%d to %s:%d (but need to validate if no your)\r\n",
+                      iStatus,
+                      src_ip, src_port,
+                      frudp_print_ip(dst_addr), dst_port);
+#endif
+
+      frudp_rx(src_addr, src_port, dst_addr, dst_port, g_cBsdBuf, iStatus);
       num_pkts_rx++;
     }
   }
@@ -181,8 +204,7 @@ void enet_rx_raw(const uint8_t *pkt, const uint16_t pkt_len)
 //{
 //  ip->checksum = 0;
 //  uint32_t sum = 0;
-//  int word_idx;
-//  for ( word_idx = 0; word_idx < 10; word_idx++)
+//  for (int word_idx = 0; word_idx < 10; word_idx++)
 //  {
 //    uint16_t word = *((uint16_t *)ip + sizeof(enet_eth_header_t)/2 + word_idx);
 //    word = freertps_htons(word);
@@ -226,8 +248,7 @@ void enet_rx_raw(const uint8_t *pkt, const uint16_t pkt_len)
 //
 //  // todo: more efficient filtering
 //  bool port_match = false;
-//  int i;
-//  for ( i = 0; !port_match && i < g_enet_allowed_udp_ports_wpos; i++)
+//  for (int i = 0; !port_match && i < g_enet_allowed_udp_ports_wpos; i++)
 //    if (port == g_enet_allowed_udp_ports[i])
 //      port_match = true;
 //  // it would be nicer to have a callback mechanism here. someday.....
@@ -257,8 +278,7 @@ bool enet_allow_udp_port(const uint16_t port)
   // make sure we aren't already listening to this port
   FREERTPS_DEBUG("enet_allow_udp_port(%d)\r\n", port);
 
-  int i;
-  for ( i = 0; i < ENET_MAX_ALLOWED_UDP_PORTS; i++)
+  for (int i = 0; i < ENET_MAX_ALLOWED_UDP_PORTS; i++)
     if (g_enet_allowed_udp_ports[i] == port) {
       FREERTPS_INFO("enet_allow_udp_port(%d) already allowed\r\n", port);
       return true; // it's already allowed
@@ -317,7 +337,7 @@ int udp_multicast_listener(const uint32_t group_addr, const uint16_t dst_port)
 
     // Join MultiCast group.
     if ((sl_SetSockOpt(iSockID, SL_IPPROTO_IP, SL_IP_ADD_MEMBERSHIP, &mReq, sizeof(SlSockIpMreq)) == -1) &&
-        (sl_SetSockOpt(iSockID, SL_IPPROTO_IP, SL_IP_MULTICAST_TTL, (_u8)2, sizeof(_u8)) == -1))
+        (sl_SetSockOpt(iSockID, SL_IPPROTO_IP, SL_IP_MULTICAST_TTL, (_u8 *)2, sizeof(int)) == -1))
     { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
     // binding the UDP socket to the UDP server address
@@ -376,7 +396,6 @@ static bool udp_send(const uint32_t dst_addr,
   int             iSockID;
   int             iStatus;
 
-//  FREERTPS_DEBUG("udp send to %s:%d\r\n", frudp_print_ip(dst_addr), dst_port);
   //filling the UDP server socket address
   memset(&sAddr, 0, sizeof(sAddr));
   sAddr.sin_family = SL_AF_INET;

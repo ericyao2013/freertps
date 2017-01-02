@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include <time.h>
+#include "hw_memmap.h"
 #include "simplelink.h"
 #include "freertps/time.h"
-#include "hw_memmap.h"
 
 uint32_t systime_usecs()
 {
