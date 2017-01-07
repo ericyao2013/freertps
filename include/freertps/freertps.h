@@ -40,8 +40,8 @@ typedef void (*freertps_msg_cb_t)(const void *msg);
 #ifdef USE_CC3200
 #include "uart_if.h"
 
-#define LOG_REPORT(...) Report(__VA_ARGS__)
-#define LOG_ERROR(...) Error(__VA_ARGS__)
+#define LOG_REPORT(...) do { Report(__VA_ARGS__); } while (0)
+#define LOG_ERROR(...) do { Error(__VA_ARGS__); } while (0)
 #else
 #define LOG_REPORT(...) printf(__VA_ARGS__)
 #define LOG_ERROR(...) printf(__VA_ARGS__)
@@ -90,9 +90,15 @@ bool freertps_publish(frudp_pub_t *pub,
                       const uint32_t msg_len);
 //void freertps_perish_if(bool b, const char *msg);
 
-extern bool g_freertps_init_complete;
+//extern bool g_freertps_init_complete;
 
 void freertps_start(void);
+
+void freertps_spinOnce(void);
+
+void freertps_spin(void);
+
+void freertps_stop(void);
 
 #ifdef __cplusplus
 }

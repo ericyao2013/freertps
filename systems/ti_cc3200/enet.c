@@ -43,9 +43,10 @@ typedef enum{
 
 #define ALIGN4 __attribute__((aligned(4)));
 
-#define ENET_RXPOOL_LEN     8192
+#define ENET_RXPOOL_LEN     FRUDP_BUFFER_SIZE
 #define ENET_RXPOOL_NPTR      64
 #define ENET_RXPOOL_OFFSET     2
+
 static volatile uint8_t  g_enet_rxpool[ENET_RXPOOL_LEN] ALIGN4;
 static volatile uint16_t g_enet_rxpool_wpos = ENET_RXPOOL_OFFSET;
 static volatile uint8_t *g_enet_rxpool_start[ENET_RXPOOL_NPTR] ALIGN4;
@@ -59,7 +60,7 @@ static uint16_t g_enet_allowed_udp_ports_wpos;
 static uint16_t g_enet_allowed_udp_sockets[ENET_MAX_ALLOWED_UDP_PORTS];
 static uint16_t g_enet_allowed_udp_sockets_wpos;
 
-//static uint8_t  g_enet_udpbuf[1500] __attribute__((aligned(8)));
+//static uint8_t  g_enet_udpbuf[BUF_SIZE] __attribute__((aligned(8)));
 
 ///////////////////////////////////////////////////////////////////////////
 // local functions
@@ -129,7 +130,7 @@ uint_fast8_t enet_process_rx_ring(void)
 
   int iStatus;
   SlSocklen_t iAddrSize = sizeof(SlSockAddrIn_t);
-  int sTestBufLen = 1500;
+  int sTestBufLen = FRUDP_BUFFER_SIZE;
 
   for (int i = 0; i < g_enet_allowed_udp_sockets_wpos; ++i) {
     SlSockAddrIn_t  sAddr;
@@ -160,7 +161,7 @@ uint_fast8_t enet_process_rx_ring(void)
 
 #ifdef DEBUG
       char src_ip[16] = {0};
-      mem_copy(src_ip, frudp_print_ip(src_addr), 16);
+      memcpy(src_ip, frudp_print_ip(src_addr), 16);
       FREERTPS_DEBUG("Receive data %d bytes from %s:%d to %s:%d (but need to validate if no your)\r\n",
                       iStatus,
                       src_ip, src_port,
@@ -216,8 +217,6 @@ void enet_rx_raw(const uint8_t *pkt, const uint16_t pkt_len)
 //  ip->checksum = (uint16_t)freertps_htons(~sum);
 //  //FREERTPS_INFO("ip header checksum: 0x%04x\r\n", ip->ip_checksum);
 //}
-
-#define BUF_SIZE           1500
 
 //
 //static bool enet_dispatch_ip(const uint8_t *data, const uint16_t len)

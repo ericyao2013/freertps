@@ -20,7 +20,6 @@
 #include "freertps/config.h"
 #include "freertps/freertps.h"
 
-//static frudp_part_t g_frudp_participant;
 static bool g_frudp_participant_init_complete = false;
 
 frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix)

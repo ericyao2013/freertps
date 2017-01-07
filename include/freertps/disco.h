@@ -26,35 +26,65 @@ extern "C"
 {
 #endif
 
-#define FRUDP_PID_PAD                           0x0000
-#define FRUDP_PID_SENTINEL                      0x0001
-#define FRUDP_PID_PARTICIPANT_LEASE_DURATION    0x0002
-#define FRUDP_PID_TOPIC_NAME                    0x0005
-#define FRUDP_PID_TYPE_NAME                     0x0007
-#define FRUDP_PID_RELIABILITY                   0x001a
-#define FRUDP_PID_PROTOCOL_VERSION              0x0015
-#define FRUDP_PID_VENDOR_ID                     0x0016
-#define FRUDP_PID_RELIABILITY                   0x001a
-#define FRUDP_PID_LIVELINESS                    0x001b
-#define FRUDP_PID_DURABILITY                    0x001d
-#define FRUDP_PID_DURABILITY_SERVICE            0x001e
-#define FRUDP_PID_PRESENTATION                  0x0021
-#define FRUDP_PID_DEADLINE                      0x0023
-#define FRUDP_PID_PARTITION                     0x0029
-#define FRUDP_PID_USER_DATA                     0x002c
-#define FRUDP_PID_GROUP_DATA                    0x002d
-#define FRUDP_PID_TOPIC_DATA                    0x002e
-#define FRUDP_PID_DEFAULT_UNICAST_LOCATOR       0x0031
-#define FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR   0x0032
-#define FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR 0x0033
-#define FRUDP_PID_HISTORY                       0x0040
-#define FRUDP_PID_DEFAULT_MULTICAST_LOCATOR     0x0048
-#define FRUDP_PID_TRANSPORT_PRIORITY            0x0049
-#define FRUDP_PID_PARTICIPANT_GUID              0x0050
-#define FRUDP_PID_BUILTIN_ENDPOINT_SET          0x0058
-#define FRUDP_PID_PROPERTY_LIST                 0x0059
-#define FRUDP_PID_ENDPOINT_GUID                 0x005a
-#define FRUDP_PID_KEY_HASH                      0x0070
+#define FRUDP_PID_PAD                                    0x0000
+#define FRUDP_PID_SENTINEL                               0x0001
+#define FRUDP_PID_PARTICIPANT_LEASE_DURATION             0x0002
+#define FRUDP_PID_TIME_BASED_FILTER                      0x0004
+#define FRUDP_PID_TOPIC_NAME                             0x0005
+#define FRUDP_PID_OWNERSHIP_STRENGTH                     0x0006
+#define FRUDP_PID_TYPE_NAME                              0x0007
+#define FRUDP_PID_METATRAFFIC_MULTICAST_IPADDRESS        0x000b
+#define FRUDP_PID_DEFAULT_UNICAST_IPADDRESS              0x000c
+#define FRUDP_PID_METATRAFFIC_UNICAST_PORT               0x000d
+#define FRUDP_PID_DEFAULT_UNICAST_PORT                   0x000e
+#define FRUDP_PID_MULTICAST_IPADDRESS                    0x0011
+#define FRUDP_PID_PROTOCOL_VERSION                       0x0015
+#define FRUDP_PID_VENDOR_ID                              0x0016
+#define FRUDP_PID_RELIABILITY                            0x001a
+#define FRUDP_PID_LIVELINESS                             0x001b
+#define FRUDP_PID_DURABILITY                             0x001d
+#define FRUDP_PID_DURABILITY_SERVICE                     0x001e
+#define FRUDP_PID_OWNERSHIP                              0x001f
+#define FRUDP_PID_PRESENTATION                           0x0021
+#define FRUDP_PID_DEADLINE                               0x0023
+#define FRUDP_PID_DESTINATION_ORDER                      0x0025
+#define FRUDP_PID_LATENCY_BUDGET                         0x0027
+#define FRUDP_PID_PARTITION                              0x0029
+#define FRUDP_PID_LIFESPAN                               0x002b
+#define FRUDP_PID_USER_DATA                              0x002c
+#define FRUDP_PID_GROUP_DATA                             0x002d
+#define FRUDP_PID_TOPIC_DATA                             0x002e
+#define FRUDP_PID_UNICAST_LOCATOR                        0x002f
+#define FRUDP_PID_MULTICAST_LOCATOR                      0x0030
+#define FRUDP_PID_DEFAULT_UNICAST_LOCATOR                0x0031
+#define FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR            0x0032
+#define FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR          0x0033
+#define FRUDP_PID_PARTICIPANT_MANUAL_LIVELINESS_COUNT    0x0034
+#define FRUDP_PID_CONTENT_FILTER_PROPERTY                0x0035
+#define FRUDP_PID_HISTORY                                0x0040
+#define FRUDP_PID_RESOURCE_LIMITS                        0x0041
+#define FRUDP_PID_EXPECTS_INLINE_QOS                     0x0043
+#define FRUDP_PID_PARTICIPANT_BUILTIN_ENDPOINTS          0x0044
+#define FRUDP_PID_METATRAFFIC_UNICAST_IPADDRESS          0x0045
+#define FRUDP_PID_METATRAFFIC_MULTICAST_PORT             0x0046
+#define FRUDP_PID_DEFAULT_MULTICAST_LOCATOR              0x0048
+#define FRUDP_PID_TRANSPORT_PRIORITY                     0x0049
+#define FRUDP_PID_PARTICIPANT_GUID                       0x0050
+#define FRUDP_PID_PARTICIPANT_ENTITYID                   0x0051
+#define FRUDP_PID_GROUP_GUID                             0x0052
+#define FRUDP_PID_GROUP_ENTITYID                         0x0053
+#define FRUDP_PID_CONTENT_FILTER_INFO                    0x0055
+#define FRUDP_PID_COHERENT_SET                           0x0056
+#define FRUDP_PID_DIRECTED_WRITE                         0x0057
+#define FRUDP_PID_BUILTIN_ENDPOINT_SET                   0x0058
+#define FRUDP_PID_PROPERTY_LIST                          0x0059
+#define FRUDP_PID_ENDPOINT_GUID                          0x005a
+#define FRUDP_PID_TYPE_MAX_SIZE_SERIALIZED               0x0060
+#define FRUDP_PID_ORIGINAL_WRITER_INFO                   0x0061
+#define FRUDP_PID_ENTITY_NAME                            0x0062
+#define FRUDP_PID_KEY_HASH                               0x0070
+#define FRUDP_PID_STATUS_INFO                            0x0071
+/* !SPEC */
 
 #define FRUDP_BUILTIN_EP_PARTICIPANT_ANNOUNCER           0x00000001
 #define FRUDP_BUILTIN_EP_PARTICIPANT_DETECTOR            0x00000002
@@ -68,8 +98,6 @@ extern "C"
 #define FRUDP_BUILTIN_EP_PARTICIPANT_STATE_DETECTOR      0x00000200
 #define FRUDP_BUILTIN_EP_PARTICIPANT_MESSAGE_DATA_WRITER 0x00000400
 #define FRUDP_BUILTIN_EP_PARTICIPANT_MESSAGE_DATA_READER 0x00000800
-
-#define FRUDP_DISCO_TX_BUFLEN 1536
 
 void frudp_disco_init(void);
 void frudp_disco_fini(void);

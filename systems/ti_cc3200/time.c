@@ -30,12 +30,15 @@ uint32_t systime_usecs()
 
 fr_time_t fr_time_now(void)
 {
-  fr_time_t now;
-  uint32_t t = systime_usecs();
-  // todo: provide faster macros for this which lose precision
-  const uint64_t frac_sec_lcm = (uint64_t)t * 1000 * 8388608;
-  const uint64_t frac_sec = frac_sec_lcm / 1953125;
-  now.seconds = 1436564555 + t / 1000000; // NOT SMART! fix this
-  now.fraction = frac_sec;
+  fr_time_t now = TIME_INVALID;
+  uint64_t ulSecs; // Time in Second Unit
+  uint16_t usMsec; // Precision of Time in Milisecond Unit
+
+  PRCMRTCGet(&ulSecs, &usMsec);
+
+  uint64_t time_frac = (ulSecs * 1000 + usMsec); // Time in Milisencond Unit
+
+  now.seconds = ulSecs;
+  now.fraction = time_frac;
   return now;
 }

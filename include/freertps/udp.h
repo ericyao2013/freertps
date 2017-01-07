@@ -27,30 +27,6 @@ extern "C"
 {
 #endif
 
-/////////////////////////////////////////////////////////////////////
-// TYPES
-/////////////////////////////////////////////////////////////////////
-
-typedef struct
-{
-  uint8_t major;
-  uint8_t minor;
-} frudp_pver_t; // protocol version
-
-typedef struct frudp_header
-{
-  uint32_t magic_word; // RTPS in ASCII
-  frudp_pver_t pver; // protocol version
-  frudp_vid_t  vid;  // vendor ID
-  frudp_guid_prefix_t guid_prefix;
-} frudp_header_t;
-
-typedef struct
-{
-  frudp_header_t header;
-  uint8_t submsgs[];
-} frudp_msg_t;
-
 #define FRUDP_FLAGS_LITTLE_ENDIAN      0x01
 #define FRUDP_FLAGS_INLINE_QOS         0x02
 #define FRUDP_FLAGS_DATA_PRESENT       0x04
@@ -70,6 +46,39 @@ typedef struct
 #define FRUPG_SUBMSG_ID_HEARTBEAT_FRAG 0x13 /* HeartbeatFrag */
 #define FRUDP_SUBMSG_ID_DATA           0x15 /* Data */
 #define FRUDP_SUBMSG_ID_DATA_FRAG      0x16 /* DataFrag */
+
+#define FRUDP_SCHEME_CDR_LE            0x0001
+#define FRUDP_SCHEME_PL_CDR_LE         0x0003
+
+#define FRUDP_PLIST_ADVANCE(list_item) \
+  do { \
+    list_item = (frudp_parameter_list_item_t *) \
+                (((uint8_t *)list_item) + 4 + list_item->len); \
+  } while (0)
+
+/////////////////////////////////////////////////////////////////////
+// TYPES
+/////////////////////////////////////////////////////////////////////
+
+typedef struct
+{
+  uint8_t major;
+  uint8_t minor;
+} frudp_pver_t; // protocol version
+
+typedef struct frudp_header
+{
+  uint32_t magic_word; // RTPS in ASCII
+  frudp_pver_t pver;   // protocol version
+  frudp_vid_t  vid;    // vendor ID
+  frudp_guid_prefix_t guid_prefix;
+} frudp_header_t;
+
+typedef struct
+{
+  frudp_header_t header;
+  uint8_t submsgs[];
+} frudp_msg_t;
 
 typedef struct frudp_submsg_header
 {
@@ -187,9 +196,6 @@ typedef struct
   uint16_t options;
 } __attribute__((packed)) frudp_encapsulation_scheme_t;
 
-#define FRUDP_SCHEME_CDR_LE    0x0001
-#define FRUDP_SCHEME_PL_CDR_LE 0x0003
-
 typedef void (*frudp_rx_data_cb_t)(frudp_receiver_state_t *rcvr,
                                    const frudp_submsg_t *submsg,
                                    const uint16_t scheme,
@@ -251,12 +257,6 @@ uint16_t frudp_spdp_port(void);
 bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s);
 
 frudp_msg_t *frudp_init_msg(frudp_msg_t *buf);
-
-#define FRUDP_PLIST_ADVANCE(list_item) \
-          do { \
-            list_item = (frudp_parameter_list_item_t *) \
-                        (((uint8_t *)list_item) + 4 + list_item->len); \
-          } while (0)
 
 extern const struct rtps_psm g_rtps_psm_udp;
 

@@ -22,6 +22,7 @@
 #include "freertps/sedp.h"
 #include "freertps/udp.h"
 #include "freertps/sub.h"
+#include "freertps/disco.h"
 
 #define PLIST_ADVANCE(list_item) \
           do { \
@@ -43,12 +44,22 @@ const frudp_eid_t g_spdp_reader_id = { .u = 0xc7000100 };
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-bool frudp_udp_is_same_network(uint32_t ip, uint32_t netip, uint32_t netmask)
+static bool frudp_udp_is_same_network(uint32_t ip, uint32_t netip, uint32_t netmask)
 {
-//    uint32_t ip = ...; // value to check
-//    uint32_t netip = ...; // network ip to compare with
-//    uint32_t netmask = ...; // network ip subnet mask
     return ((netip & netmask) == (ip & netmask));
+}
+
+static void frudp_spdp_clean()
+{
+  const fr_time_t t = fr_time_now();
+  for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
+    frudp_part_t *match = &g_frudp_disco_parts[i];
+    if (fr_time_diff(&t, &match->last_spdp ).seconds > match->lease_duration.sec)
+    {
+      g_frudp_disco_parts[i] = g_frudp_disco_parts[g_frudp_disco_num_parts - 1];
+      g_frudp_disco_num_parts--;
+    }
+  }
 }
 
 static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
@@ -71,60 +82,72 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
   while ((uint8_t *)item < submsg->contents + submsg->header.len)
   {
     const frudp_parameterid_t pid = item->pid;
-    if (pid == FRUDP_PID_SENTINEL)
-      break;
 
+    if (pid == FRUDP_PID_SENTINEL) { break; }
+    if (pid & 0x8000) { /* ignore vendor-specific PID's */ }
+
+    frudp_locator_t *loc;
+    frudp_duration_t *dur;
+    frudp_guid_t *guid;
     const uint8_t *pval = item->value;
+
     _SPDP_DEBUG("\tunhandled SPDP rx param 0x%x len %d\r\n",
-                  (unsigned)pid, item->len);
+                (unsigned)pid, item->len);
 
-    if (pid == FRUDP_PID_PROTOCOL_VERSION)
+    switch(pid)
     {
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_PROTOCOL_VERSION:
       part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
-      _SPDP_INFO("\tSPDP proto version \t\t\t\t0x%04x (freeRTPS)\r\n", part->vid);
-    }
-    else if (pid == FRUDP_PID_VENDOR_ID)
-    {
+      _SPDP_INFO("\tSPDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
+                 part->pver);
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_VENDOR_ID:
       part->vid = freertps_htons(*((frudp_vid_t *)pval));
-      _SPDP_INFO("\tSPDP vendor_id \t\t\t\t\t0x%04x = %s\r\n", part->vid,
-                 frudp_vendor(part->vid));
-    }
-    else if (pid == FRUDP_PID_DEFAULT_UNICAST_LOCATOR)
-    {
-      frudp_locator_t *loc = (frudp_locator_t *)pval;
-
+      _SPDP_INFO("\tSPDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
+                 part->vid, frudp_vendor(part->vid));
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_DEFAULT_UNICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
       if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork())) {
         part->default_unicast_locator = *loc; // todo: worry about alignment
         if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
         {
           _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d\r\n",
-                        frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                        loc->port);
+                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                      loc->port);
         }
       }
       else
-          _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d (but not on same network)\r\n",
-                                  frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                                  loc->port);
-    }
-    else if (pid == FRUDP_PID_DEFAULT_MULTICAST_LOCATOR)
-    {
-      frudp_locator_t *loc = (frudp_locator_t *)pval;
+      {
+        _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d (but not on same network)\r\n",
+                                frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                                loc->port);
+      }
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_DEFAULT_MULTICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
       part->default_multicast_locator = *loc; // todo: worry about alignment
       if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
       {
         _SPDP_INFO("\tSPDP multicast locator udp4: \t\t\t%s:%d\r\n",
-                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                      loc->port);
+                        frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                        loc->port);
       }
       else
+      {
         _SPDP_INFO("\tSPDP unknown multicast locator kind: %d\r\n",
-                   (int)loc->kind);
-    }
-    else if (pid == FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR)
-    {
-      frudp_locator_t *loc = (frudp_locator_t *)pval;
-      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork())) {
+                     (int)loc->kind);
+      }
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
+      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork()))
+      {
         part->metatraffic_unicast_locator = *loc; // todo: worry about alignment
         if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
         {
@@ -133,67 +156,61 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
                         loc->port);
         }
         else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
-        {
-          // ignore ip6 for now...
-        }
+        { /* ignore ip6 for now...*/ }
         else
           _SPDP_INFO("\tSPDP unknown metatraffic unicast locator kind: %d\r\n",
-                     (int)loc->kind);
-        }
+                    (int)loc->kind);
+      }
       else
-          _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d (but not on same network)\r\n",
-                                  frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                                  loc->port);
-    }
-    else if (pid == FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR)
-    {
-      frudp_locator_t *loc = (frudp_locator_t *)pval;
+            _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d (but not on same network)\r\n",
+                                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                                      loc->port);
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
       part->metatraffic_multicast_locator = *loc; // todo: worry about alignment
       if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
       {
         _SPDP_INFO("\tSPDP metatraffic multicast locator udp4: \t%s:%d\r\n",
-                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                      loc->port);
+                    frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                    loc->port);
       }
       else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
-      {
-        // ignore ip6 for now...
-      }
+      { /* ignore ip6 for now... */ }
       else
         _SPDP_ERROR("\tSPDP unknown metatraffic multicast locator kind: %d\r\n",
                     (int)loc->kind);
-    }
-    else if (pid == FRUDP_PID_PARTICIPANT_LEASE_DURATION)
-    {
-      frudp_duration_t *dur = (frudp_duration_t *)pval;
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_PARTICIPANT_LEASE_DURATION:
+      dur = (frudp_duration_t *)pval;
       part->lease_duration = *dur;
       _SPDP_INFO("\tSPDP lease duration: \t\t\t\t%d.%09d\r\n",
                     dur->sec, dur->nanosec);
-    }
-    else if (pid == FRUDP_PID_PARTICIPANT_GUID)
-    {
-      frudp_guid_t *guid = (frudp_guid_t *)pval;
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_PARTICIPANT_GUID:
+      guid = (frudp_guid_t *)pval;
       memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
       _SPDP_INFO("\tguid \t\t\t\t\t\t%s\r\n", frudp_print_guid_prefix(&guid->prefix));
-    }
-    else if (pid == FRUDP_PID_BUILTIN_ENDPOINT_SET)
-    {
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_BUILTIN_ENDPOINT_SET:
       part->builtin_endpoints = *((frudp_builtin_endpoint_set_t *)pval);
       _SPDP_INFO("\tbuiltin endpoints: \t\t\t\t0x%08x\r\n",
                     part->builtin_endpoints);
-    }
-    else if (pid == FRUDP_PID_PROPERTY_LIST)
-    {
-      // todo
-    }
-    else if (pid & 0x8000)
-    {
-      // ignore vendor-specific PID's
-    }
-    else
-    {
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+
+    case FRUDP_PID_PROPERTY_LIST:
+    case FRUDP_PID_ENTITY_NAME:
+      //TODO
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    default:
       _SPDP_ERROR("\tunhandled SPDP rx param 0x%x len %d\r\n",
-                     (unsigned)pid, item->len);
+                           (unsigned)pid, item->len);
     }
 
     // now, advance to next item in list...
@@ -212,6 +229,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       _SPDP_INFO("\tfound match at participant slot %d\r\n", i);
       found = true;
       // TODO: see if anything has changed. update if needed
+      p->last_spdp = fr_time_now();
     }
   }
 
@@ -220,6 +238,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
     _SPDP_DEBUG("\tdidn't have this participant already.\r\n");
     if (g_frudp_disco_num_parts < FRUDP_DISCO_MAX_PARTS)
     {
+      part->last_spdp = fr_time_now();
       const int p_idx = g_frudp_disco_num_parts; // save typing
       frudp_part_t *p = &g_frudp_disco_parts[p_idx];
       *p = *part; // save everything plz
@@ -297,12 +316,9 @@ void frudp_spdp_bcast(void)
   ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
   ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
   ts_submsg->header.len = 8;
-  memcpy(ts_submsg->contents, &t, 8);
-  submsg_wpos += 4 + 8;
+  memcpy(ts_submsg->contents, &t, ts_submsg->header.len);
+  submsg_wpos += 4 + ts_submsg->header.len;
 
-/*
-  frudp_submsg_t *data_submsg =
-*/
   frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
   //(frudp_submsg_data_t *)data_submsg->contents;
   data_submsg->header.id = FRUDP_SUBMSG_ID_DATA;
@@ -396,7 +412,7 @@ void frudp_spdp_bcast(void)
   param_list->pid = FRUDP_PID_PARTICIPANT_LEASE_DURATION;
   param_list->len = 8;
   frudp_duration_t *duration = (frudp_duration_t *)param_list->value;
-  duration->sec = 100;
+  duration->sec = FRUDP_SPDP_LEAVE_DURATION;
   duration->nanosec = 0;
   /////////////////////////////////////////////////////////////
   PLIST_ADVANCE(param_list);
@@ -447,15 +463,43 @@ void frudp_spdp_bcast(void)
     _SPDP_ERROR("couldn't transmit SPDP broadcast message\r\n");
 }
 
+//#ifdef VERBOSE_SPDP
+void frudp_print_participants_debug(void)
+{
+  fr_time_t time = fr_time_now();
+  // List participants (discover)
+  FREERTPS_INFO("%d \r\n", fr_time_now());
+  FREERTPS_INFO("| ID     | IP              | GUID \r\n");
+  for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
+    frudp_part_t *match = &g_frudp_disco_parts[i];
+    frudp_duration_t *duration = &match->lease_duration;
+    int32_t bail = (duration->sec); // + duration->nanosec); // In second
+    FREERTPS_INFO("| %d\t | %s | %s | %d | %d | %d |\r\n",
+                  i,
+                  frudp_print_ip(freertps_htonl(match->default_unicast_locator.addr.udp4.addr)),
+                  frudp_print_guid_prefix(&match->guid_prefix),
+                  bail,
+                  match->last_spdp.seconds,
+                  (time.seconds - (match->last_spdp.seconds + bail)));
+  }
+}
+//#endif
+
 void frudp_spdp_tick(void)
 {
   const fr_time_t t = fr_time_now();
-  if (fr_time_diff(&t, &g_frudp_spdp_last_bcast).seconds >= 1) // every second
-  //if (fr_time_diff(&t, &frudp_spdp_last_bcast).fraction >= 1000000000) // every second
+  int32_t delta = fr_time_diff(&t, &g_frudp_spdp_last_bcast).seconds;
+//  FREERTPS_INFO(" %d > %d %d\r\n", delta, FRUDP_SPDP_DELAY_SEC, t.seconds);
+  if (delta >= FRUDP_SPDP_DELAY_SEC)
   {
     _SPDP_DEBUG("   frudp_spdp_tick()\r\n");
-    frudp_spdp_bcast();
     g_frudp_spdp_last_bcast = t;
-//    _SPDP_INFO("%d participants known\r\n", (int)g_frudp_discovery_num_participants);
+    frudp_spdp_bcast();
+    frudp_spdp_clean();
+
+//#ifdef VERBOSE_SPDP
+    FREERTPS_INFO("\r\n");
+    frudp_print_participants_debug();
+//#endif
   }
 }

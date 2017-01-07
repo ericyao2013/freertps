@@ -19,7 +19,7 @@
 #include "freertps/udp.h"
 #include "freertps/sub.h"
 
-bool g_freertps_init_complete;
+//bool g_freertps_init_complete = false;
 
 void freertps_perish_if(bool b, const char *msg)
 {
@@ -63,4 +63,23 @@ void freertps_start(void)
 {
   // todo: other physical layers...
   frudp_disco_start();
+}
+
+void freertps_spinOnce(void)
+{
+  frudp_listen(5000000);
+  frudp_disco_tick();
+}
+
+void freertps_spin(void)
+{
+  while (freertps_system_ok())
+  {
+    freertps_spinOnce();
+  }
+}
+
+void freertps_stop(void)
+{
+  frudp_fini();
 }

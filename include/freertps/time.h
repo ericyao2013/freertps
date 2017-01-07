@@ -22,6 +22,10 @@ extern "C"
 {
 #endif
 
+#define TIME_ZERO {0, 0}
+#define TIME_INVALID {-1, 0xffffffff}
+#define TIME_INFINITE {0x7fffffff, 0xffffffff}
+
 typedef struct
 {
   int32_t  seconds;

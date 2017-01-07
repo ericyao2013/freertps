@@ -24,16 +24,14 @@
 #include "freertps/bswap.h"
 #include "freertps/psm.h"
 
-const struct rtps_psm g_rtps_psm_udp =
-{
-  .init = frudp_init
-};
+const struct rtps_psm g_rtps_psm_udp = { .init = frudp_init };
 
 ////////////////////////////////////////////////////////////////////////////
 // global constants
 const frudp_eid_t g_frudp_eid_unknown = { .u = 0 };
-frudp_config_t g_frudp_config;
 const frudp_sn_t g_frudp_sn_unknown = { .high = -1, .low = 0 };
+
+frudp_config_t g_frudp_config;
 
 ////////////////////////////////////////////////////////////////////////////
 // local functions
@@ -69,7 +67,7 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   FREERTPS_INFO("rx on %s:%d\n", inet_ntoa(ina), dst_port);
   */
   const frudp_msg_t *msg = (frudp_msg_t *)rx_data;
-  if (msg->header.magic_word != 0x53505452) // todo: care about endianness
+  if (msg->header.magic_word != FRUDP_MAGIC_WORLD) // todo: care about endianness
     return false; // it wasn't RTPS. no soup for you.
 
 //#ifdef EXCESSIVELY_VERBOSE_MSG_RX
@@ -326,7 +324,7 @@ static bool frudp_rx_info_ts(RX_MSG_ARGS)
     rcvr->have_timestamp = false;
     rcvr->timestamp.seconds = -1;
     rcvr->timestamp.fraction = 0xffffffff;
-#if defined(VERBOSE_INFO_TS) || defined(EXCESSIVELY_VERBOSE_MSG_RX)
+#if defined(VERBOSE_INFO_TS)
     FREERTPS_INFO("    Timestamp not define..\r\n");
 #endif
   }
@@ -589,7 +587,7 @@ bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s)
 frudp_msg_t *frudp_init_msg(frudp_msg_t *buf)
 {
   frudp_msg_t *msg = (frudp_msg_t *)buf;
-  msg->header.magic_word = 0x53505452;
+  msg->header.magic_word = FRUDP_MAGIC_WORLD;
   msg->header.pver.major = 2;
   msg->header.pver.minor = 1;
   msg->header.vid = FREERTPS_VENDOR_ID;

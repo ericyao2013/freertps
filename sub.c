@@ -28,7 +28,10 @@ uint32_t g_frudp_num_readers = 0;
 
 void frudp_add_reader(const frudp_reader_t *match)
 {
-//  FREERTPS_DEBUG("frudp_add_reader(0x%08x)\r\n", match->reader_eid);
+  FREERTPS_DEBUG("frudp_add_reader(0x%08x) for %s\r\n",
+                 match->reader_eid,
+                 frudp_print_guid(&match->writer_guid));
+
   if (g_frudp_num_readers >= FRUDP_MAX_READERS)
     return;
 
@@ -43,17 +46,12 @@ void frudp_add_reader(const frudp_reader_t *match)
 
   if (found)
   {
-    FREERTPS_INFO("found reader already; skipping duplicate add\n");
+    FREERTPS_INFO("found reader already; skipping duplicate add\r\n");
     return;
   }
 
   g_frudp_readers[g_frudp_num_readers] = *match;
   g_frudp_num_readers++;
-  /*
-  FREERTPS_INFO("add_reader(");
-  frudp_print_guid(&match->writer_guid);
-  FREERTPS_INFO(" => %08x)\r\n", (unsigned)freertps_htonl(match->reader_eid.u));
-  */
 }
 
 void frudp_add_user_sub(const char *topic_name,
@@ -84,7 +82,7 @@ void frudp_add_sub(const frudp_sub_t *s)
   g_frudp_subs[g_frudp_num_subs] = *s;
   g_frudp_num_subs++;
 
-  FREERTPS_INFO("sub %d: reader_eid = 0x%08x\r\n", g_frudp_num_subs, freertps_htonl((unsigned)s->reader_eid.u));
+  FREERTPS_INFO("Add sub %d: reader_eid = 0x%08x\r\n", g_frudp_num_subs, freertps_htonl((unsigned)s->reader_eid.u));
   //frudp_subscribe(s->entity_id, g_frudp_entity_id_unknown, NULL, s->msg_cb);
 }
 
