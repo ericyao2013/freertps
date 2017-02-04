@@ -38,10 +38,14 @@ void frudp_sedp_start(void);
 void frudp_sedp_tick(void);
 void frudp_sedp_fini(void);
 
+void frudp_sedp_bcast(void);
+
 void frudp_sedp_publish_sub(frudp_sub_t *sub);
 void frudp_sedp_publish_pub(frudp_pub_t *pub);
 
 void frudp_sedp_add_builtin_endpoints(frudp_part_t *part);
+
+void frudp_print_sedp_debug(void);
 
 #ifdef VERBOSE_SEDP
 #define _SEDP_INFO(...)  FREERTPS_INFO(__VA_ARGS__)

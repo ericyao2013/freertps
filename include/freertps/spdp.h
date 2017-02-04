@@ -30,6 +30,8 @@ void frudp_spdp_tick(void);
 void frudp_spdp_fini(void);
 void frudp_spdp_bcast(void);
 
+void frudp_print_participants_debug(void);
+
 #ifdef VERBOSE_SPDP
 #define _SPDP_INFO(...)  FREERTPS_INFO(__VA_ARGS__)
 #define _SPDP_ERROR(...) FREERTPS_ERROR(__VA_ARGS__)

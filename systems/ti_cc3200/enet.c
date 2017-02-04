@@ -94,7 +94,7 @@ enet_link_status_t enet_get_link_status(void)
 }
 
 
-void enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
+bool enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                          const uint8_t *payload, const uint16_t payload_len)
 {
   uint8_t dest_mac[6] = { 0x01, 0x00, 0x5e,
@@ -103,7 +103,7 @@ void enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                           (uint8_t) (mcast_ip & 0x0000ff) };
 
   uint32_t ip = getIp();
-  enet_send_udp_ucast(dest_mac,
+  return enet_send_udp_ucast(dest_mac,
                       mcast_ip,
                       mcast_port,
                       ip,
@@ -112,7 +112,7 @@ void enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                       payload_len);
 }
 
-void enet_send_udp_ucast(const uint8_t *dest_mac,
+bool enet_send_udp_ucast(const uint8_t *dest_mac,
                          const uint32_t dest_ip,
                          const uint16_t dest_port,
                          const uint32_t source_ip,
@@ -120,12 +120,11 @@ void enet_send_udp_ucast(const uint8_t *dest_mac,
                          const uint8_t *payload,
                          const uint16_t payload_len)
 {
-  udp_send(dest_ip, dest_port, payload, payload_len);
+  return udp_send(dest_ip, dest_port, payload, payload_len);
 }
 
 uint_fast8_t enet_process_rx_ring(void)
 {
-//  FREERTPS_DEBUG("enet_process_rx_ring()\r\n");
   uint_fast8_t num_pkts_rx = 0;
 
   int iStatus;
@@ -147,7 +146,7 @@ uint_fast8_t enet_process_rx_ring(void)
 //    else
 //        printf("port number %d\n", ntohs(sin.sin_port));
 
-    if ( iStatus != SL_EAGAIN ) {
+    if ( iStatus != SL_EAGAIN ) { // Or try again
       //FREERTPS_INFO("eth dispatch @ %8u\r\n", (unsigned)SYSTIME);
       const uint32_t src_addr = freertps_htonl(sAddr.sin_addr.s_addr);
       const uint16_t src_port = freertps_htons(sAddr.sin_port);
@@ -156,17 +155,8 @@ uint_fast8_t enet_process_rx_ring(void)
       uint32_t dst_addr = getIp();
       if (frudp_mcast_builtin_port() == dst_port || frudp_mcast_user_port() == dst_port)
       {
-          dst_addr = FRUDP_DEFAULT_MCAST_GROUP;
+        dst_addr = FRUDP_DEFAULT_MCAST_GROUP;
       }
-
-#ifdef DEBUG
-      char src_ip[16] = {0};
-      memcpy(src_ip, frudp_print_ip(src_addr), 16);
-      FREERTPS_DEBUG("Receive data %d bytes from %s:%d to %s:%d (but need to validate if no your)\r\n",
-                      iStatus,
-                      src_ip, src_port,
-                      frudp_print_ip(dst_addr), dst_port);
-#endif
 
       frudp_rx(src_addr, src_port, dst_addr, dst_port, g_cBsdBuf, iStatus);
       num_pkts_rx++;
@@ -195,7 +185,7 @@ void enet_rx_raw(const uint8_t *pkt, const uint16_t pkt_len)
   if (g_enet_rxpool_ptrs_wpos >= ENET_RXPOOL_NPTR)
     g_enet_rxpool_ptrs_wpos = 0;
 
-  // make sure we end up with the rxpool write pointer on a 2-byte offset 
+  // make sure we end up with the rxpool write pointer on a 2-byte offset
   // address (to keep the ethernet payloads 4-byte aligned) by incrementing
   // the pointer by a multiple of 4
   g_enet_rxpool_wpos += ((pkt_len + 3) & ~0x3);
@@ -339,15 +329,15 @@ int udp_multicast_listener(const uint32_t group_addr, const uint16_t dst_port)
         (sl_SetSockOpt(iSockID, SL_IPPROTO_IP, SL_IP_MULTICAST_TTL, (_u8 *)2, sizeof(int)) == -1))
     { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
-    // binding the UDP socket to the UDP server address
-    iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
-    if( iStatus < 0 ) { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
-
     // Non Blocking mode.
     SlSockNonblocking_t enableOption;
     enableOption.NonblockingEnabled = 1;
     if ((sl_SetSockOpt(iSockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &enableOption, sizeof(enableOption))) == -1)
     { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
+
+    // binding the UDP socket to the UDP server address
+    iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
+    if( iStatus < 0 ) { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
     return iSockID;
 }
@@ -373,15 +363,15 @@ int udp_unicast_listener(const uint16_t dst_port)
     iSockID = sl_Socket(SL_AF_INET,SL_SOCK_DGRAM, SL_IPPROTO_UDP);
     if( iSockID < 0 ) { ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
-    // binding the UDP socket to the UDP server address
-    iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
-    if( iStatus < 0 ) { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
-
     // Non Blocking mode.
     SlSockNonblocking_t enableOption;
     enableOption.NonblockingEnabled = 1;
     if ((sl_SetSockOpt(iSockID, SL_SOL_SOCKET, SL_SO_NONBLOCKING, &enableOption, sizeof(enableOption))) == -1)
     { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
+
+    // binding the UDP socket to the UDP server address
+    iStatus = sl_Bind(iSockID, (SlSockAddr_t *)&sLocalAddr, iAddrSize);
+    if( iStatus < 0 ) { sl_Close(iSockID); ASSERT_ON_ERROR(UCP_SERVER_FAILED); }
 
     return iSockID;
 }

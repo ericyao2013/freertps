@@ -70,39 +70,27 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   if (msg->header.magic_word != FRUDP_MAGIC_WORLD) // todo: care about endianness
     return false; // it wasn't RTPS. no soup for you.
 
-//#ifdef EXCESSIVELY_VERBOSE_MSG_RX
-//  FREERTPS_INFO("rx proto ver %d.%d\r\n",
-//                msg->header.pver.major,
-//                msg->header.pver.minor);
-//#endif
   if (msg->header.pver.major != 2)
     return false; // we aren't cool enough to be oldschool
-//#ifdef EXCESSIVELY_VERBOSE_MSG_RX
-//  FREERTPS_INFO("rx vendor 0x%04x = %s\r\n",
-//                (unsigned)ntohs(msg->header.vid),
-//                frudp_vendor(ntohs(msg->header.vid)));
-//#endif
 
   // initialize the receiver state
   frudp_receiver_state_t rcvr;
   rcvr.src_pver = msg->header.pver;
   rcvr.src_vid = msg->header.vid;
 
-  bool our_guid = true;
-  for (int i = 0; i < 12 && our_guid; i++)
-  {
-    if (msg->header.guid_prefix.prefix[i] !=
-            g_frudp_config.guid_prefix.prefix[i])
-    {
-      our_guid = false;
-      break;
-    }
-  }
+  bool our_guid = frudp_guid_prefix_identical(&msg->header.guid_prefix,
+                                              &g_frudp_config.guid_prefix);
 
   if (our_guid) {
-//#ifdef EXCESSIVELY_VERBOSE_MSG_RX
-//  FREERTPS_INFO("rx our...\r\n");
-//#endif
+#ifdef DEBUG
+//      char src_ip[16] = {0};
+//      memcpy(src_ip, frudp_print_ip(src_addr), 16);
+//      FREERTPS_DEBUG("Receive our data %d bytes from %s:%d to %s:%d (but need to validate if no your)\r\n",
+//                      iStatus,
+//                      src_ip, src_port,
+//                      frudp_print_ip(dst_addr), dst_port);
+  FREERTPS_INFO("rx our...\r\n");
+#endif
     return true; // don't process our own messages
   }
 
@@ -110,11 +98,18 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
   char src_ip[16] = {0};
   memcpy(src_ip, frudp_print_ip(src_addr), 16);
 
-  FREERTPS_INFO("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
-  FREERTPS_INFO("Receive message %d bytes from %s:%d to %s:%d\r\n",
+  FREERTPS_DEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
+  FREERTPS_DEBUG("Receive message %d bytes from %s:%d to %s:%d\r\n",
                 rx_len,
                 src_ip, src_port,
                 frudp_print_ip(dst_addr), dst_port);
+  FREERTPS_DEBUG("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\r\n");
+  FREERTPS_INFO("    rx Header proto ver %d.%d\r\n",
+                msg->header.pver.major,
+                msg->header.pver.minor);
+  FREERTPS_INFO("    rx Header vendor 0x%04x = %s\r\n",
+                (unsigned)freertps_ntohs(msg->header.vid),
+                frudp_vendor(freertps_ntohs(msg->header.vid)));
 #endif
 
   memcpy(rcvr.src_guid_prefix.prefix,
@@ -124,13 +119,13 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
 
   // process all the submessages
   uint8_t cnt = 0;
-  const uint8_t *submsg_start = msg->submsgs;
-  while (submsg_start < rx_data + rx_len)
+  const uint8_t *submsg_current = msg->submsgs;
+  while (submsg_current < rx_data + rx_len)
   {
-    const frudp_submsg_t *submsg = (frudp_submsg_t *)submsg_start;
+    const frudp_submsg_t *submsg = (frudp_submsg_t *)submsg_current;
     frudp_rx_submsg(&rcvr, submsg);
     // todo: ensure alignment? if this isn't dword-aligned, we're hosed
-    submsg_start += sizeof(frudp_submsg_header_t) + submsg->header.len;
+    submsg_current += sizeof(frudp_submsg_header_t) + submsg->header.len;
     cnt++;
   }
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
@@ -142,6 +137,7 @@ bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
 static bool frudp_rx_submsg(frudp_receiver_state_t *rcvr,
                             const frudp_submsg_t *submsg)
 {
+  FREERTPS_DEBUG("frudp_rx_submsg()\r\n");
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
   FREERTPS_INFO("  Receive sub-message ID %s, length %d bytes\r\n",
                 frudp_submsg(submsg->header.id),
@@ -202,6 +198,7 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
   frudp_submsg_heartbeat_t *hb = (frudp_submsg_heartbeat_t *)submsg;
   frudp_guid_t writer_guid;
   frudp_stuff_guid(&writer_guid, &rcvr->src_guid_prefix, &hb->writer_id);
+
 #ifdef VERBOSE_HEARTBEAT
   FREERTPS_INFO("    HEARTBEAT: %s => 0x%08x  %d -> %d\r\n",
                 frudp_print_guid(&writer_guid),
@@ -219,8 +216,7 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
   {
     frudp_reader_t *r = &g_frudp_readers[i];
     if (frudp_guid_identical(&writer_guid, &r->writer_guid) &&
-        (hb->reader_id.u == r->reader_eid.u ||
-         hb->reader_id.u == 0))
+        (hb->reader_id.u == r->reader_eid.u || hb->reader_id.u == 0))
       match = r;
   }
 
@@ -394,7 +390,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
 #endif
   // todo: care about endianness
   const bool q = submsg->header.flags & 0x02;
-  //const bool d = submsg->header.flags & 0x04; // no idea what this is
+//  const bool d = submsg->header.flags & 0x04; // no idea what this is
   const bool k = submsg->header.flags & 0x08;
   if (k)
   {
@@ -485,7 +481,8 @@ static bool frudp_rx_data(RX_MSG_ARGS)
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
       FREERTPS_INFO("    Message Data Callback...\r\n");
 #endif
-      match->msg_cb(data);
+      uint32_t size = submsg->header.len - ((uint32_t)data - (uint32_t) data_submsg);
+      match->msg_cb(data, size);
     }
   }
 

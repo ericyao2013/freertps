@@ -87,9 +87,10 @@ bool frudp_tx(const uint32_t dst_addr,
               const uint16_t tx_len)
 {
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
-  FREERTPS_INFO(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
-  FREERTPS_INFO("Sending message %d bytes to %s:%d\r\n",
+  FREERTPS_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+  FREERTPS_DEBUG("Sending data %d bytes to %s:%d\r\n",
                 tx_len, frudp_print_ip(dst_addr), dst_port);
+  FREERTPS_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
 #endif
 
   if ((dst_addr & 0xe0000000) == 0xe0000000)

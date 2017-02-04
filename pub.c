@@ -41,7 +41,7 @@ frudp_pub_t *frudp_create_pub(const char *topic_name,
                               frudp_submsg_data_t **data_submsgs,
                               const uint32_t num_data_submsgs)
 {
-  FREERTPS_DEBUG("create pub 0x%08x\r\n", freertps_htonl(writer_id.u));
+  FREERTPS_INFO("Create pub 0x%08x\r\n", freertps_htonl(writer_id.u));
 
   if (g_frudp_num_pubs >= FRUDP_MAX_PUBS)
   {
@@ -91,7 +91,7 @@ frudp_pub_t *frudp_create_user_pub(const char *topic_name,
   frudp_pub_t *pub = frudp_create_pub(topic_name,
                                       type_name,
                                       frudp_create_user_id
-                                        (FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY),
+                                      (FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY),
                                       NULL,
                                       0);
   //sedp_publish_pub(pub); // can't do this yet; disco hasn't started

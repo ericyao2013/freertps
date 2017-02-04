@@ -47,8 +47,6 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
                                       const uint8_t *data,
                                       const bool is_pub);
 
-static void frudp_sedp_bcast(void);
-
 ////////////////////////////////////////////////////////////////////////////
 // static globals
 static fr_time_t g_frudp_sedp_last_bcast;
@@ -120,7 +118,7 @@ void frudp_sedp_init(void)
 void frudp_sedp_start(void)
 {
   _SEDP_DEBUG("frudp_sedp_start()\r\n");
-  frudp_sedp_bcast();
+  //frudp_sedp_bcast();
   g_frudp_sedp_last_bcast = fr_time_now();
 }
 
@@ -210,6 +208,8 @@ void frudp_print_sedp_debug(void)
 
 void frudp_sedp_clean(void)
 {
+  _SEDP_DEBUG("frudp_sedp_clean()\r\n");
+
   for (unsigned i = 0; i < g_frudp_num_readers; i++)
   {
     frudp_reader_t *match = &g_frudp_readers[i];
@@ -220,6 +220,7 @@ void frudp_sedp_clean(void)
       g_frudp_num_readers--;
     }
   }
+
   for (unsigned i = 0; i < g_frudp_num_writers; i++)
   {
     frudp_writer_t *match = &g_frudp_writers[i];
@@ -239,7 +240,7 @@ void frudp_sedp_tick(void)
     _SEDP_DEBUG("frudp_sedp_tick()\r\n");
     g_frudp_sedp_last_bcast = t;
 
-    //frudp_sedp_bcast(); //TODO disable for IRV error
+//    frudp_sedp_bcast(); //TODO disable for IRV error
     frudp_sedp_clean();
 
 //#ifdef VERBOSE_SEDP
@@ -254,6 +255,7 @@ static void frudp_sedp_rx_pub_data(frudp_receiver_state_t *rcvr,
                                    const uint16_t scheme,
                                    const uint8_t *data)
 {
+  _SEDP_DEBUG("frudp_sedp_rx_pub_data()\r\n");
   frudp_sedp_rx_pubsub_data(rcvr, submsg, scheme, data, true);
 }
 
@@ -262,6 +264,7 @@ static void frudp_sedp_rx_sub_data(frudp_receiver_state_t *rcvr,
                                    const uint16_t scheme,
                                    const uint8_t *data)
 {
+  _SEDP_DEBUG("frudp_sedp_rx_sub_data()\r\n");
   frudp_sedp_rx_pubsub_data(rcvr, submsg, scheme, data, false);
 }
 
@@ -310,6 +313,8 @@ static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
         r.msg_cb = sub->msg_cb;
         r.reliable = sub->reliable;
         frudp_add_reader(&r);
+
+        frudp_print_sedp_debug();
       }
       else
         _SEDP_INFO("\t  boring, we already knew about it.\r\n");
@@ -425,26 +430,15 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     switch(pid)
     {
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_PROTOCOL_VERSION:
-      part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
-      _SEDP_INFO("\tSEDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
-                 part->pver);
+    case FRUDP_PID_UNICAST_LOCATOR:
+      _SEDP_INFO("\tSEDP metatraffic unicast locator udp4: (TODO)\t\r\n");
       break;
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_VENDOR_ID:
-      part->vid = freertps_htons(*((frudp_vid_t *)pval));
-      _SEDP_INFO("\tSEDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
-                 part->vid, frudp_vendor(part->vid));
-      break;
-    ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_ENDPOINT_GUID:
+    case FRUDP_PID_PARTICIPANT_GUID:
       guid = (frudp_guid_t *)pval;
-      memcpy(&g_topic_info.guid, guid, sizeof(frudp_guid_t));
-      _SEDP_INFO("\tSEDP endpoint guid : \t\t\t\t%s\r\n",
+      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
+      _SEDP_INFO("\tguid \t\t\t\t\t\t%s (TODO)\r\n",
                  frudp_print_guid_prefix(&guid->prefix));
-
-      //if (guid->entity_id.u == 0x03010000)
-      //  _info("found entity 0x103\n");
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TOPIC_NAME:
@@ -473,6 +467,54 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       }
       break;
     ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_KEY_HASH:
+      _SEDP_INFO("\tSEDP Key Hash \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_ENDPOINT_GUID:
+      guid = (frudp_guid_t *)pval;
+      memcpy(&g_topic_info.guid, guid, sizeof(frudp_guid_t));
+      _SEDP_INFO("\tSEDP endpoint guid : \t\t\t\t%s\r\n",
+                 frudp_print_guid_prefix(&guid->prefix));
+
+      //if (guid->entity_id.u == 0x03010000)
+      //  _info("found entity 0x103\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_TYPE_MAX_SIZE_SERIALIZED:
+      _SEDP_INFO("\tSEDP Max size serialize\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_PROTOCOL_VERSION:
+//      part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
+      _SEDP_INFO("\tSEDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
+                 0);
+//                 part->pver);
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_VENDOR_ID:
+//      part->vid = freertps_htons(*((frudp_vid_t *)pval));
+      _SEDP_INFO("\tSEDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
+                 0, 0);
+//                 part->vid, frudp_vendor(part->vid));
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_DURABILITY:
+      _SEDP_INFO("\tSEDP Durability \t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_DEADLINE:
+      _SEDP_INFO("\tSEDP Deadline \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_LATENCY_BUDGET:
+      _SEDP_INFO("\tSEDP Latency \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_LIVELINESS:
+      _SEDP_INFO("\tSEDP Liveliness \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_RELIABILITY:
       qos_rel = (frudp_qos_reliability_t *)pval;
       switch(qos_rel->kind)
@@ -487,6 +529,24 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
         _SEDP_ERROR("\tunhandled reliability kind: %d\r\n", (int)qos_rel->kind);
       }
       break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_LIFESPAN:
+      _SEDP_INFO("\tSEDP Life span \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_OWNERSHIP:
+      _SEDP_INFO("\tSEDP ownership \t\t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_OWNERSHIP_STRENGTH:
+      _SEDP_INFO("\tSEDP ownership strength \t\t\t (TODO)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_DESTINATION_ORDER:
+      _SEDP_INFO("\tSEDP destination order \t\t\t (TODO)\r\n");
+      break;
+
+
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_HISTORY:
       qos_his = (frudp_qos_history_t *)pval;
@@ -507,55 +567,6 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       _SEDP_INFO("\tSEDP transport priority: \t%d\r\n", (int)*((uint32_t *)pval));
       break;
 
-    case FRUDP_PID_UNICAST_LOCATOR:
-      _SEDP_INFO("\tSEDP metatraffic unicast locator udp4: (TODO)\t\r\n");
-      break;
-    ///////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_PARTICIPANT_GUID:
-      guid = (frudp_guid_t *)pval;
-      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
-      _SEDP_INFO("\tguid \t\t\t\t\t\t%s (TODO)\r\n", frudp_print_guid_prefix(&guid->prefix));
-      break;
-
-    case FRUDP_PID_TYPE_MAX_SIZE_SERIALIZED:
-      _SEDP_INFO("\tSEDP Max size serialize\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_DURABILITY:
-      _SEDP_INFO("\tSEDP Durability \t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_DEADLINE:
-      _SEDP_INFO("\tSEDP Deadline \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_LATENCY_BUDGET:
-      _SEDP_INFO("\tSEDP Latency \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_LIVELINESS:
-      _SEDP_INFO("\tSEDP Liveliness \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_KEY_HASH:
-      _SEDP_INFO("\tSEDP Key Hash \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_LIFESPAN:
-      _SEDP_INFO("\tSEDP Life span \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_OWNERSHIP:
-      _SEDP_INFO("\tSEDP ownership \t\t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_OWNERSHIP_STRENGTH:
-      _SEDP_INFO("\tSEDP ownership strength \t\t\t (TODO)\r\n");
-      break;
-
-    case FRUDP_PID_DESTINATION_ORDER:
-      _SEDP_INFO("\tSEDP destination order \t\t\t (TODO)\r\n");
-      break;
     ////////////////////////////////////////////////////////////////////////////
     default:
       _SEDP_ERROR("\tunhandled SEDP rx param 0x%x len %d\r\n",
@@ -580,16 +591,16 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     frudp_sedp_rx_sub_info(&g_topic_info);
 }
 
-static void frudp_sedp_bcast(void)
+void frudp_sedp_bcast(void)
 {
-  _SEDP_DEBUG("   frudp_sedp_bcast()\r\n");
+  _SEDP_DEBUG("frudp_sedp_bcast()\r\n");
 
   // go through and send SEDP messages for all of our subscriptions
   for (int i = 0; i < g_frudp_num_subs; i++)
   {
     if (g_frudp_subs[i].topic_name) // user subs have topic names
     {
-      _SEDP_DEBUG("      sending SEDP message about subscription [%s]\r\n",
+      _SEDP_INFO("      sending SEDP message about subscription [%s]\r\n",
                   g_frudp_subs[i].topic_name);
       frudp_sedp_publish_sub(&g_frudp_subs[i]);
     }
@@ -600,7 +611,7 @@ static void frudp_sedp_bcast(void)
   {
     if (g_frudp_pubs[i].topic_name)
     {
-      _SEDP_DEBUG("      sending SEDP message about publication [%s]\r\n",
+      _SEDP_INFO("      Sending SEDP message about publication [%s]\r\n",
                   g_frudp_pubs[i].topic_name);
       frudp_sedp_publish_pub(&g_frudp_pubs[i]);
     }
@@ -771,7 +782,7 @@ void frudp_sedp_publish_pub(frudp_pub_t *pub)
 void frudp_sedp_add_builtin_endpoints(frudp_part_t *part)
 {
   _SEDP_DEBUG("frudp_sedp_add_builtin_endpoints()\r\n");
-  _SEDP_INFO("    adding endpoints for %s\r\n",
+  _SEDP_INFO("    Adding buildin endpoints for %s\r\n",
              frudp_print_guid_prefix(&part->guid_prefix));
 
   // this reads the remote peer's publications

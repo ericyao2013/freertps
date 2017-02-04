@@ -18,6 +18,8 @@
 #include "freertps/freertps.h"
 #include "freertps/udp.h"
 #include "freertps/sub.h"
+#include "freertps/sedp.h"
+#include "freertps/spdp.h"
 
 //bool g_freertps_init_complete = false;
 
@@ -61,13 +63,16 @@ bool freertps_publish(frudp_pub_t *pub,
 
 void freertps_start(void)
 {
+  frudp_print_participants_debug();
+  frudp_print_sedp_debug();
+
   // todo: other physical layers...
   frudp_disco_start();
 }
 
 void freertps_spinOnce(void)
 {
-  frudp_listen(5000000);
+  frudp_listen(500000); // 500 millisecond for receive data.
   frudp_disco_tick();
 }
 

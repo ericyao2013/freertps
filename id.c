@@ -71,8 +71,8 @@ const char *frudp_vendor(const frudp_vid_t vid)
   }
 }
 
-bool frudp_guid_prefix_identical(frudp_guid_prefix_t * const a,
-                                 frudp_guid_prefix_t * const b)
+bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
+                                 const frudp_guid_prefix_t * const b)
 {
 //  FREERTPS_DEBUG("frudp_guid_prefix_identical(a,b)\r\n");
   for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
@@ -88,10 +88,7 @@ bool frudp_guid_identical(const frudp_guid_t * const a,
   if (a->eid.u != b->eid.u)
     return false;
 
-  for (int i = 0; i < FRUDP_GUID_PREFIX_LEN; i++)
-    if (a->prefix.prefix[i] != b->prefix.prefix[i])
-      return false;
-  return true;
+  return frudp_guid_prefix_identical(&a->prefix, &b->prefix);
 }
 
 const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *p)

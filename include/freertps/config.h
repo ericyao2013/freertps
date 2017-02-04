@@ -43,13 +43,14 @@ extern "C"
 // pub/sub messages and hold them in flash. That would be way better.
 #define FRUDP_SEDP_MSG_BUFLEN    1024
 
-#define FRUDP_SPDP_LEAVE_DURATION 60
+// Delay of leave bail of SPDP (in second) [Default : 100]
+#define FRUDP_SPDP_LEAVE_DURATION 100
 
-// Delay for broadcast SPDP message (in second)
-#define FRUDP_SPDP_DELAY_SEC FRUDP_SPDP_LEAVE_DURATION/3
+// Delay for broadcast SPDP message (in second) [Default : 30]
+#define FRUDP_SPDP_DELAY_SEC 30
 
 // Delay for broadcast SEDP message (in second)
-#define FRUDP_SEDP_DELAY_SEC FRUDP_SPDP_LEAVE_DURATION/6
+#define FRUDP_SEDP_DELAY_SEC FRUDP_SPDP_LEAVE_DURATION
 
 // default multicast group is 239.255.0.1
 #define FRUDP_DEFAULT_MCAST_GROUP 0xefff0001
@@ -72,20 +73,22 @@ typedef struct
 } frudp_config_t;
 extern frudp_config_t g_frudp_config;
 
-//#define DEBUG
+#define DEBUG
 
 #define EXCESSIVELY_VERBOSE_MSG_RX
-//#define VERBOSE_MSG_RX
-//#define VERBOSE_TX_ACKNACK
+#define VERBOSE_MSG_RX
+#define VERBOSE_TX_ACKNACK
 
-//#define VERBOSE_INFO_TS
-//#define VERBOSE_ACKNACK
-//#define VERBOSE_HEARTBEAT
-//#define VERBOSE_GAP
-//#define VERBOSE_DATA
+#define VERBOSE_INFO_TS
+#define VERBOSE_ACKNACK
+#define VERBOSE_HEARTBEAT
+#define VERBOSE_GAP
+#define VERBOSE_DATA
 
-//#define VERBOSE_SEDP
-//#define VERBOSE_SPDP
+#define VERBOSE_SEDP
+#define VERBOSE_SPDP
+
+//#define VERBOSE_MSG_SERIALIZATION
 
 #ifdef __cplusplus
 }

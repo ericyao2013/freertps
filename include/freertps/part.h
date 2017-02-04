@@ -34,8 +34,11 @@ typedef struct
   frudp_locator_t default_multicast_locator;
   frudp_locator_t metatraffic_unicast_locator;
   frudp_locator_t metatraffic_multicast_locator;
-  frudp_duration_t lease_duration;
   frudp_builtin_endpoint_set_t builtin_endpoints;
+  frudp_duration_t lease_duration;
+  long live_count;
+//  char name[256]; Disable for memory issue
+  // Internal
   fr_time_t last_spdp;
 } frudp_part_t;
 

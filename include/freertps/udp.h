@@ -50,6 +50,13 @@ extern "C"
 #define FRUDP_SCHEME_CDR_LE            0x0001
 #define FRUDP_SCHEME_PL_CDR_LE         0x0003
 
+#define FRUDP_PROTOCOLVERSION_1_0 {1,0}
+#define FRUDP_PROTOCOLVERSION_1_1 {1,1}
+#define FRUDP_PROTOCOLVERSION_2_0 {2,0}
+#define FRUDP_PROTOCOLVERSION_2_1 {2,1}
+#define FRUDP_PROTOCOLVERSION_2_2 {2,2}
+#define FRUDP_PROTOCOLVERSION PROTOCOLVERSION_2_2
+
 #define FRUDP_PLIST_ADVANCE(list_item) \
   do { \
     list_item = (frudp_parameter_list_item_t *) \

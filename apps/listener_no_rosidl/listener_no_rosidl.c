@@ -17,13 +17,11 @@ int main(int argc, char **argv)
   freertps_create_sub("/chatter",
                       "std_msgs::msg::dds_::String_",
                       chatter_cb);
-  frudp_disco_start(); // we're alive now; announce ourselves to the world
-  while (freertps_system_ok())
-  {
-    frudp_listen(1000000);
-    frudp_disco_tick();
-  }
+
+  freertps_start(); // all pubs/subs are created. let's start!
+  freertps_spin();
   frudp_fini();
+
   return 0;
 }
 

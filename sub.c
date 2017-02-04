@@ -29,7 +29,7 @@ uint32_t g_frudp_num_readers = 0;
 void frudp_add_reader(const frudp_reader_t *match)
 {
   FREERTPS_DEBUG("frudp_add_reader(0x%08x) for %s\r\n",
-                 match->reader_eid,
+                 freertps_htonl(match->reader_eid.u),
                  frudp_print_guid(&match->writer_guid));
 
   if (g_frudp_num_readers >= FRUDP_MAX_READERS)

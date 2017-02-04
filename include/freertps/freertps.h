@@ -20,11 +20,12 @@ extern "C" {
 #endif
 
 #include <stdio.h>
+#include <stdint.h>
 
 // NOTE: the prefix freertps_udp_ is too long to type, so it will often
 // be shortened to frudp_
 
-typedef void (*freertps_msg_cb_t)(const void *msg);
+typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 
 #include "freertps/udp.h"
 #include "freertps/config.h"
@@ -50,19 +51,19 @@ typedef void (*freertps_msg_cb_t)(const void *msg);
 // maybe make this smarter someday
 #ifdef DEBUG
 #define FREERTPS_DEBUG(...) \
-  do { LOG_REPORT("[freertps DEBUG] "); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%d] [freertps DEBUG] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #else
 #define FREERTPS_DEBUG(...) ((void)0)
 #endif
 
 #define FREERTPS_INFO(...) \
-  do { LOG_REPORT("[freertps INFO] "); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%d] [freertps INFO] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_WARNING(...) \
-  do { LOG_REPORT("[freertps WARNING] "); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%d] [freertps WARNING] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_ERROR(...) \
-  do { LOG_ERROR("[freertps ERROR] "); LOG_ERROR(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[%d] [freertps ERROR] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
 #define FREERTPS_FATAL(...) \
-  do { LOG_ERROR("[freertps FATAL] "); LOG_ERROR(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[%d] [freertps FATAL] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
 
 typedef union rtps_active_psms
 {

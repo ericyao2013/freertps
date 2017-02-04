@@ -46,11 +46,22 @@ const frudp_eid_t g_spdp_reader_id = { .u = 0xc7000100 };
 
 static bool frudp_udp_is_same_network(uint32_t ip, uint32_t netip, uint32_t netmask)
 {
+#ifdef DEBUG
+    char src_ip[16] = {0}, dst_ip[16] = {0};
+    memcpy(src_ip, frudp_print_ip(netip), 16);
+    memcpy(dst_ip, frudp_print_ip(ip), 16);
+
+    _SPDP_DEBUG("frudp_udp_is_same_network() %s ?? %s / %s\r\n",
+            src_ip,
+            dst_ip,
+            frudp_print_ip(netmask));
+#endif
     return ((netip & netmask) == (ip & netmask));
 }
 
 static void frudp_spdp_clean()
 {
+  _SPDP_DEBUG("frudp_spdp_clean()\r\n");
   const fr_time_t t = fr_time_now();
   for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
     frudp_part_t *match = &g_frudp_disco_parts[i];
@@ -62,11 +73,50 @@ static void frudp_spdp_clean()
   }
 }
 
+static bool frudp_data_generic(frudp_parameterid_t pid)
+{
+  bool result = true;
+
+  switch(pid)
+  {
+    ////////////////////////////////////////////////////////////////////////////
+    // Check why this...
+    case FRUDP_PID_PROPERTY_LIST:
+      _SPDP_INFO("\tSPDP Extra field: \t\t\t(Todo)\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    // Deprecated...
+    case FRUDP_PID_PERSISTENCE:
+    case FRUDP_PID_TYPE_CHECKSUM:
+    case FRUDP_PID_TYPE2_NAME:
+    case FRUDP_PID_TYPE2_CHECKSUM:
+    case FRUDP_PID_EXPECTS_ACK:
+    case FRUDP_PID_MANAGER_KEY:
+    case FRUDP_PID_SEND_QUEUE_SIZE:
+    case FRUDP_PID_RELIABILITY_ENABLED:
+    case FRUDP_PID_VARGAPPS_SEQUENCE_NUMBER_LAST:
+    case FRUDP_PID_RECV_QUEUE_SIZE:
+    case FRUDP_PID_RELIABILITY_OFFERED:
+      _SPDP_INFO("\tSPDP Deprecated field (Todo)!\r\n");
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    default:
+      result = false;
+  }
+
+  return result;
+}
+
 static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
                                const frudp_submsg_t *submsg,
                                const uint16_t scheme,
                                const uint8_t *data)
 {
+  frudp_locator_t *loc;
+  frudp_duration_t *dur;
+  frudp_guid_t *guid;
+  char *name;
+
   _SPDP_DEBUG("frudp_spdp_rx_data()\r\n");
   _SPDP_INFO("    SPDP rx:\r\n");
 
@@ -85,10 +135,8 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
 
     if (pid == FRUDP_PID_SENTINEL) { break; }
     if (pid & 0x8000) { /* ignore vendor-specific PID's */ }
+    if (pid & 0x4000) { /* ignore ParameterID */ }
 
-    frudp_locator_t *loc;
-    frudp_duration_t *dur;
-    frudp_guid_t *guid;
     const uint8_t *pval = item->value;
 
     _SPDP_DEBUG("\tunhandled SPDP rx param 0x%x len %d\r\n",
@@ -109,39 +157,17 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
                  part->vid, frudp_vendor(part->vid));
       break;
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_DEFAULT_UNICAST_LOCATOR:
-      loc = (frudp_locator_t *)pval;
-      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork())) {
-        part->default_unicast_locator = *loc; // todo: worry about alignment
-        if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
-        {
-          _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d\r\n",
-                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                      loc->port);
-        }
-      }
-      else
-      {
-        _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d (but not on same network)\r\n",
-                                frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                                loc->port);
-      }
+    case FRUDP_PID_PARTICIPANT_GUID:
+      guid = (frudp_guid_t *)pval;
+      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
+      _SPDP_INFO("\tGUID \t\t\t\t\t\t%s\r\n",
+                 frudp_print_guid_prefix(&guid->prefix));
       break;
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_DEFAULT_MULTICAST_LOCATOR:
-      loc = (frudp_locator_t *)pval;
-      part->default_multicast_locator = *loc; // todo: worry about alignment
-      if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
-      {
-        _SPDP_INFO("\tSPDP multicast locator udp4: \t\t\t%s:%d\r\n",
-                        frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                        loc->port);
-      }
-      else
-      {
-        _SPDP_INFO("\tSPDP unknown multicast locator kind: %d\r\n",
-                     (int)loc->kind);
-      }
+    case FRUDP_PID_EXPECTS_INLINE_QOS:
+      part->expects_inline_qos = *((bool *)pval);
+      _SPDP_INFO("\tSPDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
+                 part->vid, frudp_vendor(part->vid));
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR:
@@ -152,19 +178,19 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
         if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
         {
           _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d\r\n",
-                        frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                        loc->port);
+                     frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                     loc->port);
         }
         else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
         { /* ignore ip6 for now...*/ }
         else
           _SPDP_INFO("\tSPDP unknown metatraffic unicast locator kind: %d\r\n",
-                    (int)loc->kind);
+                     (int)loc->kind);
       }
       else
-            _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d (but not on same network)\r\n",
-                                      frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                                      loc->port);
+        _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d (but not on same network)\r\n",
+                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   loc->port);
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR:
@@ -173,8 +199,8 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
       {
         _SPDP_INFO("\tSPDP metatraffic multicast locator udp4: \t%s:%d\r\n",
-                    frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
-                    loc->port);
+                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   loc->port);
       }
       else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
       { /* ignore ip6 for now... */ }
@@ -183,34 +209,71 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
                     (int)loc->kind);
       break;
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_PARTICIPANT_LEASE_DURATION:
-      dur = (frudp_duration_t *)pval;
-      part->lease_duration = *dur;
-      _SPDP_INFO("\tSPDP lease duration: \t\t\t\t%d.%09d\r\n",
-                    dur->sec, dur->nanosec);
+    case FRUDP_PID_DEFAULT_UNICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
+      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork()))
+      {
+        part->default_unicast_locator = *loc; // todo: worry about alignment
+        if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
+        {
+          _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d\r\n",
+                     frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                     loc->port);
+        }
+      }
+      else
+      {
+        _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d (but not on same network)\r\n",
+                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   loc->port);
+      }
       break;
     ////////////////////////////////////////////////////////////////////////////
-    case FRUDP_PID_PARTICIPANT_GUID:
-      guid = (frudp_guid_t *)pval;
-      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
-      _SPDP_INFO("\tguid \t\t\t\t\t\t%s\r\n", frudp_print_guid_prefix(&guid->prefix));
+    case FRUDP_PID_DEFAULT_MULTICAST_LOCATOR:
+      loc = (frudp_locator_t *)pval;
+      part->default_multicast_locator = *loc; // todo: worry about alignment
+      if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
+      {
+        _SPDP_INFO("\tSPDP multicast locator udp4: \t\t\t%s:%d\r\n",
+                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   loc->port);
+      }
+      else
+      {
+        _SPDP_INFO("\tSPDP unknown multicast locator kind: %d\r\n",
+                   (int)loc->kind);
+      }
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_BUILTIN_ENDPOINT_SET:
       part->builtin_endpoints = *((frudp_builtin_endpoint_set_t *)pval);
       _SPDP_INFO("\tbuiltin endpoints: \t\t\t\t0x%08x\r\n",
-                    part->builtin_endpoints);
+                 part->builtin_endpoints);
       break;
     ////////////////////////////////////////////////////////////////////////////
-
-    case FRUDP_PID_PROPERTY_LIST:
+    case FRUDP_PID_PARTICIPANT_LEASE_DURATION:
+      dur = (frudp_duration_t *)pval;
+      part->lease_duration = *dur;
+      _SPDP_INFO("\tSPDP lease duration: \t\t\t\t%d.%09d\r\n",
+                 dur->sec, dur->nanosec);
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_LIVELINESS:
+      part->live_count = *(long *)pval;
+      _SPDP_INFO("\tSPDP Liveliness: \t\t\t%d\r\n", part->live_count);
+      break;
     case FRUDP_PID_ENTITY_NAME:
-      //TODO
+      frudp_parse_string(name,
+                         sizeof(name),
+                         (frudp_rtps_string_t *)pval);
+      _SPDP_INFO("\tSPDP Name : \t\t\t\t%s\r\n", &name);
       break;
     ////////////////////////////////////////////////////////////////////////////
     default:
-      _SPDP_ERROR("\tunhandled SPDP rx param 0x%x len %d\r\n",
-                           (unsigned)pid, item->len);
+      if (!frudp_data_generic(pid)) {
+          _SPDP_ERROR("\tunhandled SPDP rx param 0x%x len %d\r\n",
+                      (unsigned)pid, item->len);
+      }
     }
 
     // now, advance to next item in list...
@@ -235,21 +298,26 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
 
   if (!found)
   {
-    _SPDP_DEBUG("\tdidn't have this participant already.\r\n");
+    _SPDP_DEBUG("      didn't have this participant already.\r\n");
     if (g_frudp_disco_num_parts < FRUDP_DISCO_MAX_PARTS)
     {
+      _SPDP_INFO("      saved new participant in slot %d\r\n", g_frudp_disco_num_parts);
+
+      frudp_part_t *p = &g_frudp_disco_parts[g_frudp_disco_num_parts];
       part->last_spdp = fr_time_now();
-      const int p_idx = g_frudp_disco_num_parts; // save typing
-      frudp_part_t *p = &g_frudp_disco_parts[p_idx];
       *p = *part; // save everything plz
-      _SPDP_INFO("\tsaved new participant in slot %d\r\n", p_idx);
       g_frudp_disco_num_parts++;
+
+//#ifdef VERBOSE_SPDP
+      frudp_print_participants_debug();
+//#endif
+
       frudp_sedp_add_builtin_endpoints(p);
       // push this new participant our SEDP data to speed up the process
       //frudp_send_sedp_
     }
     else
-      _SPDP_ERROR("\tnot enough room to save the new participant.\r\n");
+      _SPDP_ERROR("      not enough room to save the new participant.\r\n");
   }
 }
 
@@ -282,6 +350,7 @@ void frudp_spdp_init(void)
 
 void frudp_spdp_start(void)
 {
+  _SPDP_DEBUG("frudp_spdp_start()\r\n");
   frudp_spdp_tick();
 }
 
@@ -308,10 +377,13 @@ uint16_t frudp_append_submsg(frudp_msg_t *msg, const uint16_t msg_wpos,
 void frudp_spdp_bcast(void)
 {
   _SPDP_DEBUG("frudp_spdp_bcast()\r\n");
+
   frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_frudp_disco_tx_buf);
   fr_time_t t = fr_time_now();
   uint16_t submsg_wpos = 0;
 
+  /////////////////////////////////////////////////////////////////////////////
+  // TimeSpan Sub-message
   frudp_submsg_t *ts_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
   ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
   ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
@@ -319,6 +391,8 @@ void frudp_spdp_bcast(void)
   memcpy(ts_submsg->contents, &t, ts_submsg->header.len);
   submsg_wpos += 4 + ts_submsg->header.len;
 
+  /////////////////////////////////////////////////////////////////////////////
+  // Data SPDP Sub-message
   frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
   //(frudp_submsg_data_t *)data_submsg->contents;
   data_submsg->header.id = FRUDP_SUBMSG_ID_DATA;
@@ -334,7 +408,8 @@ void frudp_spdp_bcast(void)
   //static uint32_t bcast_count = 0;
   data_submsg->writer_sn.low = 1; //++bcast_count;
 
-  /////////////////////////////////////////////////////////////
+  /////////////////////////////////////////////////////////////////////////////
+  // FRUDP_PID_KEY_HASH
   frudp_parameter_list_item_t *inline_qos_param =
     (frudp_parameter_list_item_t *)(((uint8_t *)data_submsg) +
                                     sizeof(frudp_submsg_data_t));
@@ -346,16 +421,22 @@ void frudp_spdp_bcast(void)
   inline_qos_param->value[13] = 0;
   inline_qos_param->value[14] = 1;
   inline_qos_param->value[15] = 0xc1;
-  PLIST_ADVANCE(inline_qos_param);
 
+  /////////////////////////////////////////////////////////////
+  // FRUDP_PID_SENTINEL
+  PLIST_ADVANCE(inline_qos_param);
   inline_qos_param->pid = FRUDP_PID_SENTINEL;
   inline_qos_param->len = 0;
-  /////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////
+  // SCHEME ??
   frudp_encapsulation_scheme_t *scheme =
     (frudp_encapsulation_scheme_t *)(((uint8_t *)inline_qos_param) + 4);
   scheme->scheme = freertps_htons(FRUDP_SCHEME_PL_CDR_LE);
   scheme->options = 0;
-  /////////////////////////////////////////////////////////////
+
+  /////////////////////////////////////////////////////////////////////////////
+  // FRUDP_PID_PROTOCOL_VERSION
   frudp_parameter_list_item_t *param_list =
     (frudp_parameter_list_item_t *)(((uint8_t *)scheme) + sizeof(*scheme));
   param_list->pid = FRUDP_PID_PROTOCOL_VERSION;
@@ -363,14 +444,18 @@ void frudp_spdp_bcast(void)
   param_list->value[0] = 2;
   param_list->value[1] = 1;
   param_list->value[2] = param_list->value[3] = 0; // pad to 4-byte boundary
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_VENDOR_ID
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_VENDOR_ID;
   param_list->len = 4;
   param_list->value[0] = (FREERTPS_VENDOR_ID >> 8) & 0xff;
   param_list->value[1] = FREERTPS_VENDOR_ID & 0xff;
   param_list->value[2] = param_list->value[3] = 0; // pad to 4-byte boundary
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_DEFAULT_UNICAST_LOCATOR
   frudp_locator_t *loc = NULL;
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_DEFAULT_UNICAST_LOCATOR;
@@ -380,7 +465,9 @@ void frudp_spdp_bcast(void)
   loc->port = frudp_ucast_user_port();
   memset(loc->addr.udp4.zeros, 0, 12);
   loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_DEFAULT_MULTICAST_LOCATOR
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_DEFAULT_MULTICAST_LOCATOR;
   param_list->len = sizeof(frudp_locator_t);
@@ -389,7 +476,9 @@ void frudp_spdp_bcast(void)
   loc->port = frudp_mcast_user_port();
   memset(loc->addr.udp4.zeros, 0, 12);
   loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR;
   param_list->len = sizeof(frudp_locator_t); // aka 24, minus jack bauer
@@ -398,7 +487,9 @@ void frudp_spdp_bcast(void)
   loc->port = frudp_ucast_builtin_port();
   memset(loc->addr.udp4.zeros, 0, 12);
   loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_METATRAFFIC_MULTICAST_LOCATOR;
   param_list->len = sizeof(frudp_locator_t);
@@ -407,14 +498,18 @@ void frudp_spdp_bcast(void)
   loc->port = frudp_mcast_builtin_port();
   memset(loc->addr.udp4.zeros, 0, 12);
   loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_PARTICIPANT_LEASE_DURATION
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_PARTICIPANT_LEASE_DURATION;
   param_list->len = 8;
   frudp_duration_t *duration = (frudp_duration_t *)param_list->value;
   duration->sec = FRUDP_SPDP_LEAVE_DURATION;
   duration->nanosec = 0;
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_PARTICIPANT_GUID
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_PARTICIPANT_GUID;
   param_list->len = 16;
@@ -425,16 +520,22 @@ void frudp_spdp_bcast(void)
   guid->eid.s.key[1] = 0;
   guid->eid.s.key[2] = 1;
   guid->eid.s.kind = 0xc1; // wtf
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_BUILTIN_ENDPOINT_SET
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_BUILTIN_ENDPOINT_SET;
   param_list->len = 4;
   uint32_t endpoint_set = 0x3f; //b; // 0x3f;
   memcpy(param_list->value, &endpoint_set, 4);
+
   /////////////////////////////////////////////////////////////
+  // FRUDP_PID_SENTINEL
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_SENTINEL;
   param_list->len = 0;
+
+  /////////////////////////////////////////////////////////////
   //data_submsg->header.len = next_submsg_ptr - data_submsg->contents;
   PLIST_ADVANCE(param_list);
   data_submsg->header.len = param_list->value - 4 - (uint8_t *)&data_submsg->extraflags;
@@ -467,8 +568,9 @@ void frudp_spdp_bcast(void)
 void frudp_print_participants_debug(void)
 {
   fr_time_t time = fr_time_now();
-  // List participants (discover)
-  FREERTPS_INFO("%d \r\n", fr_time_now());
+  FREERTPS_INFO("\r\n");
+  FREERTPS_INFO("Current time : %d \r\n", fr_time_now());
+  FREERTPS_INFO("PARTICIPANT\r\n");
   FREERTPS_INFO("| ID     | IP              | GUID \r\n");
   for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
     frudp_part_t *match = &g_frudp_disco_parts[i];
@@ -482,6 +584,7 @@ void frudp_print_participants_debug(void)
                   match->last_spdp.seconds,
                   (time.seconds - (match->last_spdp.seconds + bail)));
   }
+  FREERTPS_INFO("\r\n");
 }
 //#endif
 
@@ -492,7 +595,7 @@ void frudp_spdp_tick(void)
 //  FREERTPS_INFO(" %d > %d %d\r\n", delta, FRUDP_SPDP_DELAY_SEC, t.seconds);
   if (delta >= FRUDP_SPDP_DELAY_SEC)
   {
-    _SPDP_DEBUG("   frudp_spdp_tick()\r\n");
+    _SPDP_DEBUG("frudp_spdp_tick()\r\n");
     g_frudp_spdp_last_bcast = t;
     frudp_spdp_bcast();
     frudp_spdp_clean();

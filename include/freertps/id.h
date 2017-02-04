@@ -53,8 +53,8 @@ typedef struct
 } __attribute__((packed)) frudp_guid_t;
 extern const frudp_guid_t g_frudp_guid_unknown;
 
-bool frudp_guid_prefix_identical(frudp_guid_prefix_t * const a,
-                                 frudp_guid_prefix_t * const b);
+bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
+                                 const frudp_guid_prefix_t * const b);
 
 bool frudp_guid_identical(const frudp_guid_t * const a,
                           const frudp_guid_t * const b);
@@ -67,6 +67,7 @@ void frudp_stuff_guid(frudp_guid_t *guid,
 // VENDOR ID STUFF
 // for now let's pretend that our vendor ID is 11311 in hex
 #define FREERTPS_VENDOR_ID 0x2C2F
+#define FREERTPS_VENDOR_ID_UNKNOWN {0,0}
 typedef uint16_t frudp_vid_t;
 
 const char *frudp_submsg(const uint16_t id);
