@@ -260,7 +260,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_LIVELINESS:
       part->live_count = *(long *)pval;
-      _SPDP_INFO("\tSPDP Liveliness: \t\t\t%d\r\n", part->live_count);
+      _SPDP_INFO("\tSPDP Liveliness: \t\t\t%ld\r\n", part->live_count);
       break;
     case FRUDP_PID_ENTITY_NAME:
       frudp_parse_string(name,

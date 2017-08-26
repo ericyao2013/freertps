@@ -93,7 +93,7 @@ bool frudp_guid_identical(const frudp_guid_t * const a,
 
 const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *p)
 {
-  static char buffer[26];
+  static char buffer[27];
   snprintf(buffer, sizeof(buffer),
            "%02x%02x%02x%02x:%02x%02x%02x%02x:%02x%02x%02x%02x",
            (unsigned)p->prefix[0],
