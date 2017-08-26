@@ -444,9 +444,10 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TOPIC_NAME:
-      if (frudp_parse_string(g_topic_info.topic_name,
-                             sizeof(g_topic_info.topic_name),
-                             (frudp_rtps_string_t *)pval))
+      if (frudp_parse_string_prefix(g_topic_info.topic_name,
+                                             sizeof(g_topic_info.topic_name),
+                                             (frudp_rtps_string_t *)pval,
+                                             "/"))
       {
         _SEDP_INFO("\tSEDP topic name: \t\t\t\t[%s]\r\n", g_topic_info.topic_name);
       }
@@ -457,10 +458,9 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TYPE_NAME:
-      if (frudp_parse_string_prefix(g_topic_info.topic_name,
-                                     sizeof(g_topic_info.topic_name),
-                                     (frudp_rtps_string_t *)pval,
-                                     "/"))
+      if (frudp_parse_string(g_topic_info.type_name,
+                             sizeof(g_topic_info.type_name),
+                             (frudp_rtps_string_t *)pval))
       {
         _SEDP_INFO("\tSEDP type name: \t\t\t\t[%s]\r\n", g_topic_info.type_name);
       }
