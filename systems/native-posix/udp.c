@@ -76,8 +76,8 @@ bool frudp_init(void)
     tx_addr_str = host; // save this one for now
   }
   FREERTPS_INFO("using address %s for unicast\n", tx_addr_str);
-  g_frudp_tx_addr.sin_addr.s_addr = inet_addr(tx_addr_str);
-  g_frudp_config.unicast_addr = (uint32_t)g_frudp_tx_addr.sin_addr.s_addr;
+  g_frudp_tx_addr.sin_addr.s_addr = freertps_htonl(inet_addr(tx_addr_str));
+  g_frudp_config.unicast_addr = freertps_htonl((uint32_t)g_frudp_tx_addr.sin_addr.s_addr);
   freeifaddrs(ifaddr);
 
   g_frudp_tx_sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -107,7 +107,7 @@ bool frudp_init(void)
     FREERTPS_FATAL("couldn't enable outbound tx multicast loopback\n");
     return false;
   }
-  
+
   //if (!frudp_init_participant_id())
   //  return false;
   // some of the following stuff has been moved to frudp_part_create()
@@ -129,6 +129,8 @@ bool frudp_init(void)
 bool frudp_init_participant_id(void)
 {
   FREERTPS_INFO("frudp_init_participant_id()\n");
+//  g_frudp_config.participant_id = 0;
+//  return true;
   for (int pid = 0; pid < 100; pid++) // todo: hard upper bound is bad
   {
     // see if we can open the port; if so, let's say we have a unique PID
@@ -185,7 +187,7 @@ bool frudp_add_ucast_rx(const uint16_t port)
   struct sockaddr_in rx_bind_addr;
   memset(&rx_bind_addr, 0, sizeof(rx_bind_addr));
   rx_bind_addr.sin_family = AF_INET;
-  rx_bind_addr.sin_addr.s_addr = g_frudp_tx_addr.sin_addr.s_addr;
+  rx_bind_addr.sin_addr.s_addr = 0;//g_frudp_tx_addr.sin_addr.s_addr;
   rx_bind_addr.sin_port = htons(port);
   int result = bind(s, (struct sockaddr *)&rx_bind_addr, sizeof(rx_bind_addr));
   if (result < 0)
@@ -197,7 +199,7 @@ bool frudp_add_ucast_rx(const uint16_t port)
   frudp_rx_sock_t *rxs = &g_frudp_rx_socks[g_frudp_rx_socks_used];
   rxs->sock = s;
   rxs->port = port;
-  rxs->addr = rx_bind_addr.sin_addr.s_addr;
+  rxs->addr = htonl(rx_bind_addr.sin_addr.s_addr);
   //FREERTPS_INFO("  added in rx sock slot %d\n", g_frudp_rx_socks_used);
   g_frudp_rx_socks_used++;
   return true;
@@ -229,7 +231,10 @@ static bool set_sock_reuse(int s)
 bool frudp_add_mcast_rx(in_addr_t group, uint16_t port) //,
                      //const freertps_udp_rx_callback_t rx_cb)
 {
-  FREERTPS_INFO("add mcast rx port %d\n", port);
+  FREERTPS_DEBUG("frudp_add_mcast_rx%s:%d)\r\n",
+            frudp_print_ip(group),
+            port);
+
   int s = frudp_create_sock();
   if (s < 0)
     return false;
@@ -241,7 +246,7 @@ bool frudp_add_mcast_rx(in_addr_t group, uint16_t port) //,
   struct sockaddr_in rx_bind_addr;
   memset(&rx_bind_addr, 0, sizeof(rx_bind_addr));
   rx_bind_addr.sin_family = AF_INET;
-  rx_bind_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+  rx_bind_addr.sin_addr.s_addr = 0;//htonl(INADDR_ANY);
   rx_bind_addr.sin_port = htons(port);
   result = bind(s, (struct sockaddr *)&rx_bind_addr, sizeof(rx_bind_addr));
   if (result < 0)
@@ -252,19 +257,20 @@ bool frudp_add_mcast_rx(in_addr_t group, uint16_t port) //,
   }
 
   struct ip_mreq mreq;
-  mreq.imr_multiaddr.s_addr = group;
-  mreq.imr_interface.s_addr = g_frudp_tx_addr.sin_addr.s_addr;
-  result = setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
-  if (result < 0)
+  mreq.imr_multiaddr.s_addr = htonl(group);
+  mreq.imr_interface.s_addr = htons(0);//g_frudp_tx_addr.sin_addr.s_addr;
+  if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1
+          && setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, 2, sizeof(int)) == -1)
   {
-    FREERTPS_ERROR("couldn't add rx sock to multicast group, errno = %d\n",
-                   errno);
+    FREERTPS_ERROR("couldn't add rx sock to multicast group, errno = %s\n",
+            strerror(errno));
     return false;
   }
+
   frudp_rx_sock_t *rxs = &g_frudp_rx_socks[g_frudp_rx_socks_used];
   rxs->sock = s;
-  rxs->port = port;
-  rxs->addr = g_frudp_tx_addr.sin_addr.s_addr;
+  rxs->port = htons(port);
+  rxs->addr = htonl(g_frudp_tx_addr.sin_addr.s_addr);
   //g_freertps_udp_rx_socks[g_freertps_udp_rx_socks_used].cb = rx_cb;
   //FREERTPS_INFO("  added in rx sock slot %d\n", g_frudp_rx_socks_used);
   g_frudp_rx_socks_used++;
@@ -313,16 +319,28 @@ bool frudp_listen(const uint32_t max_usec)
         frudp_rx_sock_t *rxs = &g_frudp_rx_socks[i];
         if (FD_ISSET(rxs->sock, &rdset))
         {
-          struct sockaddr_in src_addr;
-          int addrlen = sizeof(src_addr);
+          struct sockaddr_in socket_src_addr;
+          int addrlen = sizeof(socket_src_addr);
           int nbytes = recvfrom(rxs->sock,
                                 s_frudp_listen_buf, sizeof(s_frudp_listen_buf),
                                 0,
-                                (struct sockaddr *)&src_addr,
+                                (struct sockaddr *)&socket_src_addr,
                                 (socklen_t *)&addrlen);
+
+          const uint32_t src_addr = freertps_htonl(socket_src_addr.sin_addr.s_addr);
+          const uint16_t src_port = freertps_htons(socket_src_addr.sin_port);
+          const uint16_t dst_port = rxs->port;
+
+//          if (frudp_mcast_builtin_port() == dst_port || frudp_mcast_user_port() == dst_port)
+//          {
+//
+//          }
+
           //printf("rx %d\r\n", nbytes);
-          frudp_rx(src_addr.sin_addr.s_addr, src_addr.sin_port,
-                   rxs->addr, rxs->port,
+          frudp_rx(src_addr,
+                  src_port,
+                   rxs->addr,
+                   dst_port,
                    s_frudp_listen_buf, nbytes);
         }
       }
@@ -348,9 +366,17 @@ bool frudp_tx(const in_addr_t dst_addr,
               const uint8_t *tx_data,
               const uint16_t tx_len)
 {
+#ifdef EXCESSIVELY_VERBOSE_MSG_RX
+  FREERTPS_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+  FREERTPS_DEBUG("Sending data %d bytes to %s:%d\r\n",
+                tx_len, frudp_print_ip(dst_addr), dst_port);
+  FREERTPS_DEBUG(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\r\n");
+#endif
+
   //struct sockaddr_in g_freertps_tx_addr;
+  g_frudp_tx_addr.sin_family = AF_INET;
   g_frudp_tx_addr.sin_port = htons(dst_port);
-  g_frudp_tx_addr.sin_addr.s_addr = dst_addr;
+  g_frudp_tx_addr.sin_addr.s_addr = htonl(dst_addr);
   // todo: be smarter
   if (tx_len == sendto(g_frudp_rx_socks[3].sock, tx_data, tx_len, 0,
                        (struct sockaddr *)(&g_frudp_tx_addr),

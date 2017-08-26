@@ -379,6 +379,8 @@ static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
       w.writer_eid = pub->writer_eid;
       frudp_add_writer(&w);
       founded++;
+
+      frudp_print_sedp_debug();
     }
     else
     {
