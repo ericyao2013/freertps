@@ -249,13 +249,14 @@ void frudp_publish(frudp_pub_t *pub, frudp_submsg_data_t *submsg)
   frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
   fr_time_t t = fr_time_now();
   uint16_t submsg_wpos = 0;
-
+  
   frudp_submsg_t *ts_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
   ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
   ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
   ts_submsg->header.len = 8;
   memcpy(ts_submsg->contents, &t, 8);
   submsg_wpos += 4 + 8;
+  
   ///////////////////////////////////////////////////////////////////////
   //frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
   memcpy(&msg->submsgs[submsg_wpos], submsg, 4 + submsg->header.len);
@@ -359,15 +360,16 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
         ts_submsg->header.len = 8;
         memcpy(ts_submsg->contents, &t, 8);
         submsg_wpos += 4 + 8;
+        
         ///////////////////////////////////////////////////////////////////////
         //frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
         memcpy(&msg->submsgs[submsg_wpos], data, 4 + data->header.len);
         //data_submsg, submsg, 4 + submsg->header.len);
-        submsg_wpos += 4 + data->header.len;
+        //submsg_wpos += 4 + data->header.len;
 
         frudp_submsg_heartbeat_t *hb_submsg = (frudp_submsg_heartbeat_t *)&msg->submsgs[submsg_wpos];
         hb_submsg->header.id = FRUDP_SUBMSG_ID_HEARTBEAT;
-        hb_submsg->header.flags = 0x3; // todo: spell this out
+        hb_submsg->header.flags = 0x1; //0x3; // todo: spell this out
         hb_submsg->header.len = 28;
         hb_submsg->reader_id = data->reader_id;
         hb_submsg->writer_id = data->writer_id;

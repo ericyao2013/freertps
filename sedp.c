@@ -235,12 +235,13 @@ void frudp_sedp_clean(void)
 void frudp_sedp_tick(void)
 {
   const fr_time_t t = fr_time_now();
-  if (fr_time_diff(&t, &g_frudp_sedp_last_bcast).seconds >= FRUDP_SEDP_DELAY_SEC)
+  int32_t delta = fr_time_diff(&t, &g_frudp_sedp_last_bcast).seconds;
+  if (delta >= FRUDP_SEDP_DELAY_SEC)
   {
     _SEDP_DEBUG("frudp_sedp_tick()\r\n");
     g_frudp_sedp_last_bcast = t;
 
-//    frudp_sedp_bcast(); //TODO disable for IRV error
+    frudp_sedp_bcast(); //TODO disable for IRV error
     frudp_sedp_clean();
 
 //#ifdef VERBOSE_SEDP
@@ -437,10 +438,10 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_PARTICIPANT_GUID:
-      guid = (frudp_guid_t *)pval;
-      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
-      _SEDP_INFO("\tguid \t\t\t\t\t\t%s (TODO)\r\n",
-                 frudp_print_guid_prefix(&guid->prefix));
+//      guid = (frudp_guid_t *)pval;
+//      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
+//      _SEDP_INFO("\tguid \t\t\t\t\t\t%s (TODO)\r\n",
+//                 frudp_print_guid_prefix(&guid->prefix));
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TOPIC_NAME:

@@ -598,6 +598,7 @@ void frudp_spdp_tick(void)
   {
     _SPDP_DEBUG("frudp_spdp_tick()\r\n");
     g_frudp_spdp_last_bcast = t;
+
     frudp_spdp_bcast();
     frudp_spdp_clean();
 
