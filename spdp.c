@@ -139,7 +139,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
 
     const uint8_t *pval = item->value;
 
-    _SPDP_DEBUG("\tunhandled SPDP rx param 0x%x len %d\r\n",
+    _SPDP_DEBUG("\tunknown SPDP rx param 0x%x len %d\r\n",
                 (unsigned)pid, item->len);
 
     switch(pid)
@@ -262,11 +262,12 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       part->live_count = *(long *)pval;
       _SPDP_INFO("\tSPDP Liveliness: \t\t\t%ld\r\n", part->live_count);
       break;
+    ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_ENTITY_NAME:
-      frudp_parse_string(name,
-                         sizeof(name),
-                         (frudp_rtps_string_t *)pval);
-      _SPDP_INFO("\tSPDP Name : \t\t\t\t%s\r\n", &name);
+      //frudp_parse_string(name,
+      //                   sizeof(item->len),
+      //                   (frudp_rtps_string_t *)pval);
+      //_SPDP_INFO("\tSPDP Name : \t\t\t\t%s\r\n", &name);
       break;
     ////////////////////////////////////////////////////////////////////////////
     default:
@@ -526,7 +527,7 @@ void frudp_spdp_bcast(void)
   PLIST_ADVANCE(param_list);
   param_list->pid = FRUDP_PID_BUILTIN_ENDPOINT_SET;
   param_list->len = 4;
-  uint32_t endpoint_set = 0x3f; //b; // 0x3f;
+  uint32_t endpoint_set = 0xc3f; //b; // 0x3f;
   memcpy(param_list->value, &endpoint_set, 4);
 
   /////////////////////////////////////////////////////////////
