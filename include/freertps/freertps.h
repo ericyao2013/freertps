@@ -91,7 +91,7 @@ bool freertps_publish(frudp_pub_t *pub,
                       const uint32_t msg_len);
 //void freertps_perish_if(bool b, const char *msg);
 
-//extern bool g_freertps_init_complete;
+extern bool g_freertps_init_complete;
 
 void freertps_start(void);
 

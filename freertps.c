@@ -21,7 +21,7 @@
 #include "freertps/sedp.h"
 #include "freertps/spdp.h"
 
-//bool g_freertps_init_complete = false;
+bool g_freertps_init_complete = false;
 
 void freertps_perish_if(bool b, const char *msg)
 {
