@@ -262,6 +262,7 @@ uint16_t frudp_spdp_port(void);
 //const char *frudp_ip4_ntoa(const uint32_t addr);
 
 bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s);
+bool frudp_parse_string_prefix(char *buf, uint32_t buf_len, frudp_rtps_string_t *s, char *prefix);
 
 frudp_msg_t *frudp_init_msg(frudp_msg_t *buf);
 

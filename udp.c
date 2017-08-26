@@ -581,6 +581,27 @@ bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s)
     return false; // couldn't fit entire string in buffer
 }
 
+bool frudp_parse_string_prefix(char *buf, uint32_t buf_len, frudp_rtps_string_t *s, char *prefix)
+{
+  int bufIndex = 0;
+
+  for (; bufIndex < strlen(prefix); bufIndex++)
+      buf[bufIndex] = prefix[bufIndex];
+
+  int wpos = 0;
+
+  for (; wpos < s->len && wpos < buf_len-1; wpos++)
+  {
+    buf[bufIndex] = s->data[wpos];
+    bufIndex++;
+  }
+  buf[bufIndex] = 0;
+  if (wpos < buf_len - 1)
+    return true;
+  else
+    return false; // couldn't fit entire string in buffer
+}
+
 frudp_msg_t *frudp_init_msg(frudp_msg_t *buf)
 {
   frudp_msg_t *msg = (frudp_msg_t *)buf;
