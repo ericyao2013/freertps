@@ -255,6 +255,11 @@ bool frudp_tx(const uint32_t dst_addr,
               const uint8_t *tx_data,
               const uint16_t tx_len);
 
+void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
+                      const frudp_eid_t *reader_eid,
+                      const frudp_guid_t *writer_guid,
+                      const frudp_sn_set_t *set);
+
 uint16_t frudp_ucast_builtin_port(void);
 uint16_t frudp_mcast_builtin_port(void);
 uint16_t frudp_ucast_user_port(void);

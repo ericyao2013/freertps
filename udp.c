@@ -50,11 +50,6 @@ static bool frudp_rx_heartbeat_frag(RX_MSG_ARGS);
 static bool frudp_rx_data          (RX_MSG_ARGS);
 static bool frudp_rx_data_frag     (RX_MSG_ARGS);
 
-void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
-                      const frudp_eid_t *reader_eid,
-                      const frudp_guid_t *writer_guid,
-                      const frudp_sn_set_t *set);
-
 //////////////////////////////////////////////////////////////////////////
 
 bool frudp_rx(const uint32_t src_addr, const uint16_t src_port,
@@ -168,6 +163,7 @@ static bool frudp_rx_submsg(frudp_receiver_state_t *rcvr,
 static bool frudp_rx_acknack(RX_MSG_ARGS)
 {
   frudp_submsg_acknack_t *m = (frudp_submsg_acknack_t *)submsg->contents;
+
 #if defined(VERBOSE_ACKNACK) || defined(EXCESSIVELY_VERBOSE_MSG_RX)
   frudp_guid_t reader_guid;
   frudp_stuff_guid(&reader_guid, &rcvr->src_guid_prefix, &m->reader_id);
@@ -178,15 +174,18 @@ static bool frudp_rx_acknack(RX_MSG_ARGS)
                 (int)(m->reader_sn_state.bitmap_base.low +
                       m->reader_sn_state.num_bits));
 #endif
+
   frudp_pub_t *pub = frudp_pub_from_writer_id(m->writer_id);
   if (!pub)
   {
     FREERTPS_ERROR("    AckNack couldn't find pub for writer id 0x%08x\r\n",
            (unsigned)freertps_htonl(m->writer_id.u));
-    return true; // not sure what's happening.
+    return false; // not sure what's happening.
   }
-  else
+  else {
+    FREERTPS_INFO("    AckNack found publisher '%s' for writer 0x%08x\r\n", pub->topic_name, (unsigned)freertps_htonl(m->writer_id.u));
     frudp_pub_rx_acknack(pub, m, &rcvr->src_guid_prefix);
+  }
   return true;
 }
 

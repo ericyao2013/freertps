@@ -375,15 +375,17 @@ bool frudp_tx(const in_addr_t dst_addr,
 
   //struct sockaddr_in g_freertps_tx_addr;
   g_frudp_tx_addr.sin_family = AF_INET;
-  g_frudp_tx_addr.sin_port = htons(dst_port);
+  g_frudp_tx_addr.sin_port = htons((unsigned short)dst_port);
   g_frudp_tx_addr.sin_addr.s_addr = htonl(dst_addr);
   // todo: be smarter
   if (tx_len == sendto(g_frudp_rx_socks[3].sock, tx_data, tx_len, 0,
                        (struct sockaddr *)(&g_frudp_tx_addr),
                        sizeof(g_frudp_tx_addr)))
     return true;
-  else
+  else {
+    FREERTPS_ERROR("ERROR when send : %d", tx_len);
     return false;
+  }
 }
 
 void freertps_timer_set_freq(uint32_t freq, freertps_timer_cb_t cb)

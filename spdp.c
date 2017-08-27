@@ -256,6 +256,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_ENTITY_NAME:
+
       //frudp_parse_string(name,
       //                   sizeof(item->len),
       //                   (frudp_rtps_string_t *)pval);
@@ -404,6 +405,7 @@ void frudp_spdp_bcast(void)
 
   /////////////////////////////////////////////////////////////////////////////
   // FRUDP_PID_KEY_HASH
+  //TODO Disabled (not send in eProsima FastRTPS)
 //  frudp_parameter_list_item_t *inline_qos_param =
 //    (frudp_parameter_list_item_t *)(((uint8_t *)data_submsg) +
 //                                    sizeof(frudp_submsg_data_t));
@@ -488,14 +490,14 @@ void frudp_spdp_bcast(void)
 //  PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
   // FRUDP_PID_DEFAULT_MULTICAST_LOCATOR
-  // Disabled (not send in eProsima FastRTPS)
-//  param_list->pid = FRUDP_PID_DEFAULT_MULTICAST_LOCATOR;
-//  param_list->len = sizeof(frudp_locator_t);
-//  loc = (frudp_locator_t *)param_list->value;
-//  loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
-//  loc->port = frudp_mcast_user_port();
-//  memset(loc->addr.udp4.zeros, 0, 12);
-//  loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
+  //TODO Disabled (not send in eProsima FastRTPS)
+  param_list->pid = FRUDP_PID_DEFAULT_MULTICAST_LOCATOR;
+  param_list->len = sizeof(frudp_locator_t);
+  loc = (frudp_locator_t *)param_list->value;
+  loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
+  loc->port = frudp_mcast_user_port();
+  memset(loc->addr.udp4.zeros, 0, 12);
+  loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
 
   FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
@@ -543,15 +545,14 @@ void frudp_spdp_bcast(void)
   //data_submsg->header.len = next_submsg_ptr - data_submsg->contents;
   data_submsg->header.len = param_list->value - 4 - (uint8_t *)&data_submsg->extraflags;
   frudp_submsg_t *next_submsg_ptr = (frudp_submsg_t *)param_list;
+
   /////////////////////////////////////////////////////////////
-  /*
-  ts_submsg = (frudp_submsg_t *)param_list;
-  ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
-  ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
-  ts_submsg->header.len = 8;
-  memcpy(ts_submsg->contents, &t, 8);
-  uint8_t *next_submsg_ptr = ((uint8_t *)param_list) + 4 + 8;
-  */
+//  ts_submsg = (frudp_submsg_t *)param_list;
+//  ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
+//  ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
+//  ts_submsg->header.len = 8;
+//  memcpy(ts_submsg->contents, &t, 8);
+//  uint8_t *next_submsg_ptr = ((uint8_t *)param_list) + 4 + 8;
 
   /////////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////
@@ -561,6 +562,7 @@ void frudp_spdp_bcast(void)
   //int payload_len = ((uint8_t *)param_list) - ((uint8_t *)msg->submsgs);
   //int payload_len = ((uint8_t *)next_submsg_ptr) - ((uint8_t *)msg->submsgs);
   int payload_len = ((uint8_t *)next_submsg_ptr) - ((uint8_t *)msg);
+
   if (!frudp_tx(FRUDP_DEFAULT_MCAST_GROUP,
         frudp_mcast_builtin_port(),
         (const uint8_t *)msg, payload_len))
@@ -574,13 +576,14 @@ void frudp_print_participants_debug(void)
   FREERTPS_INFO("\r\n");
   FREERTPS_INFO("Current time : %d \r\n", fr_time_now());
   FREERTPS_INFO("PARTICIPANT\r\n");
-  FREERTPS_INFO("| ID     | IP              | GUID \r\n");
+  FREERTPS_INFO("| ID     | NAME       | IP              | GUID | bail | last | end |\r\n");
   for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
     frudp_part_t *match = &g_frudp_disco_parts[i];
     frudp_duration_t *duration = &match->lease_duration;
     int32_t bail = (duration->sec); // + duration->nanosec); // In second
-    FREERTPS_INFO("| %d\t | %s | %s | %d | %d | %d |\r\n",
+    FREERTPS_INFO("| %d\t | %s | %s | %s | %d | %d | %d |\r\n",
                   i,
+                  match->name,
                   frudp_print_ip(freertps_htonl(match->default_unicast_locator.addr.udp4.addr)),
                   frudp_print_guid_prefix(&match->guid_prefix),
                   bail,

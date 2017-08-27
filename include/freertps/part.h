@@ -37,7 +37,7 @@ typedef struct
   frudp_builtin_endpoint_set_t builtin_endpoints;
   frudp_duration_t lease_duration;
   long live_count;
-//  char name[256]; Disable for memory issue
+  char name[256]; // Disable for memory issue
   // Internal
   fr_time_t last_spdp;
 } frudp_part_t;
