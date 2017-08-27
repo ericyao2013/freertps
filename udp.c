@@ -666,3 +666,14 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
            part->metatraffic_unicast_locator.port,
            (const uint8_t *)msg, payload_len);
 }
+
+void set_string_alligned(const char *string, frudp_parameter_list_item_t *param ) {
+  int string_len = string ? strlen(string) : 0;
+  uint32_t *param_topic_len = (uint32_t *)param->value;
+  *param_topic_len = string_len + 1;
+
+  memcpy(param->value + 4, string, string_len + 1);
+
+  //param->value[4 + topic_len + 1] = 0; // null-terminate plz
+  param->len = (4 + string_len + 1 + 3) & ~0x3; // params must be 32-bit aligned
+}

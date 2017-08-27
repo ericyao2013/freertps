@@ -15,6 +15,7 @@
 #ifndef FREERTPS_UDP_H
 #define FREERTPS_UDP_H
 
+#include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
@@ -62,6 +63,7 @@ extern "C"
     list_item = (frudp_parameter_list_item_t *) \
                 (((uint8_t *)list_item) + 4 + list_item->len); \
   } while (0)
+
 
 /////////////////////////////////////////////////////////////////////
 // TYPES
@@ -271,6 +273,8 @@ extern const struct rtps_psm g_rtps_psm_udp;
 long getIp();
 
 long getNetwork();
+
+void set_string_alligned(const char *string, frudp_parameter_list_item_t *param );
 
 #ifdef __cplusplus
 }

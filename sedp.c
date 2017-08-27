@@ -448,7 +448,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       if (frudp_parse_string_prefix(g_topic_info.topic_name,
                                              sizeof(g_topic_info.topic_name),
                                              (frudp_rtps_string_t *)pval,
-                                             "/"))
+                                             ""))
       {
         _SEDP_INFO("\tSEDP topic name: \t\t\t\t[%s]\r\n", g_topic_info.topic_name);
       }
@@ -670,7 +670,8 @@ static void frudp_sedp_publish(const char *topic_name,
   param->len = 4;
   param->value[0] = 2;
   param->value[1] = 1;
-  param->value[2] = param->value[3] = 0; // pad to 4-byte boundary
+  param->value[2] = 0;
+  param->value[3] = 0; // pad to 4-byte boundary
 
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
@@ -678,7 +679,8 @@ static void frudp_sedp_publish(const char *topic_name,
   param->len = 4;
   param->value[0] = (FREERTPS_VENDOR_ID >> 8) & 0xff;
   param->value[1] = FREERTPS_VENDOR_ID & 0xff;
-  param->value[2] = param->value[3] = 0; // pad to 4-byte boundary
+  param->value[2] = 0;
+  param->value[3] = 0; // pad to 4-byte boundary
 
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
@@ -698,13 +700,7 @@ static void frudp_sedp_publish(const char *topic_name,
   {
     FRUDP_PLIST_ADVANCE(param);
     param->pid = FRUDP_PID_TOPIC_NAME;
-    int topic_len = topic_name ? strlen(topic_name) : 0;
-    uint32_t *param_topic_len = (uint32_t *)param->value;
-    *param_topic_len = topic_len + 1;
-    //*((uint32_t *)param->value) = topic_len + 1;
-    memcpy(param->value + 4, topic_name, topic_len + 1);
-    //param->value[4 + topic_len + 1] = 0; // null-terminate plz
-    param->len = (4 + topic_len + 1 + 3) & ~0x3; // params must be 32-bit aligned
+    set_string_alligned(topic_name, param);
   }
 
   /////////////////////////////////////////////////////////////
@@ -712,11 +708,7 @@ static void frudp_sedp_publish(const char *topic_name,
   {
     FRUDP_PLIST_ADVANCE(param);
     param->pid = FRUDP_PID_TYPE_NAME;
-    int type_len = strlen(type_name);
-    uint32_t *value = (uint32_t *)param->value;
-    *value = type_len + 1;
-    memcpy(param->value + 4, type_name, type_len + 1);
-    param->len = (4 + type_len + 1 + 3) & ~0x3; // params must be 32-bit aligned
+    set_string_alligned(type_name, param);
   }
 
   /////////////////////////////////////////////////////////////
