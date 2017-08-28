@@ -15,9 +15,10 @@
 #ifndef FREERTPS_SEDP_H
 #define FREERTPS_SEDP_H
 
-#include "freertps/pub.h"
-#include "freertps/sub.h"
-#include "freertps/part.h"
+#include "freertps/rtps/pub.h"
+#include "freertps/rtps/sub.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/log.h"
 
 #ifdef __cplusplus
 extern "C"

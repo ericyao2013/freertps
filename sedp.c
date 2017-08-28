@@ -12,13 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string.h>
-
 #include "freertps/freertps.h"
-#include "freertps/sedp.h"
-#include "freertps/spdp.h"
-#include "freertps/qos.h"
-#include "freertps/disco.h"
+#include "freertps/rtps/type/qos.h"
+#include "freertps/rtps/constant/parameter_id.h"
+#include "freertps/rtps/constant/submsg_flags.h"
+#include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/discovery/sedp.h"
+#include "freertps/rtps/discovery/spdp.h"
+
+#include <string.h>
 
 ////////////////////////////////////////////////////////////////////////////
 // local constants
@@ -118,7 +121,7 @@ void frudp_sedp_init(void)
 void frudp_sedp_start(void)
 {
   _SEDP_DEBUG("frudp_sedp_start()\r\n");
-  //frudp_sedp_bcast();
+  frudp_sedp_bcast();
   g_frudp_sedp_last_bcast = fr_time_now();
 }
 
@@ -677,8 +680,8 @@ static void frudp_sedp_publish(const char *topic_name,
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_VENDOR_ID;
   param->len = 4;
-  param->value[0] = (FREERTPS_VENDOR_ID >> 8) & 0xff;
-  param->value[1] = FREERTPS_VENDOR_ID & 0xff;
+  param->value[0] = (FREERTPS_VID_FREERTPS >> 8) & 0xff;
+  param->value[1] = FREERTPS_VID_FREERTPS & 0xff;
   param->value[2] = 0;
   param->value[3] = 0; // pad to 4-byte boundary
 

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "freertps/freertps.h"
+#include "freertps/psm/system.h"
 
 int main(int argc, char **argv)
 {

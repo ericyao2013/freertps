@@ -15,10 +15,9 @@
 #ifndef FREERTPS_SUBSCRIPTION_H
 #define FREERTPS_SUBSCRIPTION_H
 
-#include "freertps/id.h"
-#include "freertps/udp.h"
-#include "freertps/freertps.h"
 #include "freertps/config.h"
+#include "freertps/freertps.h"
+#include "freertps/psm/udp.h"
 
 #ifdef __cplusplus
 extern "C"

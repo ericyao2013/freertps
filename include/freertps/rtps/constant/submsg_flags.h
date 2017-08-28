@@ -12,12 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/freertps.h"
-#include "freertps/psm/ser.h"
-#include "freertps/log.h"
-#include <stdio.h>
+#ifndef FREERTPS_SUBMSG_FLAGS_H
+#define FREERTPS_SUBMSG_FLAGS_H
 
-void rtps_ser_disco(void)
-{
-    FREERTPS_INFO("rtps serial disco\n");
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define FRUDP_FLAGS_BIG_ENDIAN         0x00
+#define FRUDP_FLAGS_LITTLE_ENDIAN      0x01
+#define FRUDP_FLAGS_INLINE_QOS         0x02
+#define FRUDP_FLAGS_DATA_PRESENT       0x04
+
+#ifdef __cplusplus
 }
+#endif
+#endif // FREERTPS_SUBMSG_FLAGS_H

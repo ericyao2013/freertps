@@ -12,17 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/utils.h"
+#include "freertps/rtps/constant/parameter_id.h"
+#include "freertps/rtps/constant/submsg_flags.h"
+#include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/type/config.h"
+#include "freertps/rtps/sub.h"
+#include "freertps/rtps/pub.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/discovery/spdp.h"
+#include "freertps/psm/udp.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/psm.h"
+
 #include <limits.h>
 #include <string.h>
 #include <stdio.h>
-
-#include "freertps/udp.h"
-#include "freertps/spdp.h"
-#include "freertps/disco.h"
-#include "freertps/sub.h"
-#include "freertps/pub.h"
-#include "freertps/bswap.h"
-#include "freertps/psm.h"
 
 const struct rtps_psm g_rtps_psm_udp = { .init = frudp_init };
 
@@ -607,7 +612,7 @@ frudp_msg_t *frudp_init_msg(frudp_msg_t *buf)
   msg->header.magic_word = FRUDP_MAGIC_WORLD;
   msg->header.pver.major = 2;
   msg->header.pver.minor = 1;
-  msg->header.vid = FREERTPS_VENDOR_ID;
+  msg->header.vid = FREERTPS_VID_FREERTPS;
   memcpy(msg->header.guid_prefix.prefix,
          g_frudp_config.guid_prefix.prefix,
          FRUDP_GUID_PREFIX_LEN);

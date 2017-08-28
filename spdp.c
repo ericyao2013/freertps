@@ -12,17 +12,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/freertps.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
+#include "freertps/rtps/sub.h"
+#include "freertps/rtps/constant/parameter_id.h"
+#include "freertps/rtps/constant/submsg_flags.h"
+#include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/discovery/spdp.h"
+#include "freertps/rtps/discovery/sedp.h"
+
 #include <string.h>
 #include <time.h>
 #include <inttypes.h>
-
-#include "freertps/freertps.h"
-#include "freertps/bswap.h"
-#include "freertps/spdp.h"
-#include "freertps/sedp.h"
-#include "freertps/udp.h"
-#include "freertps/sub.h"
-#include "freertps/disco.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // local constants
@@ -140,7 +143,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
     case FRUDP_PID_PROTOCOL_VERSION:
       part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
       _SPDP_INFO("\tSPDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
-                 part->pver);
+                 part->pver.major);
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_VENDOR_ID:
@@ -445,8 +448,8 @@ void frudp_spdp_bcast(frudp_part_t *part)
   // FRUDP_PID_VENDOR_ID
   param_list->pid = FRUDP_PID_VENDOR_ID;
   param_list->len = 4;
-  param_list->value[0] = (FREERTPS_VENDOR_ID >> 8) & 0xff;
-  param_list->value[1] = FREERTPS_VENDOR_ID & 0xff;
+  param_list->value[0] = (FREERTPS_VID_FREERTPS >> 8) & 0xff;
+  param_list->value[1] = FREERTPS_VID_FREERTPS & 0xff;
   param_list->value[2] = 0;
   param_list->value[3] = 0; // pad to 4-byte boundary
 

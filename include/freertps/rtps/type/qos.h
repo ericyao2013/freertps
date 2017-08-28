@@ -15,7 +15,7 @@
 #ifndef FRUDP_QOS_H
 #define FRUDP_QOS_H
 
-#include "freertps/udp.h"
+#include "freertps/psm/udp.h"
 
 #ifdef __cplusplus
 extern "C"

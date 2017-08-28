@@ -12,17 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/psm/bswap.h"
+#include "freertps/freertps.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/rtps/constant/submsg_flags.h"
+#include "freertps/rtps/pub.h"
+#include "freertps/rtps/discovery/sedp.h"
+#include "freertps/rtps/discovery/spdp.h"
+
 #include <stdio.h>
 #include <string.h>
-
-#include "freertps/pub.h"
-#include "freertps/config.h"
-#include "freertps/id.h"
-#include "freertps/part.h"
-#include "freertps/bswap.h"
-#include "freertps/freertps.h"
-#include "freertps/sedp.h"
-#include "freertps/spdp.h"
 
 frudp_writer_t g_frudp_writers[FRUDP_MAX_WRITERS];
 uint32_t g_frudp_num_writers = 0;

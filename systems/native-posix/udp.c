@@ -1,11 +1,12 @@
 #include "freertps/freertps.h"
 #include "freertps/timer.h"
-#include "freertps/udp.h"
-#include "freertps/disco.h"
+#include "freertps/psm/udp.h"
+#include "freertps/rtps/type/config.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/constant/vendor.h"
+
 #include <stdint.h>
 #include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <string.h>
 #include <ifaddrs.h>
 #include <stdlib.h>
@@ -14,6 +15,9 @@
 #include <errno.h>
 #include <netinet/in.h>
 #include <math.h>
+
+#include <sys/types.h>
+#include <sys/socket.h>
 
 // tragedy this didn't get into POSIX...
 #ifndef NI_MAXHOST
@@ -113,8 +117,8 @@ bool frudp_init(void)
   // some of the following stuff has been moved to frudp_part_create()
   //frudp_generic_init();
   // not sure about endianness here.
-  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VENDOR_ID >> 8;
-  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VENDOR_ID & 0xff;
+  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
+  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
   // todo: actually get mac address
   const uint8_t mac[6] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab };
   memcpy(&g_frudp_config.guid_prefix.prefix[2], mac, 6);
@@ -259,8 +263,10 @@ bool frudp_add_mcast_rx(in_addr_t group, uint16_t port) //,
   struct ip_mreq mreq;
   mreq.imr_multiaddr.s_addr = htonl(group);
   mreq.imr_interface.s_addr = htons(0);//g_frudp_tx_addr.sin_addr.s_addr;
+  int ttlv = 2;
+  int *ttlp = &ttlv;
   if (setsockopt(s, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq)) == -1
-          && setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, 2, sizeof(int)) == -1)
+          && setsockopt(s, IPPROTO_IP, IP_MULTICAST_TTL, ttlp, sizeof(int)) == -1)
   {
     FREERTPS_ERROR("couldn't add rx sock to multicast group, errno = %s\n",
             strerror(errno));

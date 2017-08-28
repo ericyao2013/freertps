@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/freertps.h"
+#include "freertps/rtps/type/config.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/psm/udp.h"
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "freertps/udp.h"
-#include "freertps/disco.h"
-#include "freertps/part.h"
-#include "freertps/config.h"
-#include "freertps/freertps.h"
 
 static bool g_frudp_participant_init_complete = false;
 

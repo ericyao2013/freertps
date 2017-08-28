@@ -12,11 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_CONFIG_H
-#define FREERTPS_CONFIG_H
-
-#include <stdint.h>
-#include "freertps/id.h"
+#ifndef FREERTPS_CONFIG_DEFAULT_H
+#define FREERTPS_CONFIG_DEFAULT_H
 
 #ifdef __cplusplus
 extern "C"
@@ -57,21 +54,6 @@ extern "C"
 
 #define FRUDP_MAGIC_WORLD 0x53505452 // RTPS in ASCII
 
-typedef struct
-{
-  /** GUID prefix */
-  frudp_guid_prefix_t guid_prefix;
-
-  /** Participant ID*/
-  int participant_id;
-
-  /** Domain ID */
-  uint32_t domain_id;
-
-  /** Unicast Address */
-  uint32_t unicast_addr;
-} frudp_config_t;
-extern frudp_config_t g_frudp_config;
 
 #define DEBUG
 

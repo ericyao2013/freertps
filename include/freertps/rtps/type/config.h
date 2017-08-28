@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_PART_H
-#define FRUDP_PART_H
+#ifndef FREERTPS_CONFIG_H
+#define FREERTPS_CONFIG_H
 
-#include "freertps/udp.h"
-#include "freertps/locator.h"
-#include <stdbool.h>
+#include "freertps/rtps/type/guid_prefix.h"
+
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -26,26 +26,22 @@ extern "C"
 
 typedef struct
 {
-  frudp_pver_t pver;
-  frudp_vid_t vid;
+  /** GUID prefix */
   frudp_guid_prefix_t guid_prefix;
-  bool expects_inline_qos;
-  frudp_locator_t default_unicast_locator;
-  frudp_locator_t default_multicast_locator;
-  frudp_locator_t metatraffic_unicast_locator;
-  frudp_locator_t metatraffic_multicast_locator;
-  frudp_builtin_endpoint_set_t builtin_endpoints;
-  frudp_duration_t lease_duration;
-  long live_count;
-  char name[256]; // Disable for memory issue
-  // Internal
-  fr_time_t last_spdp;
-} frudp_part_t;
 
-frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix);
-bool frudp_part_create(void);
+  /** Participant ID*/
+  uint32_t participant_id;
+
+  /** Domain ID */
+  uint32_t domain_id;
+
+  /** Unicast Address */
+  uint32_t unicast_addr;
+} __attribute__((packed)) frudp_config_t;
+
+extern frudp_config_t g_frudp_config;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_PART_H
+#endif // FREERTPS_CONFIG_H

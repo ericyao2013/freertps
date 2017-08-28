@@ -15,10 +15,10 @@
 #ifndef FREERTPS_PUB_H
 #define FREERTPS_PUB_H
 
-#include "freertps/udp.h"
-#include "freertps/id.h"
 #include "freertps/config.h"
-#include "freertps/part.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/psm/udp.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

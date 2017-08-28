@@ -12,12 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/freertps.h"
-#include "freertps/psm/ser.h"
-#include "freertps/log.h"
-#include <stdio.h>
+#ifndef FREERTPS_GUID_PREFIX_H
+#define FREERTPS_GUID_PREFIX_H
 
-void rtps_ser_disco(void)
+#include "freertps/rtps/type/eid.h"
+
+#include <stdint.h>
+#include <stdbool.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#define FRUDP_GUID_PREFIX_LEN 12
+
+typedef struct
 {
-    FREERTPS_INFO("rtps serial disco\n");
+  uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
+} __attribute__((packed)) frudp_guid_prefix_t;
+
+bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
+                                 const frudp_guid_prefix_t * const b);
+
+const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *guid_prefix);
+
+#ifdef __cplusplus
 }
+#endif
+#endif // FREERTPS_GUID_PREFIX_H

@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include "freertps/freertps.h"
+
+#include <stdio.h>
 #include <string.h>
 
 frudp_pub_t *g_pub = NULL;

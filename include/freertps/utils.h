@@ -12,12 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/freertps.h"
-#include "freertps/psm/ser.h"
-#include "freertps/log.h"
-#include <stdio.h>
+#ifndef FRUDP_ID_H
+#define FRUDP_ID_H
 
-void rtps_ser_disco(void)
+#include "freertps/log.h"
+
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C"
 {
-    FREERTPS_INFO("rtps serial disco\n");
+#endif
+
+const char *frudp_submsg(const uint16_t id);
+const char *frudp_print_ip(const long ip);
+
+#ifdef __cplusplus
 }
+#endif
+#endif // FRUDP_ID_H

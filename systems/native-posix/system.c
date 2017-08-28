@@ -1,11 +1,13 @@
 #include "freertps/freertps.h"
-#include "freertps/system.h"
+#include "freertps/psm/system.h"
+#include "freertps/psm/psm.h"
+
 #include <stdlib.h>
 #if defined(__linux__)
 #include <malloc.h>
 #endif
 #include <execinfo.h>
-#include "freertps/psm.h"
+
 
 struct rtps_psm g_rtps_psm;
 

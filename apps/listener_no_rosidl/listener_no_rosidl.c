@@ -1,7 +1,9 @@
-#include <stdio.h>
 #include "freertps/freertps.h"
+#include "freertps/psm/system.h"
 
-void chatter_cb(const void *msg)
+#include <stdio.h>
+
+void chatter_cb(const void *msg, uint32_t len)
 {
   uint32_t str_len = *((uint32_t *)msg);
   char buf[128] = {0};
@@ -14,13 +16,13 @@ int main(int argc, char **argv)
 {
   printf("hello, world!\r\n");
   freertps_system_init();
-  freertps_create_sub("/chatter",
+  freertps_create_sub("chatter",
                       "std_msgs::msg::dds_::String_",
                       chatter_cb);
 
   freertps_start(); // all pubs/subs are created. let's start!
   freertps_spin();
-  frudp_fini();
+  freertps_stop();
 
   return 0;
 }

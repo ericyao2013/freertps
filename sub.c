@@ -12,11 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/sub.h"
-#include "freertps/udp.h"
-#include "freertps/id.h"
-#include "freertps/sedp.h"
-#include "freertps/bswap.h"
+#include "freertps/rtps/sub.h"
+#include "freertps/rtps/discovery/sedp.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
 
 frudp_sub_t g_frudp_subs[FRUDP_MAX_SUBS];
 uint32_t g_frudp_num_subs = 0;

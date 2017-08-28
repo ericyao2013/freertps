@@ -12,35 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_TIME_H
-#define FREERTPS_TIME_H
+#ifndef FREERTPS_EID_H
+#define FREERTPS_EID_H
 
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-#define TIME_ZERO {0, 0}
-#define TIME_INVALID {-1, 0xffffffff}
-#define TIME_INFINITE {0x7fffffff, 0xffffffff}
+#define FRUDP_ENTITY_KIND_USER_WRITER_WITH_KEY 0x02
+#define FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY   0x03
+#define FRUDP_ENTITY_KIND_USER_READER_NO_KEY   0x04
+#define FRUDP_ENTITY_KIND_USER_READER_WITH_KEY 0x07
 
-typedef struct
+typedef union
 {
-  int32_t  seconds;
-  uint32_t fraction;
-} fr_time_t;
+  struct
+  {
+    uint8_t key[3];
+    uint8_t kind;
+  } s;
+  uint32_t u;
+} __attribute__((packed)) frudp_eid_t; // entity ID
 
-typedef fr_time_t fr_duration_t;
+frudp_eid_t frudp_create_user_id(const uint8_t entity_kind);
 
-fr_time_t     fr_time_now(void);
-fr_duration_t fr_time_diff(const fr_time_t *end, const fr_time_t *start);
-double fr_time_double(const fr_time_t *t);
-double fr_time_now_double(void); // convenience function
-double fr_duration_double(const fr_duration_t *t);
+extern const frudp_eid_t g_frudp_eid_unknown;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_TIME_H
+#endif // FREERTPS_EID_H

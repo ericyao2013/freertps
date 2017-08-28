@@ -15,8 +15,9 @@
 #ifndef FREERTPS_SPDP_H
 #define FREERTPS_SPDP_H
 
-#include "freertps/id.h"
-#include "part.h"
+#include "freertps/utils.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/log.h"
 
 #ifdef __cplusplus
 extern "C"

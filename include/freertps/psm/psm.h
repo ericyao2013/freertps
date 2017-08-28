@@ -15,7 +15,8 @@
 #ifndef FREERTPS_PSM_H
 #define FREERTPS_PSM_H
 
-#include "freertps/pub.h"
+#include "freertps/freertps.h"
+#include "freertps/rtps/pub.h"
 
 #ifdef __cplusplus
 extern "C"

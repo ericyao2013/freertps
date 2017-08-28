@@ -16,8 +16,8 @@
 #include <string.h>
 
 #include "freertps/freertps.h"
-#include "freertps/bswap.h"
-#include "freertps/id.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/rtps/constant/vendor.h"
 
 static unsigned g_frudp_next_user_eid = 1;
 
@@ -65,7 +65,7 @@ const char *frudp_vendor(const frudp_vid_t vid)
     case 0x010e: return "Technicolor Qeo";
     case 0x010f: return "eProsima";
     case 0x0120: return "PrismTech Vortex Cloud";
-    case FREERTPS_VENDOR_ID: return "freertps";
+    case FREERTPS_VID_FREERTPS: return "freertps";
     case 0x2f2c: return "freertps";
     default:     return "unknown";
   }

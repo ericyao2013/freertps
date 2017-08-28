@@ -12,12 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_PORTS_H
-#define FRUDP_PORTS_H
+#ifndef FREERTPS_PORTS_H
+#define FREERTPS_PORTS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 /////////////////////////////////////////////////////////////////////
 // A FEW CONSTANTS FROM THE SPEC
@@ -34,4 +33,4 @@ extern "C"
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_PORTS_H
+#endif // FREERTPS_PORTS_H

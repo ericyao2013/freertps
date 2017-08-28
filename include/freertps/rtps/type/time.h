@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_TIMER_H
-#define FREERTPS_TIMER_H
-
-#include "freertps/log.h"
+#ifndef FREERTPS_TIME_H
+#define FREERTPS_TIME_H
 
 #include <stdint.h>
 
@@ -24,15 +22,25 @@ extern "C"
 {
 #endif
 
-// Callback
-typedef void (*freertps_timer_cb_t)(void);
+#define TIME_ZERO {0, 0}
+#define TIME_INVALID {-1, 0xffffffff}
+#define TIME_INFINITE {0x7fffffff, 0xffffffff}
 
-/**
- * Set Timer frequency of callback.
- */
-void freertps_timer_set_freq(uint32_t freq, freertps_timer_cb_t cb);
+typedef struct
+{
+  int32_t  seconds;
+  uint32_t fraction;
+} __attribute__((packed)) fr_time_t;
+
+typedef fr_time_t fr_duration_t;
+
+fr_time_t     fr_time_now(void);
+fr_duration_t fr_time_diff(const fr_time_t *end, const fr_time_t *start);
+double fr_time_double(const fr_time_t *t);
+double fr_time_now_double(void); // convenience function
+double fr_duration_double(const fr_duration_t *t);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_TIMER_H
+#endif // FREERTPS_TIME_H

@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "freertps/freertps.h"
+#include "freertps/psm/system.h"
 
 static int n_msg_recv = 0; // cue the raptors plz
 
-void chatter_cb(const void *msg)
+void chatter_cb(const void *msg, uint32_t len)
 {
   uint32_t str_len = *((uint32_t *)msg);
   char buf[128] = {0};

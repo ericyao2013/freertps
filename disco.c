@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "freertps/freertps.h"
-#include "freertps/disco.h"
-#include "freertps/spdp.h"
-#include "freertps/sedp.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/discovery/spdp.h"
+#include "freertps/rtps/discovery/sedp.h"
 
 uint8_t g_frudp_disco_tx_buf[FRUDP_DISCO_TX_BUFLEN];
 uint16_t g_frudp_disco_tx_buf_wpos;

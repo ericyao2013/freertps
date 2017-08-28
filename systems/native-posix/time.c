@@ -1,4 +1,4 @@
-#include "freertps/time.h"
+#include "freertps/rtps/type/time.h"
 
 #if defined(__linux__)
 #include <time.h>

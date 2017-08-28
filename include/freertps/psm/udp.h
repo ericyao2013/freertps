@@ -15,48 +15,26 @@
 #ifndef FREERTPS_UDP_H
 #define FREERTPS_UDP_H
 
+#include "freertps/log.h"
+#include "freertps/rtps/constant/submsg_id.h"
+#include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/rtps/type/eid.h"
+#include "freertps/rtps/type/guid.h"
+#include "freertps/rtps/type/time.h"
+#include "freertps/rtps/type/vendor_id.h"
+
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "freertps/id.h"
-#include "freertps/time.h"
-//#include "freertps/psm.h"
-
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
-
-#define FRUDP_FLAGS_LITTLE_ENDIAN      0x01
-#define FRUDP_FLAGS_INLINE_QOS         0x02
-#define FRUDP_FLAGS_DATA_PRESENT       0x04
 
 #define FRUDP_FLAGS_ACKNACK_FINAL      0x02
 
-#define FRUDP_SUBMSG_ID_PAD            0x01 /* Pad */
-#define FRUDP_SUBMSG_ID_ACKNACK        0x06 /* AckNack */
-#define FRUDP_SUBMSG_ID_HEARTBEAT      0x07 /* Heartbeat */
-#define FRUDP_SUBMSG_ID_GAP            0x08 /* Gap */
-#define FRUDP_SUBMSG_ID_INFO_TS        0x09 /* InfoTimestamp */
-#define FRUDP_SUBMSG_ID_INFO_SRC       0x0c /* InfoSource */
-#define FRUDP_SUBMSG_ID_INFO_REPLY_IP4 0x0d /* InfoReplyIp4 */
-#define FRUDP_SUBMSG_ID_INFO_DEST      0x0e /* InfoDestination */
-#define FRUDP_SUBMSG_ID_INFO_REPLY     0x0f /* InfoReply */
-#define FRUDP_SUBMSG_ID_NACK_FRAG      0x12 /* NackFrag */
-#define FRUPG_SUBMSG_ID_HEARTBEAT_FRAG 0x13 /* HeartbeatFrag */
-#define FRUDP_SUBMSG_ID_DATA           0x15 /* Data */
-#define FRUDP_SUBMSG_ID_DATA_FRAG      0x16 /* DataFrag */
-
 #define FRUDP_SCHEME_CDR_LE            0x0001
 #define FRUDP_SCHEME_PL_CDR_LE         0x0003
-
-#define FRUDP_PROTOCOLVERSION_1_0 {1,0}
-#define FRUDP_PROTOCOLVERSION_1_1 {1,1}
-#define FRUDP_PROTOCOLVERSION_2_0 {2,0}
-#define FRUDP_PROTOCOLVERSION_2_1 {2,1}
-#define FRUDP_PROTOCOLVERSION_2_2 {2,2}
-#define FRUDP_PROTOCOLVERSION PROTOCOLVERSION_2_2
 
 #define FRUDP_PLIST_ADVANCE(list_item) \
   do { \

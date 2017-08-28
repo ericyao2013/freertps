@@ -16,10 +16,10 @@
 #include <stdbool.h>
 
 #include "freertps/freertps.h"
-#include "freertps/udp.h"
-#include "freertps/sub.h"
-#include "freertps/sedp.h"
-#include "freertps/spdp.h"
+#include "freertps/psm/udp.h"
+#include "freertps/rtps/sub.h"
+#include "freertps/rtps/discovery/sedp.h"
+#include "freertps/rtps/discovery/spdp.h"
 
 bool g_freertps_init_complete = false;
 

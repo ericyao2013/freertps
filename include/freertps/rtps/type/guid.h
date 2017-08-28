@@ -12,27 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_TIMER_H
-#define FREERTPS_TIMER_H
+#ifndef FREERTPS_GUID_H
+#define FREERTPS_GUID_H
 
-#include "freertps/log.h"
+#include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/rtps/type/eid.h"
 
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-// Callback
-typedef void (*freertps_timer_cb_t)(void);
+#define FRUDP_GUID_PREFIX_LEN 12
 
-/**
- * Set Timer frequency of callback.
- */
-void freertps_timer_set_freq(uint32_t freq, freertps_timer_cb_t cb);
+typedef struct
+{
+  frudp_guid_prefix_t prefix;
+  frudp_eid_t eid;
+} __attribute__((packed)) frudp_guid_t;
+
+bool frudp_guid_identical(const frudp_guid_t * const a,
+                          const frudp_guid_t * const b);
+
+void frudp_stuff_guid(frudp_guid_t *guid,
+                      const frudp_guid_prefix_t *prefix,
+                      const frudp_eid_t *id);
+
+const char *frudp_print_guid(const frudp_guid_t *guid);
+
+extern const frudp_guid_t g_frudp_guid_unknown;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_TIMER_H
+#endif // FREERTPS_GUID_H

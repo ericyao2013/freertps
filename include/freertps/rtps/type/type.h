@@ -32,7 +32,7 @@ typedef struct freertps_type
 {
   const char *rtps_typename;
   const freertps_serialize_fptr_t serialize;
-} freertps_type_t;
+} __attribute__((packed)) freertps_type_t;
 
 #define FREERTPS_ARRAY(STRUCT_NAME, TYPE_NAME) \
   typedef struct freertps__ ## STRUCT_NAME ## __array \
@@ -40,7 +40,7 @@ typedef struct freertps_type
     TYPE_NAME * data;  \
     uint32_t size;     \
     uint32_t capacity; \
-  } freertps__ ## STRUCT_NAME ## __array_t;
+  } __attribute__((packed)) freertps__ ## STRUCT_NAME ## __array_t;
 
 FREERTPS_ARRAY(bool, bool);
 FREERTPS_ARRAY(byte, uint8_t);
