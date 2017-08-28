@@ -71,7 +71,7 @@ void frudp_add_user_sub(const char *topic_name,
   sub.data_cb = NULL;
   sub.reliable = false;
   frudp_add_sub(&sub);
-  //sedp_publish_sub(&sub); // can't do this yet; spdp hasn't started bcast
+  frudp_sedp_publish_sub(&sub); // can't do this yet; spdp hasn't started bcast
 }
 
 void frudp_add_sub(const frudp_sub_t *s)

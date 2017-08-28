@@ -16,6 +16,7 @@
 #define FREERTPS_SPDP_H
 
 #include "freertps/id.h"
+#include "part.h"
 
 #ifdef __cplusplus
 extern "C"
@@ -28,7 +29,7 @@ void frudp_spdp_init(void);
 void frudp_spdp_start(void);
 void frudp_spdp_tick(void);
 void frudp_spdp_fini(void);
-void frudp_spdp_bcast(void);
+void frudp_spdp_bcast(frudp_part_t *part);
 
 void frudp_print_participants_debug(void);
 

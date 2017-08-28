@@ -615,6 +615,10 @@ frudp_msg_t *frudp_init_msg(frudp_msg_t *buf)
   return msg;
 }
 
+void frudp_tx_heartbeat() {
+
+}
+
 void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
                       const frudp_eid_t         *reader_id,
                       const frudp_guid_t        *writer_guid,
@@ -644,8 +648,9 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   dst_submsg->header.id = FRUDP_SUBMSG_ID_INFO_DEST;
   dst_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN |
                              FRUDP_FLAGS_ACKNACK_FINAL;
-  dst_submsg->header.len = 12;
+  dst_submsg->header.len = FRUDP_GUID_PREFIX_LEN;
   memcpy(dst_submsg->contents, guid_prefix, FRUDP_GUID_PREFIX_LEN);
+
   frudp_submsg_t *acknack_submsg = (frudp_submsg_t *)(&msg->submsgs[16]);
   acknack_submsg->header.id = FRUDP_SUBMSG_ID_ACKNACK;
   acknack_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
@@ -655,7 +660,7 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   acknack->reader_id = *reader_id;
   acknack->writer_id = writer_guid->eid;
   int sn_set_len = (set->num_bits + 31) / 32 * 4 + 12;
-  memcpy(&acknack->reader_sn_state, set, sn_set_len);
+  memcpy(&acknack->reader_sn_state, set, sizeof(frudp_sn_set_t));
   uint32_t *p_count = (uint32_t *)&acknack->reader_sn_state + sn_set_len / 4;
   *p_count = s_acknack_count++;
   uint8_t *p_next_submsg = (uint8_t *)p_count + 4;

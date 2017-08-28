@@ -100,7 +100,7 @@ frudp_pub_t *frudp_create_user_pub(const char *topic_name,
 
 void frudp_send_sedp_msgs(frudp_part_t *part)
 {
-  frudp_spdp_bcast();
+  frudp_spdp_bcast(part);
   // we have just found out about a new participant. blast our SEDP messages
   // at it to help it join quickly
 
@@ -152,7 +152,7 @@ void frudp_send_sedp_msgs(frudp_part_t *part)
     frudp_tx(dst_addr, dst_port, (const uint8_t *)msg, payload_len);
   }
   else
-    _SEDP_WARNING("\tno SEDP pub data to send to new participant\r\n");
+    _SEDP_WARNING("\tno SEDP Publisher Publisher data to send to new participant\r\n");
 
   // now, send the subscriptions
   if (g_sedp_sub_pub->next_submsg_idx)
@@ -203,7 +203,7 @@ void frudp_send_sedp_msgs(frudp_part_t *part)
     frudp_tx(freertps_htonl(dst_addr), dst_port, (const uint8_t *)msg, payload_len);
   }
   else
-    _SEDP_WARNING("\tno SEDP pub data to send to new participant\r\n");
+    _SEDP_WARNING("\tno SEDP Subscription Publisher data to send to new participant\r\n");
 }
 
 // currently this only gets called for SEDP messages
@@ -333,7 +333,7 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
        req_seq_num++)
   {
     FREERTPS_INFO("     request for seq num %d\r\n", req_seq_num);
-    for (int msg_idx = 0; msg_idx < pub->num_data_submsgs; msg_idx++)
+    for (int msg_idx = 0; msg_idx < pub->num_data_submsgs; msg_idx += pub->num_data_submsgs ) //msg_idx++) //TODO Limit n send !!
     {
       frudp_submsg_data_t *data = pub->data_submsgs[msg_idx];
       FREERTPS_INFO("       %d ?= %d\r\n", req_seq_num, data->writer_sn.low);
@@ -350,48 +350,51 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
           return;
         }
 
-//        frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
-//        fr_time_t t = fr_time_now();
-//        uint16_t submsg_wpos = 0;
-//
-//        frudp_submsg_t *ts_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
-//        ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_DEST;
-//        ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
-//        ts_submsg->header.len = 8;
-//        memcpy(ts_submsg->contents, &t, 8);
-//        submsg_wpos += 4 + 8;
+        frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
+        fr_time_t t = fr_time_now();
+        uint16_t submsg_wpos = 0;
         
+
+		frudp_submsg_t *dst_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
+		dst_submsg->header.id = FRUDP_SUBMSG_ID_INFO_DEST;
+		dst_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
+		dst_submsg->header.len = FRUDP_GUID_PREFIX_LEN;
+		memcpy(dst_submsg->contents, guid_prefix, FRUDP_GUID_PREFIX_LEN);
+		submsg_wpos += 4 + FRUDP_GUID_PREFIX_LEN;
+
         ///////////////////////////////////////////////////////////////////////
         //frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
-//        memcpy(&msg->submsgs[submsg_wpos], data, 4 + data->header.len);
+        memcpy(&msg->submsgs[submsg_wpos], data, 4 + data->header.len);
         //data_submsg, submsg, 4 + submsg->header.len);
-        //submsg_wpos += 4 + data->header.len;
+        submsg_wpos += data->header.len;
 
-//        frudp_submsg_heartbeat_t *hb_submsg = (frudp_submsg_heartbeat_t *)&msg->submsgs[submsg_wpos];
-//        hb_submsg->header.id = FRUDP_SUBMSG_ID_HEARTBEAT;
-//        hb_submsg->header.flags = 0x1; //0x3; // todo: spell this out
-//        hb_submsg->header.len = 28;
-//        hb_submsg->reader_id = data->reader_id;
-//        hb_submsg->writer_id = data->writer_id;
-//        //FREERTPS_INFO("hb writer id = 0x%08x\n", htonl(data->writer_id.u));
-//        hb_submsg->first_sn.low = 1; // todo
-//        hb_submsg->first_sn.high = 0; // todo
-//        hb_submsg->last_sn = data->writer_sn;
-//        static int hb_count = 0;
-//        hb_submsg->count = hb_count++;
-//
-//        submsg_wpos += 4 + hb_submsg->header.len;
-//
-//        int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
+        frudp_submsg_heartbeat_t *hb_submsg = (frudp_submsg_heartbeat_t *)&msg->submsgs[submsg_wpos];
+        hb_submsg->header.id = FRUDP_SUBMSG_ID_HEARTBEAT;
+        hb_submsg->header.flags = 0x1; //0x3; // todo: spell this out
+        hb_submsg->header.len = 28;
+        hb_submsg->reader_id = acknack->reader_id; //data->reader_id;
+        hb_submsg->writer_id = acknack->writer_id; //data->writer_id;
+        //FREERTPS_INFO("hb writer id = 0x%08x\n", htonl(data->writer_id.u));
+        hb_submsg->first_sn.low = ++g_sedp_pub_pub->next_submsg_idx;
+        hb_submsg->first_sn.high = 0; // todo
+        hb_submsg->last_sn = acknack->reader_sn_state.bitmap_base;
+        static int hb_count = 0;
+        hb_submsg->count = hb_count++;
+
+        submsg_wpos += 4 + hb_submsg->header.len;
+
+        int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
         //FREERTPS_INFO("         sending %d bytes\n", payload_len);
-//        frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr),
-//                 part->metatraffic_unicast_locator.port,
-//                 (const uint8_t *)msg, payload_len);
+        frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr),
+                 part->metatraffic_unicast_locator.port,
+                 (const uint8_t *)msg, payload_len);
 
         // we have to send an ACKNACK now
-        frudp_sn_set_32bits_t set;
+//        frudp_sn_set_32bits_t set;
         // todo: handle 64-bit sequence numbers
-        set.bitmap_base.high = 0;
+//        set.bitmap_base.high = 0;
+//        set.bitmap_base.low = 1;
+//
 //        if (match->max_rx_sn.low >= hb->last_sn.low) // we're up-to-date
 //        {
 //          set.bitmap_base.low = hb->first_sn.low + 1;
@@ -402,9 +405,10 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
 //          if (set.num_bits > 31)
 //            set.num_bits = 31;
 //        }
-        set.bitmap = 0xffffffff;
+//        set.num_bits = 0;
+//        set.bitmap = 0xffffffff;
 
-        frudp_tx_acknack(guid_prefix, &data->reader_id, &data->writer_id, &set);
+        //frudp_tx_acknack(guid_prefix, &data->reader_id, &data->writer_id, &set);
       }
     }
   }

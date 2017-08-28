@@ -302,17 +302,15 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       *p = *part; // save everything plz
       g_frudp_disco_num_parts++;
 
-//#ifdef VERBOSE_SPDP
-      frudp_print_participants_debug();
-//#endif
-
       frudp_sedp_add_builtin_endpoints(p);
       // push this new participant our SEDP data to speed up the process
-      //frudp_send_sedp_
     }
     else
       _SPDP_ERROR("      not enough room to save the new participant.\r\n");
   }
+//#ifdef VERBOSE_SPDP
+  frudp_print_participants_debug();
+//#endif
 }
 
 void frudp_spdp_init(void)
@@ -368,7 +366,7 @@ uint16_t frudp_append_submsg(frudp_msg_t *msg, const uint16_t msg_wpos,
 }
 */
 
-void frudp_spdp_bcast(void)
+void frudp_spdp_bcast(frudp_part_t *part)
 {
   _SPDP_DEBUG("frudp_spdp_bcast()\r\n");
 
@@ -563,10 +561,23 @@ void frudp_spdp_bcast(void)
   //int payload_len = ((uint8_t *)next_submsg_ptr) - ((uint8_t *)msg->submsgs);
   int payload_len = ((uint8_t *)next_submsg_ptr) - ((uint8_t *)msg);
 
-  if (!frudp_tx(FRUDP_DEFAULT_MCAST_GROUP,
-        frudp_mcast_builtin_port(),
-        (const uint8_t *)msg, payload_len))
-    _SPDP_ERROR("couldn't transmit SPDP broadcast message\r\n");
+  uint32_t addr = 0;
+  uint16_t port = 0;
+
+  // Aggreagte to Global/Multicast a unicast SPDP message
+  if (part != NULL) {
+    addr = freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr);
+    port = part->metatraffic_unicast_locator.port;
+
+    if (!frudp_tx(addr, port, (const uint8_t *)msg, payload_len))
+      _SPDP_ERROR("couldn't transmit SPDP broadcast message\r\n");
+  }
+
+  // Global/Multicast SPDP message
+  addr = FRUDP_DEFAULT_MCAST_GROUP;
+  port = frudp_mcast_builtin_port();
+  if (!frudp_tx(addr, port, (const uint8_t *)msg, payload_len))
+    _SPDP_ERROR("couldn't transmit SPDP unicast message\r\n");
 }
 
 //#ifdef VERBOSE_SPDP
@@ -576,7 +587,7 @@ void frudp_print_participants_debug(void)
   FREERTPS_INFO("\r\n");
   FREERTPS_INFO("Current time : %d \r\n", fr_time_now());
   FREERTPS_INFO("PARTICIPANT\r\n");
-  FREERTPS_INFO("| ID     | NAME       | IP              | GUID | bail | last | end |\r\n");
+  FREERTPS_INFO("| ID     | NAME       | IP              | GUID                       | Bail | Last Time  | End |\r\n");
   for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
     frudp_part_t *match = &g_frudp_disco_parts[i];
     frudp_duration_t *duration = &match->lease_duration;
@@ -604,7 +615,7 @@ void frudp_spdp_tick(void)
     _SPDP_DEBUG("frudp_spdp_tick()\r\n");
     g_frudp_spdp_last_bcast = t;
 
-    frudp_spdp_bcast();
+    frudp_spdp_bcast(NULL);
     frudp_spdp_clean();
 
 //#ifdef VERBOSE_SPDP

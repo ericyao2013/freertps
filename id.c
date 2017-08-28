@@ -111,6 +111,9 @@ const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *p)
   return buffer;
 }
 
+/** Display IP
+ * @param ip in normal mode.
+ */
 const char *frudp_print_ip(const long ip)
 {
   static char buffer[16];
