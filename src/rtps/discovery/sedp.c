@@ -667,7 +667,19 @@ static void frudp_sedp_publish(const char *topic_name,
   /////////////////////////////////////////////////////////////
   frudp_parameter_list_item_t *param =
     (frudp_parameter_list_item_t *)(((uint8_t *)scheme) + sizeof(*scheme));
+  frudp_locator_t *loc = NULL;
 
+  /////////////////////////////////////////////////////////////
+  // FRUDP_PID_UNICAST_LOCATOR
+  param->pid = FRUDP_PID_UNICAST_LOCATOR;
+  param->len = sizeof(frudp_locator_t);
+  loc = (frudp_locator_t *)param->value;
+  loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
+  loc->port = frudp_ucast_user_port();
+  memset(loc->addr.udp4.zeros, 0, 12);
+  loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+
+  FRUDP_PLIST_ADVANCE(param);
   /////////////////////////////////////////////////////////////
   param->pid = FRUDP_PID_PROTOCOL_VERSION;
   param->len = 4;
@@ -734,6 +746,23 @@ static void frudp_sedp_publish(const char *topic_name,
   presentation->coherent_access = 0;
   presentation->ordered_access = 0;
   */
+
+  /////////////////////////////////////////////////////////////
+  FRUDP_PLIST_ADVANCE(param);
+  param->pid = FRUDP_PID_PARTITION;
+  param->len = 12;
+  param->value[0] = 1;
+  param->value[1] = 0;
+  param->value[2] = 0;
+  param->value[3] = 0;
+  param->value[4] = 3;
+  param->value[5] = 0;
+  param->value[6] = 0;
+  param->value[7] = 0;
+  param->value[8] = 114;
+  param->value[9] = 116;
+  param->value[10] = 0;
+  param->value[11] = 0;
 
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);

@@ -486,7 +486,7 @@ void frudp_spdp_bcast(frudp_part_t *part)
   memset(loc->addr.udp4.zeros, 0, 12);
   loc->addr.udp4.addr = g_frudp_config.unicast_addr;
 
-//  PLIST_ADVANCE(param_list);
+  FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
   // FRUDP_PID_DEFAULT_MULTICAST_LOCATOR
   //TODO Disabled (not send in eProsima FastRTPS)
