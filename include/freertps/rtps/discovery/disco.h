@@ -17,7 +17,7 @@
 
 // this has a bunch of discovery-related debris
 
-
+#include "freertps/config.h"
 #include "freertps/rtps/type/part.h"
 
 #ifdef __cplusplus

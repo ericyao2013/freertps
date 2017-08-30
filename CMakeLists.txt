@@ -32,7 +32,8 @@ endfunction()
 set(SYSTEM "native-posix" CACHE STRING "the target system name")
 message("system: [${SYSTEM}]")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -O2 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC")
+# Disable optimisation : -O2
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -fPIC")
 # ament_export_definitions()....in the future
 
@@ -54,17 +55,17 @@ if(NOT "${SYSTEM_EXTRA_LIBS}" STREQUAL "")
 endif()
 
 # build the portable library
-add_library(freertps disco.c
-                     freertps.c 
-                     id.c 
-                     part.c 
-                     spdp.c 
-                     sedp.c 
-                     sub.c 
-                     pub.c 
-                     time.c 
-                     udp.c
-                     psm/ser.c)
+add_library(freertps src/freertps.c 
+                     src/id.c 
+                     src/rtps/type/part.c 
+                     src/rtps/discovery/disco.c
+                     src/rtps/discovery/spdp.c 
+                     src/rtps/discovery/sedp.c 
+                     src/sub.c 
+                     src/pub.c 
+                     src/time.c 
+                     src/udp.c
+                     src/psm/ser.c)
 target_link_libraries(freertps freertps_system_${SYSTEM})
 
 include_directories(build/msgs)

@@ -36,8 +36,6 @@ const struct rtps_psm g_rtps_psm_udp = { .init = frudp_init };
 const frudp_eid_t g_frudp_eid_unknown = { .u = 0 };
 const frudp_sn_t g_frudp_sn_unknown = { .high = -1, .low = 0 };
 
-frudp_config_t g_frudp_config;
-
 ////////////////////////////////////////////////////////////////////////////
 // local functions
 #define RX_MSG_ARGS frudp_receiver_state_t *rcvr, const frudp_submsg_t *submsg
@@ -215,10 +213,11 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
 #endif
   frudp_reader_t *match = NULL;
 
+  frudp_reader_t *r;
   // spin through subscriptions and see if we've already matched a reader
   for (unsigned i = 0; !match && i < g_frudp_num_readers; i++)
   {
-    frudp_reader_t *r = &g_frudp_readers[i];
+    r = &g_frudp_readers[i];
     if (frudp_guid_identical(&writer_guid, &r->writer_guid) &&
         (hb->reader_id.u == r->reader_eid.u || hb->reader_id.u == 0))
       match = r;
@@ -361,7 +360,7 @@ static bool frudp_rx_dst(RX_MSG_ARGS)
 #ifdef VERBOSE_INFO_DEST
   frudp_submsg_info_dest_t *d = (frudp_submsg_info_dest_t *)submsg->contents;
   uint8_t *p = d->guid_prefix.prefix;
-  FREERTPS_INFO("  INFO_DEST guid = %02x%02x%02x%02x:"
+  FREERTPS_INFO("    INFO_DEST guid = %02x%02x%02x%02x:"
                             "%02x%02x%02x%02x:"
                             "%02x%02x%02x%02x\r\n",
          p[0], p[1], p[2], p[3],

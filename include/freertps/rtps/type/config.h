@@ -39,7 +39,7 @@ typedef struct
   uint32_t unicast_addr;
 } __attribute__((packed)) frudp_config_t;
 
-extern frudp_config_t g_frudp_config;
+frudp_config_t g_frudp_config;
 
 #ifdef __cplusplus
 }

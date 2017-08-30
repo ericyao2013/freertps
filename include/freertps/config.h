@@ -62,6 +62,7 @@ extern "C"
 #define VERBOSE_TX_ACKNACK
 
 #define VERBOSE_INFO_TS
+#define VERBOSE_INFO_DEST
 #define VERBOSE_ACKNACK
 #define VERBOSE_HEARTBEAT
 #define VERBOSE_GAP
@@ -69,6 +70,7 @@ extern "C"
 
 #define VERBOSE_SEDP
 #define VERBOSE_SPDP
+
 
 //#define VERBOSE_MSG_SERIALIZATION
 

@@ -110,7 +110,6 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
   frudp_locator_t *loc;
   frudp_duration_t *dur;
   frudp_guid_t *guid;
-  char *name;
 
   _SPDP_DEBUG("frudp_spdp_rx_data()\r\n");
   _SPDP_INFO("    SPDP rx:\r\n");
@@ -259,11 +258,10 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_ENTITY_NAME:
-
-      //frudp_parse_string(name,
-      //                   sizeof(item->len),
-      //                   (frudp_rtps_string_t *)pval);
-      //_SPDP_INFO("\tSPDP Name : \t\t\t\t%s\r\n", &name);
+        frudp_parse_string(part->name,
+                           sizeof(part->name),
+                           (frudp_rtps_string_t *)pval);
+      _SPDP_INFO("\tSPDP Name : \t\t\t\t\t%s\r\n", part->name);
       break;
     ////////////////////////////////////////////////////////////////////////////
     default:
@@ -595,7 +593,7 @@ void frudp_print_participants_debug(void)
     frudp_part_t *match = &g_frudp_disco_parts[i];
     frudp_duration_t *duration = &match->lease_duration;
     int32_t bail = (duration->sec); // + duration->nanosec); // In second
-    FREERTPS_INFO("| %d\t | %s | %s | %s | %d | %d | %d |\r\n",
+    FREERTPS_INFO("| %d\t| %s | %s | %s | %d | %d | %d |\r\n",
                   i,
                   match->name,
                   frudp_print_ip(freertps_htonl(match->default_unicast_locator.addr.udp4.addr)),
