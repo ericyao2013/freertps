@@ -484,7 +484,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
 #ifdef EXCESSIVELY_VERBOSE_MSG_RX
       FREERTPS_INFO("    Message Data Callback...\r\n");
 #endif
-      uint32_t size = submsg->header.len - ((uint32_t)data - (uint32_t) data_submsg);
+      uint32_t size = submsg->header.len - ((uintptr_t)data - (uintptr_t)data_submsg);
       match->msg_cb(data, size);
     }
   }

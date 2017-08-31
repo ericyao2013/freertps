@@ -350,7 +350,6 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
         }
 
         frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
-        fr_time_t t = fr_time_now();
         uint16_t submsg_wpos = 0;
         
 
