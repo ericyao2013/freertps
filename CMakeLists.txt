@@ -75,6 +75,12 @@ include_directories(build/msgs)
 if (NOT freertps_standalone)
   ament_export_libraries(freertps freertps_system_${SYSTEM})
 
+  find_package(ament_cmake_ros REQUIRED)
+
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+  add_subdirectory(test)
+  
   if (AMENT_ENABLE_TESTING)
     find_package(ament_cmake_gtest REQUIRED)
 
@@ -127,12 +133,3 @@ else()
   endif()
 endif()
 
-
-
-find_package(ament_cmake_ros REQUIRED)
-#if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-
-  add_subdirectory(test)
-#endif()
