@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.5.0)
+
 #SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
 #SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
 
-project(freertps)
+set(PROJECT_NAME freertps)
+project(${PROJECT_NAME})
 
-set(freertps_standalone OFF CACHE BOOL "standalone build")
+#set(freertps_standalone OFF CACHE BOOL "standalone build")
 
 # in the future, consider target_include_directories() instead...
 if(NOT freertps_standalone)
@@ -30,7 +32,7 @@ function(freertps_add_executable exe)
 endfunction()
 
 set(SYSTEM "native-posix" CACHE STRING "the target system name")
-message("system: [${SYSTEM}]")
+message("-- system: [${SYSTEM}]")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC")
 # Disable optimisation : -O2
@@ -55,17 +57,17 @@ if(NOT "${SYSTEM_EXTRA_LIBS}" STREQUAL "")
 endif()
 
 # build the portable library
-add_library(freertps src/freertps.c 
-                     src/id.c 
-                     src/rtps/type/part.c 
-                     src/rtps/discovery/disco.c
-                     src/rtps/discovery/spdp.c 
-                     src/rtps/discovery/sedp.c 
-                     src/sub.c 
-                     src/pub.c 
-                     src/time.c 
-                     src/udp.c
-                     src/psm/ser.c)
+add_library(freertps src/freertps/freertps.c
+                     src/freertps/id.c
+                     src/freertps/rtps/type/part.c
+                     src/freertps/rtps/discovery/disco.c
+                     src/freertps/rtps/discovery/spdp.c
+                     src/freertps/rtps/discovery/sedp.c
+                     src/freertps/sub.c
+                     src/freertps/pub.c
+                     src/freertps/time.c
+                     src/freertps/udp.c
+                     src/freertps/psm/ser.c)
 target_link_libraries(freertps freertps_system_${SYSTEM})
 
 include_directories(build/msgs)
@@ -124,3 +126,13 @@ else()
     endforeach()
   endif()
 endif()
+
+
+
+find_package(ament_cmake_ros REQUIRED)
+#if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  add_subdirectory(test)
+#endif()

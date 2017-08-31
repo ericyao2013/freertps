@@ -586,7 +586,7 @@ void frudp_print_participants_debug(void)
 {
   fr_time_t time = fr_time_now();
   FREERTPS_INFO("\r\n");
-  FREERTPS_INFO("Current time : %d \r\n", fr_time_now());
+  FREERTPS_INFO("Current time : %d \r\n", fr_time_now().seconds);
   FREERTPS_INFO("PARTICIPANT\r\n");
   FREERTPS_INFO("| ID     | NAME       | IP              | GUID                       | Bail | Last Time  | End |\r\n");
   for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {

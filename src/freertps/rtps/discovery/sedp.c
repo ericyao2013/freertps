@@ -416,7 +416,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     return;
   }
 
-  frudp_part_t *part;
+//  frudp_part_t *part;
   frudp_guid_t *guid;
   frudp_qos_history_t *qos_his;
   frudp_qos_reliability_t *qos_rel;
@@ -441,7 +441,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_PARTICIPANT_GUID:
-//      guid = (frudp_guid_t *)pval;
+      guid = (frudp_guid_t *)pval;
 //      memcpy(&part->guid_prefix, &guid->prefix, FRUDP_GUID_PREFIX_LEN);
 //      _SEDP_INFO("\tguid \t\t\t\t\t\t%s (TODO)\r\n",
 //                 frudp_print_guid_prefix(&guid->prefix));
@@ -493,16 +493,14 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_PROTOCOL_VERSION:
-//      part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
-      _SEDP_INFO("\tSEDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
-                 0);
-//                 part->pver);
+      //part->pver = *((frudp_pver_t *)(pval)); // todo: what about alignment?
+//      _SEDP_INFO("\tSEDP proto version \t\t\t\t0x%04x (DDS-RTPS)\r\n",
+//                 part->pver.major);
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_VENDOR_ID:
-//      part->vid = freertps_htons(*((frudp_vid_t *)pval));
-      _SEDP_INFO("\tSEDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
-                 0, 0);
+      //part->vid = freertps_htons(*((frudp_vid_t *)pval));
+//      _SEDP_INFO("\tSEDP vendor_id \t\t\t\t\t0x%04x = %s\r\n",
 //                 part->vid, frudp_vendor(part->vid));
       break;
     ////////////////////////////////////////////////////////////////////////////
