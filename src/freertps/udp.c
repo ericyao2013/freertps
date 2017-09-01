@@ -213,11 +213,10 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
 #endif
   frudp_reader_t *match = NULL;
 
-  frudp_reader_t *r;
   // spin through subscriptions and see if we've already matched a reader
   for (unsigned i = 0; !match && i < g_frudp_num_readers; i++)
   {
-    r = &g_frudp_readers[i];
+    frudp_reader_t *r = &g_frudp_readers[i];
     if (frudp_guid_identical(&writer_guid, &r->writer_guid) &&
         (hb->reader_id.u == r->reader_eid.u || hb->reader_id.u == 0))
       match = r;
@@ -226,9 +225,10 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
   // else, if we have a subscription for this, initialize a reader
   if (!match)
   {
+    frudp_sub_t *sub = NULL;
     for (unsigned i = 0; !match && i < g_frudp_num_subs; i++)
     {
-      frudp_sub_t *sub = &g_frudp_subs[i];
+      sub = &g_frudp_subs[i];
       if (sub->reader_eid.u == hb->reader_id.u)
       {
         frudp_reader_t r;
@@ -239,11 +239,11 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
         r.max_rx_sn.low = 0;
         r.data_cb = sub->data_cb;
         r.msg_cb = sub->msg_cb;
-        match = &r;
 #ifdef VERBOSE_HEARTBEAT
         FREERTPS_INFO("adding reader due to heartbeat RX\r\n");
 #endif
         frudp_add_reader(&r);
+        match = &g_frudp_readers[g_frudp_num_readers-1];
       }
     }
   }
