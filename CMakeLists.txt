@@ -66,7 +66,7 @@ add_library(freertps src/freertps/freertps.c
                      src/freertps/sub.c
                      src/freertps/pub.c
                      src/freertps/time.c
-                     src/freertps/udp.c
+                     src/freertps/psm/udp.c
                      src/freertps/psm/ser.c)
 target_link_libraries(freertps freertps_system_${SYSTEM})
 
