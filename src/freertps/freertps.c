@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdlib.h>
-#include <stdbool.h>
-
 #include "freertps/freertps.h"
-#include "freertps/psm/udp.h"
 #include "freertps/rtps/sub.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
+#include "freertps/psm/udp.h"
+
+#include <stdlib.h>
+#include <stdbool.h>
 
 bool g_freertps_init_complete = false;
 
