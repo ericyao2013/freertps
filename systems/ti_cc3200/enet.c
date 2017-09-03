@@ -12,16 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
-
 #include "freertps/freertps.h"
-#include "freertps/bswap.h"
-#include "freertps/udp.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
 
 #include "metal/enet.h"
 #include "metal/enet_config.h"
+
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
 
 // simplelink includes
 #include "simplelink.h"

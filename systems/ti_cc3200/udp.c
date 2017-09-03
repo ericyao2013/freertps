@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include "freertps/freertps.h"
-#include "freertps/udp.h"
-#include "freertps/disco.h"
-#include "freertps/bswap.h"
+#include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/psm/udp.h"
+#include "freertps/psm/bswap.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -26,8 +27,8 @@
 #include "metal/systime.h"
 
 #include "simplelink.h"
-#include "network_if.h"
 #include "uart_if.h"
+#include "common/network_if.h"
 
 uint8_t *getMacAddress()
 {
@@ -48,8 +49,8 @@ bool frudp_init(void)
   uint8_t *g_enet_mac = getMacAddress();
   FREERTPS_INFO("using address %s for unicast\r\n", frudp_print_ip(ip));
   g_frudp_config.unicast_addr = freertps_htonl(ip);
-  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VENDOR_ID >> 8;
-  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VENDOR_ID & 0xff;
+  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
+  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
   memcpy(&g_frudp_config.guid_prefix.prefix[2], g_enet_mac, 6);
   frudp_generic_init();
   // not sure about endianness here.

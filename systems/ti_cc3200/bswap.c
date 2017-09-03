@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/bswap.h"
+#include "freertps/psm/bswap.h"
 #include "simplelink.h"
 
 uint32_t freertps_htonl(uint32_t u) { return sl_Htonl(u); }

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <stdint.h>
 #include "freertps/freertps.h"
+#include "freertps/log.h"
 
+#include <stdint.h>
 
 void enet_mac_init(void)
 {
