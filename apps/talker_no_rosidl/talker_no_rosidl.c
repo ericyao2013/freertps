@@ -2,13 +2,17 @@
 #include <string.h>
 #include "freertps/freertps.h"
 #include "freertps/psm/system.h"
+#include "freertps/rtps/type/qos.h"
 
 int main(int argc, char **argv)
 {
   printf("hello, world!\r\n");
   freertps_system_init();
+
   frudp_pub_t *pub = freertps_create_pub(
-      "chatter", "std_msgs::msg::dds_::String_");
+      "chatter",
+	  "std_msgs::msg::dds_::String_",
+	  get_default_qos_reliable());
   frudp_disco_start();
   int pub_count = 0;
   char msg[64] = {0};

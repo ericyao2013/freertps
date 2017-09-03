@@ -37,6 +37,7 @@ static uint8_t g_pub_tx_buf[FRUDP_PUB_BUFLEN];
 
 frudp_pub_t *frudp_create_pub(const char *topic_name,
                               const char *type_name,
+                              frudp_qos_reliability_t *qos,
                               const frudp_eid_t writer_id,
                               frudp_submsg_data_t **data_submsgs,
                               const uint32_t num_data_submsgs)
@@ -52,6 +53,13 @@ frudp_pub_t *frudp_create_pub(const char *topic_name,
   frudp_pub_t *p = &g_frudp_pubs[g_frudp_num_pubs];
   p->topic_name = topic_name;
   p->type_name = type_name;
+
+  //TODO fix by full structure
+  p->qos.kind = FRUDP_QOS_RELIABILITY_KIND_RELIABLE;
+  if (qos != NULL) {
+	  p->qos.kind = qos->kind;
+  }
+
   if (data_submsgs) // it's for a reliable connection
   {
     p->data_submsgs = data_submsgs;
@@ -85,11 +93,13 @@ frudp_pub_t *frudp_create_pub(const char *topic_name,
 }
 
 frudp_pub_t *frudp_create_user_pub(const char *topic_name,
-                                   const char *type_name)
+                                   const char *type_name,
+                                   frudp_qos_reliability_t *qos)
 {
   FREERTPS_DEBUG("create_user_pub(%s, %s)\r\n", topic_name, type_name);
   frudp_pub_t *pub = frudp_create_pub(topic_name,
                                       type_name,
+                                      qos,
                                       frudp_create_user_id
                                       (FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY),
                                       NULL,

@@ -17,6 +17,7 @@
 
 #include "freertps/config.h"
 #include "freertps/rtps/type/part.h"
+#include "freertps/rtps/type/qos.h"
 #include "freertps/psm/udp.h"
 
 #include <stdint.h>
@@ -30,6 +31,7 @@ typedef struct
 {
   const char           *topic_name;
   const char           *type_name;
+  frudp_qos_reliability_t qos;
   frudp_eid_t           writer_eid;
   frudp_sn_t            max_tx_sn_avail;
   frudp_sn_t            min_tx_sn_avail;
@@ -58,6 +60,7 @@ extern uint32_t g_frudp_num_writers;
 
 frudp_pub_t *frudp_create_pub(const char *topic_name,
                               const char *type_name,
+                              frudp_qos_reliability_t *qos,
                               const frudp_eid_t writer_id,
                               frudp_submsg_data_t **data_submsgs,
                               const uint32_t num_data_submsgs);
@@ -83,7 +86,8 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
                           frudp_guid_prefix_t *guid_prefix);
 
 frudp_pub_t *frudp_create_user_pub(const char *topic_name,
-                                   const char *type_name);
+                                   const char *type_name,
+                                   frudp_qos_reliability_t *qos);
 
 void frudp_add_writer(const frudp_writer_t *writer);
 

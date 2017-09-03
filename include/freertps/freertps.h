@@ -37,6 +37,7 @@ typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 #include "freertps/rtps/constant/ports.h"
 #include "freertps/rtps/type/time.h"
 #include "freertps/rtps/type/locator.h"
+#include "freertps/rtps/type/qos.h"
 #include "freertps/rtps/discovery/disco.h"
 
 typedef union rtps_active_psms
@@ -58,7 +59,8 @@ void freertps_create_sub(const char *topic_name,
 // todo: come up with a better way of holding onto publishers that is
 // agnostic to the physical layer
 frudp_pub_t *freertps_create_pub(const char *topic_name,
-                                 const char *type_name);
+                                 const char *type_name,
+                                 frudp_qos_reliability_t *qos);
 
 bool freertps_publish(frudp_pub_t *pub,
                       const uint8_t *msg,

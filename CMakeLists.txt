@@ -63,6 +63,7 @@ add_library(freertps src/freertps/freertps.c
                      src/freertps/rtps/type/guid_prefix.c
                      src/freertps/rtps/type/guid.c
                      src/freertps/rtps/type/part.c
+                     src/freertps/rtps/type/qos.c
                      src/freertps/rtps/type/time.c
                      src/freertps/rtps/type/vendor_id.c
                      src/freertps/rtps/discovery/disco.c

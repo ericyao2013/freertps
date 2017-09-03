@@ -45,12 +45,13 @@ void freertps_create_sub(const char *topic_name,
 }
 
 frudp_pub_t *freertps_create_pub(const char *topic_name,
-                                 const char *type_name)
+                                 const char *type_name,
+                                 frudp_qos_reliability_t *qos)
 {
   // assume for now that we are only using UDP. in the future, this can
   // become smarter to handle when different (or multiple?) physical layers
   // are initialized
-  return frudp_create_user_pub(topic_name, type_name);
+  return frudp_create_user_pub(topic_name, type_name, qos);
 }
 
 bool freertps_publish(frudp_pub_t *pub,

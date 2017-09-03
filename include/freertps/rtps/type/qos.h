@@ -16,6 +16,7 @@
 #define FRUDP_QOS_H
 
 #include "freertps/psm/udp.h"
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C"
@@ -51,6 +52,9 @@ typedef struct
   uint16_t coherent_access;
   uint16_t ordered_access;
 } __attribute__((packed)) frudp_qos_presentation_t;
+
+frudp_qos_reliability_t *get_default_qos_reliable();
+
 
 #ifdef __cplusplus
 }

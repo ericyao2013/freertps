@@ -90,6 +90,7 @@ void frudp_sedp_init(void)
   g_sedp_sub_pub = frudp_create_pub(
     NULL, // no topic name
     NULL, // no type name
+	NULL,
     g_sedp_sub_writer_id,
     g_sedp_sub_writer_data_submsgs,
     FRUDP_MAX_SUBS);
@@ -97,6 +98,7 @@ void frudp_sedp_init(void)
   g_sedp_pub_pub = frudp_create_pub(
     NULL, // no topic name
     NULL, // no type name
+	NULL,
     g_sedp_pub_writer_id,
     g_sedp_pub_writer_data_submsgs,
     FRUDP_MAX_PUBS);
@@ -732,7 +734,7 @@ static void frudp_sedp_publish(const char *topic_name,
   param->pid = FRUDP_PID_RELIABILITY;
   param->len = 12;
   frudp_qos_reliability_t *reliability = (frudp_qos_reliability_t *)param->value;
-  reliability->kind = FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT;
+  reliability->kind = pub->qos.kind; // FRUDP_QOS_RELIABILITY_KIND_RELIABLE; //FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT;
   reliability->max_blocking_time.sec = 0;
   reliability->max_blocking_time.nanosec = 0x19999999; // todo: figure this out
 
