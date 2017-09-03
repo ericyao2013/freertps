@@ -40,14 +40,14 @@ typedef struct
   frudp_builtin_endpoint_set_t builtin_endpoints;
   frudp_duration_t lease_duration;
   long live_count;
-  char name[256]; // Disable for memory issue
+  char name[256];
   // Internal
   fr_time_t last_spdp;
 } __attribute__((packed)) frudp_part_t;
 
 bool frudp_part_create(void);
 frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix);
-//void frudp_part_fini(void);
+void frudp_part_fini(void);
 
 #ifdef __cplusplus
 }

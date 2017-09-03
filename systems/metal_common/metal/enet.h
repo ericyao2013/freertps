@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "metal/enet_headers.h"
+#include "metal/enet_config.h"
+
+const uint8_t g_enet_mac[6] = ENET_MAC;
 
 void enet_init(void);
 

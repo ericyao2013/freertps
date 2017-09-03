@@ -1,13 +1,16 @@
 #include "freertps/freertps.h"
-#include "freertps/udp.h"
-#include "freertps/disco.h"
-#include "freertps/bswap.h"
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
+#include "freertps/psm/udp.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/constant/vendor.h"
+
 #include "metal/enet_config.h"
 #include "metal/enet.h"
 #include "metal/systime.h"
+
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 
 bool frudp_init(void)
 {
@@ -19,8 +22,8 @@ bool frudp_init(void)
                 (FRUDP_IP4_ADDR >>  8) & 0xff,
                 (FRUDP_IP4_ADDR      ) & 0xff);
   g_frudp_config.unicast_addr = freertps_htonl(FRUDP_IP4_ADDR);
-  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VENDOR_ID >> 8;
-  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VENDOR_ID & 0xff;
+  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
+  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
   memcpy(&g_frudp_config.guid_prefix.prefix[2], g_enet_mac, 6);
   frudp_generic_init();
   // not sure about endianness here.

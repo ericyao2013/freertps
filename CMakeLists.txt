@@ -58,14 +58,18 @@ endif()
 
 # build the portable library
 add_library(freertps src/freertps/freertps.c
-                     src/freertps/id.c
+                     src/freertps/utility.c
+                     src/freertps/rtps/type/eid.c
+                     src/freertps/rtps/type/guid_prefix.c
+                     src/freertps/rtps/type/guid.c
                      src/freertps/rtps/type/part.c
+                     src/freertps/rtps/type/time.c
+                     src/freertps/rtps/type/vendor_id.c
                      src/freertps/rtps/discovery/disco.c
                      src/freertps/rtps/discovery/spdp.c
                      src/freertps/rtps/discovery/sedp.c
-                     src/freertps/sub.c
-                     src/freertps/pub.c
-                     src/freertps/time.c
+                     src/freertps/rtps/sub.c
+                     src/freertps/rtps/pub.c
                      src/freertps/psm/udp.c
                      src/freertps/psm/ser.c)
 target_link_libraries(freertps freertps_system_${SYSTEM})

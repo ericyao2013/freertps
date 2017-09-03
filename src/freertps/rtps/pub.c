@@ -12,13 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/psm/bswap.h"
 #include "freertps/freertps.h"
+#include "freertps/utility.h"
 #include "freertps/rtps/type/part.h"
 #include "freertps/rtps/constant/submsg_flags.h"
 #include "freertps/rtps/pub.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
+#include "freertps/psm/bswap.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -373,7 +374,7 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
         hb_submsg->reader_id = acknack->reader_id; //data->reader_id;
         hb_submsg->writer_id = acknack->writer_id; //data->writer_id;
         //FREERTPS_INFO("hb writer id = 0x%08x\n", htonl(data->writer_id.u));
-        hb_submsg->first_sn.low = ++g_sedp_pub_pub->next_submsg_idx;
+        hb_submsg->first_sn.low = g_sedp_pub_pub->next_submsg_idx;
         hb_submsg->first_sn.high = 0; // todo
         hb_submsg->last_sn = acknack->reader_sn_state.bitmap_base;
         static int hb_count = 0;

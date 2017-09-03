@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/utils.h"
+#include "freertps/utility.h"
 #include "freertps/rtps/constant/parameter_id.h"
 #include "freertps/rtps/constant/submsg_flags.h"
 #include "freertps/rtps/constant/vendor.h"

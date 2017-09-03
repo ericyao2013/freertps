@@ -1,4 +1,4 @@
-#include "freertps/bswap.h"
+#include "freertps/psm/bswap.h"
 
 uint32_t freertps_htonl(uint32_t u) { return __builtin_bswap32(u); }
 uint32_t freertps_ntohl(uint32_t u) { return __builtin_bswap32(u); }

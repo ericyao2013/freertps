@@ -19,7 +19,6 @@
 
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid_prefix.h"
-
 #include "freertps/rtps/discovery/disco.h"
 
 #include <stdio.h>
@@ -66,4 +65,9 @@ bool frudp_part_create(void)
   FREERTPS_INFO("prefix: %s \r\n", frudp_print_guid_prefix(&g_frudp_config.guid_prefix));
 
   return true;
+}
+
+void frudp_part_fini(void)
+{
+
 }

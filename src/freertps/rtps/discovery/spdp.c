@@ -13,15 +13,18 @@
 // limitations under the License.
 
 #include "freertps/freertps.h"
-#include "freertps/psm/bswap.h"
-#include "freertps/psm/udp.h"
+#include "freertps/utility.h"
 #include "freertps/rtps/sub.h"
 #include "freertps/rtps/constant/parameter_id.h"
 #include "freertps/rtps/constant/submsg_flags.h"
 #include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/rtps/type/guid.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/rtps/discovery/sedp.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
 
 #include <string.h>
 #include <time.h>
