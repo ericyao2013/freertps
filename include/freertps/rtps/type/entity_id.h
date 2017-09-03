@@ -12,30 +12,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_GUID_PREFIX_H
-#define FREERTPS_GUID_PREFIX_H
+#ifndef FREERTPS_ENTITY_ID_H
+#define FREERTPS_ENTITY_ID_H
 
-#include "freertps/rtps/type/entity_id.h"
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_GUID_PREFIX_LEN 12
+#define FRUDP_ENTITY_KIND_USER_WRITER_WITH_KEY 0x02
+#define FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY   0x03
+#define FRUDP_ENTITY_KIND_USER_READER_NO_KEY   0x04
+#define FRUDP_ENTITY_KIND_USER_READER_WITH_KEY 0x07
 
-typedef struct
+typedef union
 {
-  uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
-} __attribute__((packed)) frudp_guid_prefix_t;
+  struct
+  {
+    uint8_t key[3];
+    uint8_t kind;
+  } s;
+  uint32_t u;
+} __attribute__((packed)) frudp_eid_t; // entity ID
 
-bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
-                                 const frudp_guid_prefix_t * const b);
+frudp_eid_t frudp_create_user_id(const uint8_t entity_kind);
 
-const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *guid_prefix);
+extern const frudp_eid_t g_frudp_eid_unknown;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_GUID_PREFIX_H
+#endif // FREERTPS_ENTITY_ID_H

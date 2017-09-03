@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/freertps.h"
 #include "freertps/rtps/type/time.h"
+#include "freertps/freertps.h"
 
 #include <limits.h>
 

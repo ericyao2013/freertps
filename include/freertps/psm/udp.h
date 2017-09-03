@@ -16,12 +16,11 @@
 #define FREERTPS_UDP_H
 
 #include "freertps/log.h"
-#include "freertps/rtps/constant/submsg_id.h"
-#include "freertps/rtps/type/guid_prefix.h"
-#include "freertps/rtps/type/eid.h"
 #include "freertps/rtps/type/guid.h"
-#include "freertps/rtps/type/time.h"
-#include "freertps/rtps/type/vendor_id.h"
+#include "freertps/rtps/type/message.h"
+#include "freertps/rtps/type/receiver_state.h"
+#include "freertps/rtps/type/sub_message.h"
+#include "freertps/rtps/type/sequence_number.h"
 
 #include <string.h>
 #include <stdint.h>
@@ -46,128 +45,6 @@ extern "C" {
 /////////////////////////////////////////////////////////////////////
 // TYPES
 /////////////////////////////////////////////////////////////////////
-
-typedef struct
-{
-  uint8_t major;
-  uint8_t minor;
-} frudp_pver_t; // protocol version
-
-typedef struct frudp_header
-{
-  uint32_t magic_word; // RTPS in ASCII
-  frudp_pver_t pver;   // protocol version
-  frudp_vid_t  vid;    // vendor ID
-  frudp_guid_prefix_t guid_prefix;
-} frudp_header_t;
-
-typedef struct
-{
-  frudp_header_t header;
-  uint8_t submsgs[];
-} frudp_msg_t;
-
-typedef struct frudp_submsg_header
-{
-  uint8_t id;
-  uint8_t flags;
-  uint16_t len;
-} frudp_submsg_header_t;
-
-typedef struct
-{
-  frudp_submsg_header_t header;
-  uint8_t contents[];
-} frudp_submsg_t;
-
-typedef struct
-{
-  frudp_pver_t        src_pver;
-  frudp_vid_t         src_vid;
-  frudp_guid_prefix_t src_guid_prefix;
-  frudp_guid_prefix_t dst_guid_prefix;
-  bool                have_timestamp;
-  fr_time_t           timestamp;
-} frudp_receiver_state_t;
-
-typedef struct
-{
-  int32_t high;
-  uint32_t low;
-} frudp_sn_t; // sequence number
-extern const frudp_sn_t g_frudp_sn_unknown;
-
-typedef struct
-{
-  frudp_sn_t bitmap_base;
-  uint32_t num_bits;
-  uint32_t bitmap[];
-} frudp_sn_set_t;
-
-typedef struct
-{
-  frudp_sn_t bitmap_base;
-  uint32_t num_bits;
-  uint32_t bitmap;
-} frudp_sn_set_32bits_t;
-
-typedef struct
-{
-  frudp_submsg_header_t header;
-  uint16_t extraflags;
-  uint16_t octets_to_inline_qos;
-  frudp_eid_t reader_id;
-  frudp_eid_t writer_id;
-  frudp_sn_t writer_sn;
-  uint8_t data[];
-} __attribute__((packed)) frudp_submsg_data_t;
-
-typedef struct frudp_submsg_data_frag
-{
-  struct frudp_submsg_header header;
-  uint16_t extraflags;
-  uint16_t octets_to_inline_qos;
-  frudp_eid_t reader_id;
-  frudp_eid_t writer_id;
-  frudp_sn_t writer_sn;
-  uint32_t fragment_starting_number;
-  uint16_t fragments_in_submessage;
-  uint16_t fragment_size;
-  uint32_t sample_size;
-  uint8_t data[];
-} __attribute__((packed)) frudp_submsg_data_frag_t;
-
-typedef struct
-{
-  frudp_submsg_header_t header;
-  frudp_eid_t reader_id;
-  frudp_eid_t writer_id;
-  frudp_sn_t first_sn;
-  frudp_sn_t last_sn;
-  uint32_t count;
-} __attribute__((packed)) frudp_submsg_heartbeat_t;
-
-typedef struct
-{
-  frudp_submsg_header_t header;
-  frudp_eid_t reader_id;
-  frudp_eid_t writer_id;
-  frudp_sn_t gap_start;
-  frudp_sn_set_t gap_end;
-} __attribute__((packed)) frudp_submsg_gap_t;
-
-typedef struct
-{
-  frudp_eid_t reader_id;
-  frudp_eid_t writer_id;
-  frudp_sn_set_t reader_sn_state;
-  // the "count" field that goes here is impossible to declare in legal C
-} __attribute__((packed)) frudp_submsg_acknack_t;
-
-typedef struct
-{
-  frudp_guid_prefix_t guid_prefix;
-} __attribute__((packed)) frudp_submsg_info_dest_t;
 
 typedef uint16_t frudp_parameterid_t;
 typedef struct

@@ -15,9 +15,8 @@
 #ifndef FREERTPS_GUID_H
 #define FREERTPS_GUID_H
 
+#include "freertps/rtps/type/entity_id.h"
 #include "freertps/rtps/type/guid_prefix.h"
-#include "freertps/rtps/type/eid.h"
-
 #include <stdint.h>
 
 #ifdef __cplusplus

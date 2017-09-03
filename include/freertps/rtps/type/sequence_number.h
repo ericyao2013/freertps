@@ -12,30 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_GUID_PREFIX_H
-#define FREERTPS_GUID_PREFIX_H
+#ifndef FRUDP_SEQUENCE_NUMBER_H
+#define FRUDP_SEQUENCE_NUMBER_H
 
-#include "freertps/rtps/type/entity_id.h"
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_GUID_PREFIX_LEN 12
-
-typedef struct
+typedef struct frudp_sn
 {
-  uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
-} __attribute__((packed)) frudp_guid_prefix_t;
+  int32_t high;
+  uint32_t low;
+} __attribute__((packed)) frudp_sn_t; // sequence number
 
-bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
-                                 const frudp_guid_prefix_t * const b);
+extern const frudp_sn_t g_frudp_sn_unknown;
 
-const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *guid_prefix);
+typedef struct frudp_sn_set
+{
+  frudp_sn_t bitmap_base;
+  uint32_t num_bits;
+  uint32_t bitmap[];
+} __attribute__((packed)) frudp_sn_set_t;
+
+typedef struct frudp_sn_set_32bits
+{
+  frudp_sn_t bitmap_base;
+  uint32_t num_bits;
+  uint32_t bitmap;
+} __attribute__((packed)) frudp_sn_set_32bits_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_GUID_PREFIX_H
+#endif /* FRUDP_SEQUENCE_NUMBER_H */

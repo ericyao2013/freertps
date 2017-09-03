@@ -59,7 +59,7 @@ endif()
 # build the portable library
 add_library(freertps src/freertps/freertps.c
                      src/freertps/utility.c
-                     src/freertps/rtps/type/eid.c
+                     src/freertps/rtps/type/entity_id.c
                      src/freertps/rtps/type/guid_prefix.c
                      src/freertps/rtps/type/guid.c
                      src/freertps/rtps/type/part.c

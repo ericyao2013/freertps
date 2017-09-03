@@ -13,6 +13,7 @@
 // limitations under the License.
 
 #include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/log.h"
 
 #include <stdio.h>
 

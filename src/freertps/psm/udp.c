@@ -14,9 +14,13 @@
 
 #include "freertps/utility.h"
 #include "freertps/rtps/constant/parameter_id.h"
+#include "freertps/rtps/constant/submsg_id.h"
 #include "freertps/rtps/constant/submsg_flags.h"
 #include "freertps/rtps/constant/vendor.h"
 #include "freertps/rtps/type/config.h"
+#include "freertps/rtps/type/sub_message_heartbeat.h"
+#include "freertps/rtps/type/sub_message_gap.h"
+#include "freertps/rtps/type/sub_message_info_destination.h"
 #include "freertps/rtps/sub.h"
 #include "freertps/rtps/pub.h"
 #include "freertps/rtps/discovery/disco.h"

@@ -12,35 +12,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_EID_H
-#define FREERTPS_EID_H
+#ifndef FRUDP_SUB_MESSAGE_H
+#define FRUDP_SUB_MESSAGE_H
 
+#include "freertps/rtps/type/sub_message_header.h"
 #include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_ENTITY_KIND_USER_WRITER_WITH_KEY 0x02
-#define FRUDP_ENTITY_KIND_USER_WRITER_NO_KEY   0x03
-#define FRUDP_ENTITY_KIND_USER_READER_NO_KEY   0x04
-#define FRUDP_ENTITY_KIND_USER_READER_WITH_KEY 0x07
-
-typedef union
+typedef struct frudp_submsg
 {
-  struct
-  {
-    uint8_t key[3];
-    uint8_t kind;
-  } s;
-  uint32_t u;
-} __attribute__((packed)) frudp_eid_t; // entity ID
-
-frudp_eid_t frudp_create_user_id(const uint8_t entity_kind);
-
-extern const frudp_eid_t g_frudp_eid_unknown;
+  frudp_submsg_header_t header;
+  uint8_t contents[];
+}  __attribute__((packed)) frudp_submsg_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_EID_H
+#endif /* FRUDP_SUB_MESSAGE_H */

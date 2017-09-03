@@ -14,8 +14,10 @@
 
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
-#include "freertps/rtps/type/part.h"
+#include "freertps/rtps/constant/submsg_id.h"
 #include "freertps/rtps/constant/submsg_flags.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/rtps/type/sub_message_heartbeat.h"
 #include "freertps/rtps/pub.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"

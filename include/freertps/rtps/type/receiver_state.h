@@ -12,30 +12,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_GUID_PREFIX_H
-#define FREERTPS_GUID_PREFIX_H
+#ifndef FRUDP_RECEIVER_STATE_H
+#define FRUDP_RECEIVER_STATE_H
 
-#include "freertps/rtps/type/entity_id.h"
+#include "freertps/rtps/type/protocol_version.h"
+#include "freertps/rtps/type/vendor_id.h"
+#include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/rtps/type/time.h"
+
 #include <stdint.h>
-#include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_GUID_PREFIX_LEN 12
-
-typedef struct
+typedef struct frudp_receiver_state
 {
-  uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
-} __attribute__((packed)) frudp_guid_prefix_t;
-
-bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
-                                 const frudp_guid_prefix_t * const b);
-
-const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *guid_prefix);
+  frudp_pver_t        src_pver;
+  frudp_vid_t         src_vid;
+  frudp_guid_prefix_t src_guid_prefix;
+  frudp_guid_prefix_t dst_guid_prefix;
+  bool                have_timestamp;
+  fr_time_t           timestamp;
+} __attribute__((packed)) frudp_receiver_state_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_GUID_PREFIX_H
+#endif /* FRUDP_RECEIVER_STATE_H */

@@ -16,8 +16,12 @@
 #define FREERTPS_PUB_H
 
 #include "freertps/config.h"
+#include "freertps/rtps/type/entity_id.h"
 #include "freertps/rtps/type/part.h"
 #include "freertps/rtps/type/qos.h"
+#include "freertps/rtps/type/sequence_number.h"
+#include "freertps/rtps/type/sub_message_data.h"
+#include "freertps/rtps/type/sub_message_acknack.h"
 #include "freertps/psm/udp.h"
 
 #include <stdint.h>

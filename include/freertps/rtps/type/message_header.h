@@ -12,44 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_PART_H
-#define FRUDP_PART_H
+#ifndef FRUDP_MESSAGE_HEADER_H
+#define FRUDP_MESSAGE_HEADER_H
 
-#include "freertps/log.h"
-#include "freertps/psm/udp.h"
 #include "freertps/rtps/type/protocol_version.h"
-#include "freertps/rtps/type/locator.h"
+#include "freertps/rtps/type/vendor_id.h"
 #include "freertps/rtps/type/guid_prefix.h"
 
-#include <stdbool.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct
+typedef struct frudp_header
 {
-  frudp_pver_t pver;
-  frudp_vid_t vid;
+  uint32_t magic_word; // RTPS in ASCII
+  frudp_pver_t pver;   // protocol version
+  frudp_vid_t  vid;    // vendor ID
   frudp_guid_prefix_t guid_prefix;
-  bool expects_inline_qos;
-  frudp_locator_t default_unicast_locator;
-  frudp_locator_t default_multicast_locator;
-  frudp_locator_t metatraffic_unicast_locator;
-  frudp_locator_t metatraffic_multicast_locator;
-  frudp_builtin_endpoint_set_t builtin_endpoints;
-  frudp_duration_t lease_duration;
-  long live_count;
-  char name[256];
-  // Internal
-  fr_time_t last_spdp;
-} __attribute__((packed)) frudp_part_t;
-
-bool frudp_part_create(void);
-frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix);
-void frudp_part_fini(void);
+} __attribute__((packed)) frudp_header_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_PART_H
+#endif /* FRUDP_MESSAGE_HEADER_H */

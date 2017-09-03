@@ -12,30 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_GUID_PREFIX_H
-#define FREERTPS_GUID_PREFIX_H
+#ifndef FRUDP_SUB_MESSAGE_INFO_DESTINATION_H
+#define FRUDP_SUB_MESSAGE_INFO_DESTINATION_H
 
-#include "freertps/rtps/type/entity_id.h"
-#include <stdint.h>
-#include <stdbool.h>
+#include "freertps/rtps/type/guid_prefix.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_GUID_PREFIX_LEN 12
-
-typedef struct
+typedef struct frudp_submsg_info_dest
 {
-  uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
-} __attribute__((packed)) frudp_guid_prefix_t;
-
-bool frudp_guid_prefix_identical(const frudp_guid_prefix_t * const a,
-                                 const frudp_guid_prefix_t * const b);
-
-const char *frudp_print_guid_prefix(const frudp_guid_prefix_t *guid_prefix);
+  frudp_guid_prefix_t guid_prefix;
+} __attribute__((packed)) frudp_submsg_info_dest_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_GUID_PREFIX_H
+#endif /* FRUDP_SUB_MESSAGE_INFO_DESTINATION_H */

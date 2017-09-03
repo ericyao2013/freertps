@@ -12,19 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/rtps/type/eid.h"
-#include "freertps/log.h"
+#ifndef FRUDP_PROTOCOL_VERSION_H
+#define FRUDP_PROTOCOL_VERSION_H
 
-static unsigned g_frudp_next_user_eid = 1;
+#include <stdint.h>
 
-frudp_eid_t frudp_create_user_id(const uint8_t entity_kind)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct frudp_pver
 {
-  FREERTPS_DEBUG("frudp_create_user_id()\r\n");
+  uint8_t major;
+  uint8_t minor;
+} __attribute__((packed)) frudp_pver_t; // protocol version
 
-  frudp_eid_t eid;
-  eid.s.kind = entity_kind; // entity kind must be set by caller of this function must be overwritten by FRUDP_ENTITY_KIND_USER_READER_NO_KEY; // has key? dunno
-  eid.s.key[0] = 0;
-  eid.s.key[1] = 0; // todo: >8 bit ID's
-  eid.s.key[2] = g_frudp_next_user_eid++;
-  return eid;
+#ifdef __cplusplus
 }
+#endif
+#endif /* FRUDP_PROTOCOL_VERSION_H */
