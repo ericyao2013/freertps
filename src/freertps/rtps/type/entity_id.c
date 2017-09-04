@@ -19,7 +19,7 @@ static unsigned g_frudp_next_user_eid = 1;
 
 frudp_eid_t frudp_create_user_id(const uint8_t entity_kind)
 {
-  FREERTPS_DEBUG("frudp_create_user_id()\r\n");
+  FREERTPS_DEBUG("frudp_create_user_id(%d)\r\n", entity_kind);
 
   frudp_eid_t eid;
   eid.s.kind = entity_kind; // entity kind must be set by caller of this function must be overwritten by FRUDP_ENTITY_KIND_USER_READER_NO_KEY; // has key? dunno
