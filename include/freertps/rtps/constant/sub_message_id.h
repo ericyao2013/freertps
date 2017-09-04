@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_SUBMSG_ID_H
-#define FREERTPS_SUBMSG_ID_H
+#ifndef FREERTPS_SUB_MESSAGE_ID_H
+#define FREERTPS_SUB_MESSAGE_ID_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,7 +21,7 @@ extern "C" {
 
 #define FRUDP_SUBMSG_ID_PAD            0x01 /* Pad */
 #define FRUDP_SUBMSG_ID_ACKNACK        0x06 /* AckNack */
-#define FRUDP_SUBMSG_ID_HEARTBEAT      0x07 /* Heartbeat */
+#define FRUDP_SUBMSG_ID_HEARTBEAT      0x07 /* HeartBeat */
 #define FRUDP_SUBMSG_ID_GAP            0x08 /* Gap */
 #define FRUDP_SUBMSG_ID_INFO_TS        0x09 /* InfoTimestamp */
 #define FRUDP_SUBMSG_ID_INFO_SRC       0x0c /* InfoSource */
@@ -36,5 +36,5 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_SUBMSG_ID_H
+#endif // FREERTPS_SUB_MESSAGE_ID_H
 

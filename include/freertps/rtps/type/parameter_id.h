@@ -1,6 +1,3 @@
-// Copyright 2016 Open Source Robotics Foundation, Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -12,17 +9,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_UTILITY_H
-#define FRUDP_UTILITY_H
+#ifndef FREERTPS_TYPE_PARAMETER_ID_H
+#define FREERTPS_TYPE_PARAMETER_ID_H
+
+#include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-const char *frudp_print_ip(const long ip);
+typedef uint16_t frudp_parameterid_t;
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_UTILITY_H
+#endif // FREERTPS_TYPE_PARAMETER_ID_H
+

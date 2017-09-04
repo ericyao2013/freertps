@@ -28,6 +28,8 @@ typedef struct frudp_submsg
   uint8_t contents[];
 }  __attribute__((packed)) frudp_submsg_t;
 
+const char *frudp_submsg(const uint16_t id);
+
 #ifdef __cplusplus
 }
 #endif

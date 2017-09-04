@@ -12,23 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/utility.h"
-#include "freertps/psm/bswap.h"
-#include "freertps/rtps/constant/sub_message_id.h"
+#ifndef FREERTPS_PARAMETER_LIST_ITEM_H
+#define FREERTPS_PARAMETER_LIST_ITEM_H
 
-#include <stdio.h>
+#include "freertps/rtps/type/parameter_id.h"
+#include <stdint.h>
 
-/** Display IP
- * @param ip in normal mode.
- */
-const char *frudp_print_ip(const long ip)
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+typedef struct frudp_parameter_list_item
 {
-  static char buffer[16];
-  snprintf(buffer, sizeof(buffer),
-           "%03d.%03d.%03d.%03d",
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,3),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,2),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,1),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,0));
-  return buffer;
+  frudp_parameterid_t pid;
+  uint16_t            len;
+  uint8_t             value[];
+} __attribute__((packed)) frudp_parameter_list_item_t;
+
+#define FRUDP_PLIST_ADVANCE(list_item) \
+  do { \
+    list_item = (frudp_parameter_list_item_t *) \
+                (((uint8_t *)list_item) + 4 + list_item->len); \
+  } while (0)
+
+#ifdef __cplusplus
 }
+#endif
+#endif /* FREERTPS_PARAMETER_LIST_ITEM_H */

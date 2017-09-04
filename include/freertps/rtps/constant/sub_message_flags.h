@@ -12,23 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/utility.h"
-#include "freertps/psm/bswap.h"
-#include "freertps/rtps/constant/sub_message_id.h"
+#ifndef FREERTPS_SUB_MESSAGE_FLAGS_H
+#define FREERTPS_SUB_MESSAGE_FLAGS_H
 
-#include <stdio.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-/** Display IP
- * @param ip in normal mode.
- */
-const char *frudp_print_ip(const long ip)
-{
-  static char buffer[16];
-  snprintf(buffer, sizeof(buffer),
-           "%03d.%03d.%03d.%03d",
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,3),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,2),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,1),
-           (unsigned int)FREERTPS_IPV4_BYTE(ip,0));
-  return buffer;
+#define FRUDP_FLAGS_BIG_ENDIAN         0x00
+#define FRUDP_FLAGS_LITTLE_ENDIAN      0x01
+#define FRUDP_FLAGS_INLINE_QOS         0x02
+#define FRUDP_FLAGS_DATA_PRESENT       0x04
+
+#ifdef __cplusplus
 }
+#endif
+#endif // FREERTPS_SUB_MESSAGE_FLAGS_H

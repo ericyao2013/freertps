@@ -31,7 +31,7 @@ extern "C"
 {
 #endif
 
-typedef struct
+typedef struct frudp_pub
 {
   const char           *topic_name;
   const char           *type_name;

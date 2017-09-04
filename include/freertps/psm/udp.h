@@ -21,6 +21,7 @@
 #include "freertps/rtps/type/receiver_state.h"
 #include "freertps/rtps/type/sub_message.h"
 #include "freertps/rtps/type/sequence_number.h"
+#include "freertps/rtps/type/parameter_list_item.h"
 
 #include <string.h>
 #include <stdint.h>
@@ -35,24 +36,9 @@ extern "C" {
 #define FRUDP_SCHEME_CDR_LE            0x0001
 #define FRUDP_SCHEME_PL_CDR_LE         0x0003
 
-#define FRUDP_PLIST_ADVANCE(list_item) \
-  do { \
-    list_item = (frudp_parameter_list_item_t *) \
-                (((uint8_t *)list_item) + 4 + list_item->len); \
-  } while (0)
-
-
 /////////////////////////////////////////////////////////////////////
 // TYPES
 /////////////////////////////////////////////////////////////////////
-
-typedef uint16_t frudp_parameterid_t;
-typedef struct
-{
-  frudp_parameterid_t pid;
-  uint16_t len;
-  uint8_t value[];
-} __attribute__((packed)) frudp_parameter_list_item_t;
 
 typedef struct
 {

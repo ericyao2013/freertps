@@ -12,19 +12,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_SUBMSG_FLAGS_H
-#define FREERTPS_SUBMSG_FLAGS_H
+#ifndef FREERTPS_USB_H
+#define FREERTPS_USB_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define FRUDP_FLAGS_BIG_ENDIAN         0x00
-#define FRUDP_FLAGS_LITTLE_ENDIAN      0x01
-#define FRUDP_FLAGS_INLINE_QOS         0x02
-#define FRUDP_FLAGS_DATA_PRESENT       0x04
+
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_SUBMSG_FLAGS_H
+#endif /* FREERTPS_USB_H */
