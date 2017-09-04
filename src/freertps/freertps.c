@@ -65,7 +65,7 @@ bool freertps_publish(frudp_pub_t *pub,
 void freertps_start(void)
 {
   frudp_print_participants_debug();
-  frudp_print_sedp_debug();
+  frudp_sedp_debug();
 
   // todo: other physical layers...
   frudp_disco_start();

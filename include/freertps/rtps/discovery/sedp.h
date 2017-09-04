@@ -25,7 +25,8 @@ extern "C"
 {
 #endif
 
-typedef struct{
+typedef struct sedp_topic_info
+{
   frudp_guid_t guid;
   char topic_name[FRUDP_MAX_TOPIC_NAME_LEN];
   char type_name[FRUDP_MAX_TYPE_NAME_LEN];
@@ -46,7 +47,7 @@ void frudp_sedp_publish_pub(frudp_pub_t *pub);
 
 void frudp_sedp_add_builtin_endpoints(frudp_part_t *part);
 
-void frudp_print_sedp_debug(void);
+void frudp_sedp_debug(void);
 
 #ifdef VERBOSE_SEDP
 #define _SEDP_INFO(...)  FREERTPS_INFO(__VA_ARGS__)

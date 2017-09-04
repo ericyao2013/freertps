@@ -30,7 +30,6 @@ typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 
 #include "freertps/rtps/type/config.h"
 #include "freertps/psm/bswap.h"
-//#include "freertps/psm/system.h"
 #include "freertps/psm/udp.h"
 #include "freertps/rtps/pub.h"
 #include "freertps/rtps/sub.h"

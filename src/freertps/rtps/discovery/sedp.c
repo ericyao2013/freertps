@@ -137,7 +137,7 @@ void frudp_sedp_fini(void)
 
 //#ifdef VERBOSE_SEDP
 /** List readers */
-void frudp_print_readers_debug(void)
+void frudp_sedp_debug_readers(void)
 {
   FREERTPS_INFO("READERS LIST\r\n");
   FREERTPS_INFO("| ID     | READER   | WRITER \r\n");
@@ -153,7 +153,7 @@ void frudp_print_readers_debug(void)
 }
 
 /** List writers */
-void frudp_print_writers_debug(void)
+void frudp_sedp_debug_writers(void)
 {
   FREERTPS_INFO("WRITERS LIST\r\n");
   FREERTPS_INFO("| ID     | WRITER   | READER \r\n");
@@ -169,7 +169,7 @@ void frudp_print_writers_debug(void)
 }
 
 /** List Publishers */
-void frudp_print_pub_debug(void)
+void frudp_sedp_debug_pub(void)
 {
   FREERTPS_INFO("PUBLISHERS LIST\r\n");
   FREERTPS_INFO("| ID     | WRITER   | TOPIC \r\n");
@@ -185,7 +185,7 @@ void frudp_print_pub_debug(void)
 }
 
 /** List Subscriptions */
-void frudp_print_sub_debug(void)
+void frudp_sedp_debug_sub(void)
 {
   FREERTPS_INFO("SUBSCRIPTIONS LIST\r\n");
   FREERTPS_INFO("| ID     | READER   | TOPIC \r\n");
@@ -200,16 +200,16 @@ void frudp_print_sub_debug(void)
   }
 }
 
-void frudp_print_sedp_debug(void)
+void frudp_sedp_debug(void)
 {
     FREERTPS_INFO("\r\n");
-    frudp_print_readers_debug();
+    frudp_sedp_debug_readers();
     FREERTPS_INFO("\r\n");
-    frudp_print_writers_debug();
+    frudp_sedp_debug_writers();
     FREERTPS_INFO("\r\n");
-    frudp_print_pub_debug();
+    frudp_sedp_debug_pub();
     FREERTPS_INFO("\r\n");
-    frudp_print_sub_debug();
+    frudp_sedp_debug_sub();
     FREERTPS_INFO("\r\n");
 }
 //#endif
@@ -253,7 +253,7 @@ void frudp_sedp_tick(void)
     frudp_sedp_clean();
 
 //#ifdef VERBOSE_SEDP
-    frudp_print_sedp_debug();
+    frudp_sedp_debug();
 //#endif
   }
 }
@@ -323,7 +323,7 @@ static void frudp_sedp_rx_pub_info(const sedp_topic_info_t *info)
         r.reliable = sub->reliable;
         frudp_add_reader(&r);
 
-        frudp_print_sedp_debug();
+        frudp_sedp_debug();
       }
       else
         _SEDP_INFO("\t  boring, we already knew about it.\r\n");
@@ -389,7 +389,7 @@ static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
       frudp_add_writer(&w);
       founded++;
 
-      frudp_print_sedp_debug();
+      frudp_sedp_debug();
     }
     else
     {
