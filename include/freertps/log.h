@@ -15,6 +15,10 @@
 #ifndef FREERTPS_LOG_H
 #define FREERTPS_LOG_H
 
+#ifndef USE_CC3200
+#include <stdio.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

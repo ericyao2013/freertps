@@ -14,7 +14,7 @@
 
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
-#include "freertps/rtps/sub.h"
+#include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/constant/parameter_id.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
 #include "freertps/rtps/constant/sub_message_id.h"

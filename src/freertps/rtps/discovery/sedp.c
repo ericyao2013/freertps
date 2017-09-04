@@ -23,6 +23,7 @@
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
+#include "freertps/rtps/writer.h"
 
 #include <string.h>
 

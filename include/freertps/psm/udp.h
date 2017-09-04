@@ -46,11 +46,6 @@ typedef struct
   uint16_t options;
 } __attribute__((packed)) frudp_encapsulation_scheme_t;
 
-typedef void (*frudp_rx_data_cb_t)(frudp_receiver_state_t *rcvr,
-                                   const frudp_submsg_t *submsg,
-                                   const uint16_t scheme,
-                                   const uint8_t *data);
-
 typedef struct
 {
   int32_t sec;

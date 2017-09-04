@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "freertps/utility.h"
+#include "freertps/rtps/publisher.h"
+#include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/constant/parameter_id.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
 #include "freertps/rtps/constant/sub_message_id.h"
@@ -21,8 +23,6 @@
 #include "freertps/rtps/type/sub_message_heartbeat.h"
 #include "freertps/rtps/type/sub_message_gap.h"
 #include "freertps/rtps/type/sub_message_info_destination.h"
-#include "freertps/rtps/sub.h"
-#include "freertps/rtps/pub.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/psm/udp.h"
@@ -211,7 +211,7 @@ static bool frudp_rx_heartbeat(RX_MSG_ARGS)
                 (unsigned)freertps_htonl(hb->reader_id.u),
                 (unsigned)hb->first_sn.low,
                 (unsigned)hb->last_sn.low);
-  frudp_print_readers();
+  frudp_debug_readers();
 
   FREERTPS_INFO("    %d matched readers\r\n", (int)g_frudp_num_readers);
 #endif

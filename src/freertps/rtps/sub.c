@@ -12,10 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "freertps/rtps/sub.h"
+#include "freertps/rtps/subscriber.h"
+#include "freertps/rtps/reader.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/psm/bswap.h"
 #include "freertps/psm/udp.h"
+#include "freertps/log.h"
 
 frudp_sub_t g_frudp_subs[FRUDP_MAX_SUBS];
 uint32_t g_frudp_num_subs = 0;
@@ -87,7 +89,7 @@ void frudp_add_sub(const frudp_sub_t *s)
   //frudp_subscribe(s->entity_id, g_frudp_entity_id_unknown, NULL, s->msg_cb);
 }
 
-void frudp_print_readers(void)
+void frudp_debug_readers(void)
 {
   for (unsigned i = 0; i < g_frudp_num_readers; i++)
   {

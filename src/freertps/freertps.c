@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include "freertps/freertps.h"
-#include "freertps/rtps/sub.h"
+#include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/psm/udp.h"

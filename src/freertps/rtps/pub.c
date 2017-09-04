@@ -14,11 +14,12 @@
 
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
+#include "freertps/rtps/publisher.h"
+#include "freertps/rtps/writer.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
 #include "freertps/rtps/constant/sub_message_id.h"
 #include "freertps/rtps/type/part.h"
 #include "freertps/rtps/type/sub_message_heartbeat.h"
-#include "freertps/rtps/pub.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/psm/bswap.h"

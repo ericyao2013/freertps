@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_PUB_H
-#define FREERTPS_PUB_H
+#ifndef FREERTPS_PUBLISHER_H
+#define FREERTPS_PUBLISHER_H
 
 #include "freertps/config.h"
 #include "freertps/rtps/type/entity_id.h"
@@ -22,13 +22,11 @@
 #include "freertps/rtps/type/sequence_number.h"
 #include "freertps/rtps/type/sub_message_data.h"
 #include "freertps/rtps/type/sub_message_acknack.h"
-#include "freertps/psm/udp.h"
 
 #include <stdint.h>
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 typedef struct frudp_pub
@@ -44,23 +42,11 @@ typedef struct frudp_pub
   uint32_t              next_submsg_idx;
   frudp_sn_t            next_sn;
   bool                  reliable;
-} frudp_pub_t;
+} __attribute__((packed)) frudp_pub_t;
 
 extern frudp_pub_t g_frudp_pubs[FRUDP_MAX_PUBS];
 extern uint32_t g_frudp_num_pubs;
 
-//////////////////////////////////////////////////////////////
-
-typedef struct
-{
-  frudp_guid_t reader_guid;
-  frudp_eid_t writer_eid;
-} frudp_writer_t; // currently only supports best-effort connections
-
-extern frudp_writer_t g_frudp_writers[FRUDP_MAX_WRITERS];
-extern uint32_t g_frudp_num_writers;
-
-//////////////////////////////////////////////////////////////
 
 frudp_pub_t *frudp_create_pub(const char *topic_name,
                               const char *type_name,
@@ -93,11 +79,9 @@ frudp_pub_t *frudp_create_user_pub(const char *topic_name,
                                    const char *type_name,
                                    frudp_qos_reliability_t *qos);
 
-void frudp_add_writer(const frudp_writer_t *writer);
-
 void frudp_send_sedp_msgs(frudp_part_t *part);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_PUB_H
+#endif // FREERTPS_PUBLISHER_H

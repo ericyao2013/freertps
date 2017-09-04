@@ -15,14 +15,24 @@
 #ifndef FREERTPS_SUBSCRIPTION_H
 #define FREERTPS_SUBSCRIPTION_H
 
-#include "freertps/config.h"
-#include "freertps/freertps.h"
-#include "freertps/psm/udp.h"
+#include "freertps/rtps/reader.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
+
+typedef struct frudp_sub
+{
+  const char *topic_name;
+  const char *type_name;
+  frudp_eid_t reader_eid;
+  frudp_rx_data_cb_t data_cb;
+  freertps_msg_cb_t msg_cb;
+  bool reliable;
+} __attribute__((packed)) frudp_sub_t;
+
+extern frudp_sub_t g_frudp_subs[FRUDP_MAX_SUBS];
+extern uint32_t g_frudp_num_subs;
 
 // create userland UDP subscriptions. people should call the
 // freertps_create_subscription() from userland code though, to be agnostic
@@ -46,38 +56,10 @@ bool frudp_subscribe(const frudp_entity_id_t reader_id,
                      const freertps_msg_cb_t msg_cb);
 */
 
-typedef struct
-{
-  const char *topic_name;
-  const char *type_name;
-  frudp_eid_t reader_eid;
-  frudp_rx_data_cb_t data_cb;
-  freertps_msg_cb_t msg_cb;
-  bool reliable;
-} frudp_sub_t;
-
+/**
+ *
+ */
 void frudp_add_sub(const frudp_sub_t *s);
-
-extern frudp_sub_t g_frudp_subs[FRUDP_MAX_SUBS];
-extern uint32_t g_frudp_num_subs;
-
-typedef struct
-{
-  bool reliable;
-  frudp_guid_t writer_guid;
-  frudp_eid_t reader_eid;
-  frudp_sn_t max_rx_sn;
-  frudp_rx_data_cb_t data_cb;
-  freertps_msg_cb_t msg_cb;
-} frudp_reader_t;
-
-// not great to have these freely available. someday hide these.
-extern frudp_reader_t g_frudp_readers[FRUDP_MAX_READERS];
-extern uint32_t g_frudp_num_readers;
-
-void frudp_add_reader(const frudp_reader_t *reader);
-
-void frudp_print_readers(void);
 
 #ifdef __cplusplus
 }
