@@ -19,8 +19,6 @@
 extern "C" {
 #endif
 
-#include "freertps/psm/system.h"
-
 #include <stdio.h>
 #include <stdint.h>
 
@@ -28,20 +26,22 @@ extern "C" {
 // be shortened to frudp_
 typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 
-#include "freertps/rtps/type/config.h"
-#include "freertps/psm/bswap.h"
-#include "freertps/psm/udp.h"
+//#include "freertps/rtps/type/config.h"
 #include "freertps/rtps/publisher.h"
 #include "freertps/rtps/subscriber.h"
-#include "freertps/rtps/constant/ports.h"
-#include "freertps/rtps/type/time.h"
-#include "freertps/rtps/type/locator.h"
+#include "freertps/rtps/type/qos.h"
+
+///////////////////////////////////////////////////////////////////////////////
+// Temporaly include
+#include "freertps/psm/system.h"
+#include "freertps/psm/udp.h"
 #include "freertps/rtps/type/qos.h"
 #include "freertps/rtps/discovery/disco.h"
+///////////////////////////////////////////////////////////////////////////////
 
-void freertps_create_sub(const char *topic_name,
-                         const char *type_name,
-                         freertps_msg_cb_t msg_cb);
+frudp_sub_t *freertps_create_sub(const char *topic_name,
+                                 const char *type_name,
+                                 freertps_msg_cb_t msg_cb);
 
 // todo: come up with a better way of holding onto publishers that is
 // agnostic to the physical layer

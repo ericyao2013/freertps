@@ -50,6 +50,7 @@ typedef struct frudp_part
 bool frudp_part_create(void);
 frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix);
 void frudp_part_fini(void);
+void frudp_debug_participants(void);
 
 #ifdef __cplusplus
 }

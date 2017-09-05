@@ -1,6 +1,7 @@
 #include "freertps/freertps.h"
 #include "freertps/psm/system.h"
 #include "freertps/psm/psm.h"
+#include "freertps/psm/udp.h"
 
 #include <stdlib.h>
 #if defined(__linux__)

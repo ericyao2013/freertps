@@ -16,7 +16,9 @@
 
 #include "freertps/config.h"
 #include "freertps/log.h"
+#include "freertps/utility.h"
 #include "freertps/psm/udp.h"
+#include "freertps/psm/bswap.h"
 
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid_prefix.h"
@@ -72,3 +74,28 @@ void frudp_part_fini(void)
 {
 
 }
+
+//#ifdef VERBOSE_SPDP
+void frudp_debug_participants(void)
+{
+  fr_time_t time = fr_time_now();
+  FREERTPS_INFO("\r\n");
+  FREERTPS_INFO("Current time : %d \r\n", fr_time_now().seconds);
+  FREERTPS_INFO("PARTICIPANT\r\n");
+  FREERTPS_INFO("| ID     | NAME       | IP              | GUID                       | Bail | Last Time  | End |\r\n");
+  for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
+    frudp_part_t *match = &g_frudp_disco_parts[i];
+    frudp_duration_t *duration = &match->lease_duration;
+    int32_t bail = (duration->sec); // + duration->nanosec); // In second
+    FREERTPS_INFO("| %d\t| %s | %s | %s | %d | %d | %d |\r\n",
+                  i,
+                  match->name,
+                  frudp_print_ip(freertps_htonl(match->default_unicast_locator.address.udp4.address)),
+                  frudp_print_guid_prefix(&match->guid_prefix),
+                  bail,
+                  match->last_spdp.seconds,
+                  (time.seconds - (match->last_spdp.seconds + bail)));
+  }
+  FREERTPS_INFO("\r\n");
+}
+//#endif

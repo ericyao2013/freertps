@@ -13,10 +13,11 @@
 // limitations under the License.
 
 #include "freertps/freertps.h"
-#include "freertps/rtps/subscriber.h"
+#include "freertps/rtps/type/part.h"
+#include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/sedp.h"
-#include "freertps/rtps/discovery/spdp.h"
 #include "freertps/psm/udp.h"
+#include "freertps/psm/system.h"
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -33,15 +34,16 @@ void freertps_perish_if(bool b, const char *msg)
 }
 
 // todo: return something
-void freertps_create_sub(const char *topic_name,
-                         const char *type_name,
-                         freertps_msg_cb_t msg_cb)
+frudp_sub_t *freertps_create_sub(const char *topic_name,
+                                 const char *type_name,
+                                 freertps_msg_cb_t msg_cb)
 {
   // assume for now that we are only using UDP. in the future, this can
   // become smarter to handle when different (or multiple?) physical layer
   // are initialized
   frudp_add_user_sub(topic_name, type_name, msg_cb);
   //g_rtps_psm.create_sub(topic_name, type
+  return NULL;
 }
 
 frudp_pub_t *freertps_create_pub(const char *topic_name,
@@ -64,7 +66,7 @@ bool freertps_publish(frudp_pub_t *pub,
 
 void freertps_start(void)
 {
-  frudp_print_participants_debug();
+  frudp_debug_participants();
   frudp_sedp_debug();
 
   // todo: other physical layers...

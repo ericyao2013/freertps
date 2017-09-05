@@ -1,6 +1,8 @@
 #include "freertps/freertps.h"
 #include "freertps/timer.h"
+#include "freertps/utility.h"
 #include "freertps/psm/udp.h"
+#include "freertps/psm/bswap.h"
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/constant/vendor.h"

@@ -36,6 +36,7 @@ extern frudp_writer_t g_frudp_writers[FRUDP_MAX_WRITERS];
 extern uint32_t g_frudp_num_writers;
 
 void frudp_add_writer(const frudp_writer_t *writer);
+void frudp_debug_writer(void);
 
 #ifdef __cplusplus
 }

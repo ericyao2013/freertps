@@ -16,6 +16,7 @@
 #include "freertps/rtps/publisher.h"
 #include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/constant/parameter_id.h"
+#include "freertps/rtps/constant/ports.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
 #include "freertps/rtps/constant/sub_message_id.h"
 #include "freertps/rtps/constant/vendor.h"

@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "freertps/freertps.h"
 #include "freertps/psm/system.h"
+#include "freertps/psm/udp.h"
+#include "freertps/rtps/type/qos.h"
+#include "freertps/rtps/discovery/disco.h"
 
 static int n_msg_recv = 0; // cue the raptors plz
 

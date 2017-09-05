@@ -14,6 +14,7 @@
 
 #include "freertps/rtps/type/time.h"
 #include "freertps/freertps.h"
+#include "freertps/log.h"
 
 #include <limits.h>
 

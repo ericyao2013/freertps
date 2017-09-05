@@ -14,6 +14,7 @@
 
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
+#include "freertps/rtps/type/config.h"
 #include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/constant/parameter_id.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
@@ -314,7 +315,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       _SPDP_ERROR("      not enough room to save the new participant.\r\n");
   }
 //#ifdef VERBOSE_SPDP
-  frudp_print_participants_debug();
+  frudp_debug_participants();
 //#endif
 }
 
@@ -585,31 +586,6 @@ void frudp_spdp_bcast(frudp_part_t *part)
     _SPDP_ERROR("couldn't transmit SPDP unicast message\r\n");
 }
 
-//#ifdef VERBOSE_SPDP
-void frudp_print_participants_debug(void)
-{
-  fr_time_t time = fr_time_now();
-  FREERTPS_INFO("\r\n");
-  FREERTPS_INFO("Current time : %d \r\n", fr_time_now().seconds);
-  FREERTPS_INFO("PARTICIPANT\r\n");
-  FREERTPS_INFO("| ID     | NAME       | IP              | GUID                       | Bail | Last Time  | End |\r\n");
-  for (unsigned i = 0; i < g_frudp_disco_num_parts; i++) {
-    frudp_part_t *match = &g_frudp_disco_parts[i];
-    frudp_duration_t *duration = &match->lease_duration;
-    int32_t bail = (duration->sec); // + duration->nanosec); // In second
-    FREERTPS_INFO("| %d\t| %s | %s | %s | %d | %d | %d |\r\n",
-                  i,
-                  match->name,
-                  frudp_print_ip(freertps_htonl(match->default_unicast_locator.address.udp4.address)),
-                  frudp_print_guid_prefix(&match->guid_prefix),
-                  bail,
-                  match->last_spdp.seconds,
-                  (time.seconds - (match->last_spdp.seconds + bail)));
-  }
-  FREERTPS_INFO("\r\n");
-}
-//#endif
-
 void frudp_spdp_tick(void)
 {
   const fr_time_t t = fr_time_now();
@@ -625,7 +601,7 @@ void frudp_spdp_tick(void)
 
 //#ifdef VERBOSE_SPDP
     FREERTPS_INFO("\r\n");
-    frudp_print_participants_debug();
+    frudp_debug_participants();
 //#endif
   }
 }

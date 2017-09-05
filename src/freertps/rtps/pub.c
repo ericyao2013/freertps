@@ -14,6 +14,7 @@
 
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
+#include "freertps/rtps/type/config.h"
 #include "freertps/rtps/publisher.h"
 #include "freertps/rtps/writer.h"
 #include "freertps/rtps/constant/sub_message_flags.h"
@@ -23,6 +24,7 @@
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
 
 #include <stdio.h>
 #include <string.h>

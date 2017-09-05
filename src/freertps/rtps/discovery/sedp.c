@@ -18,12 +18,15 @@
 #include "freertps/rtps/constant/sub_message_flags.h"
 #include "freertps/rtps/constant/sub_message_id.h"
 #include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid.h"
 #include "freertps/rtps/type/qos.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
 #include "freertps/rtps/writer.h"
+#include "freertps/psm/bswap.h"
+#include "freertps/psm/udp.h"
 
 #include <string.h>
 
@@ -376,7 +379,7 @@ static void frudp_sedp_rx_sub_info(const sedp_topic_info_t *info)
       frudp_writer_t *w = &g_frudp_writers[j];
       if (frudp_guid_identical(&w->reader_guid, &info->guid))
       {
-        _SEDP_DEBUG("\t  nah, already had it in our list of readers\r\n",
+        _SEDP_DEBUG("\t  nah, already had it in our list of readers\r\n%s",
                     frudp_print_guid(&info->guid));
         found = true;
       }
