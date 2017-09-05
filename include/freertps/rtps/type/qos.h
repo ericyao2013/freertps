@@ -27,7 +27,7 @@ extern "C"
 #define FRUDP_QOS_RELIABILITY_KIND_BEST_EFFORT 1
 #define FRUDP_QOS_RELIABILITY_KIND_RELIABLE    2
 
-typedef struct
+typedef struct frudp_qos_reliability
 {
   uint32_t kind;
   frudp_duration_t max_blocking_time;
@@ -37,7 +37,7 @@ typedef struct
 #define FRUDP_QOS_HISTORY_KIND_KEEP_LAST 0
 #define FRUDP_QOS_HISTORY_KIND_KEEP_ALL  1
 
-typedef struct
+typedef struct frudp_qos_history
 {
   uint32_t kind;
   uint32_t depth;
@@ -46,7 +46,7 @@ typedef struct
 ///////////////////////////////////////////////////////////////
 #define  FRUDP_QOS_PRESENTATION_SCOPE_TOPIC 1
 
-typedef struct
+typedef struct frudp_qos_presentation
 {
   uint32_t scope;
   uint16_t coherent_access;

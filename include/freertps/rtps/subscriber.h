@@ -16,6 +16,7 @@
 #define FREERTPS_SUBSCRIPTION_H
 
 #include "freertps/rtps/reader.h"
+#include "freertps/rtps/type/entity_id.h"
 
 #ifdef __cplusplus
 extern "C" {

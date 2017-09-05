@@ -24,7 +24,7 @@ extern "C"
 {
 #endif
 
-typedef struct
+typedef struct frudp_config
 {
   /** GUID prefix */
   frudp_guid_prefix_t guid_prefix;

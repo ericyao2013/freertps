@@ -26,7 +26,7 @@ extern "C" {
 #define FRUDP_ENTITY_KIND_USER_READER_NO_KEY   0x04
 #define FRUDP_ENTITY_KIND_USER_READER_WITH_KEY 0x07
 
-typedef union
+typedef union frudp_eid
 {
   struct
   {

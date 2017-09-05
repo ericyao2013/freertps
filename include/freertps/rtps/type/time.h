@@ -26,7 +26,7 @@ extern "C"
 #define TIME_INVALID {-1, 0xffffffff}
 #define TIME_INFINITE {0x7fffffff, 0xffffffff}
 
-typedef struct
+typedef struct fr_time
 {
   int32_t  seconds;
   uint32_t fraction;

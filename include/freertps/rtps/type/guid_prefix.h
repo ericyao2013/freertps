@@ -25,7 +25,7 @@ extern "C" {
 
 #define FRUDP_GUID_PREFIX_LEN 12
 
-typedef struct
+typedef struct frudp_guid_prefix
 {
   uint8_t prefix[FRUDP_GUID_PREFIX_LEN];
 } __attribute__((packed)) frudp_guid_prefix_t;

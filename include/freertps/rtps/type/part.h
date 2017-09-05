@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 
-typedef struct
+typedef struct frudp_part
 {
   frudp_pver_t pver;
   frudp_vid_t vid;

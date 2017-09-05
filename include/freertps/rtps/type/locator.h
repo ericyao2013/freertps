@@ -27,7 +27,7 @@ extern "C"
 #define FRUDP_LOCATOR_KIND_UDPV4    1
 #define FRUDP_LOCATOR_KIND_UDPV6    2
 
-typedef struct
+typedef struct frudp_locator
 {
   int32_t kind;
   uint32_t port;
