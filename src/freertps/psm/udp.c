@@ -668,7 +668,7 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   acknack->reader_id = *reader_id;
   acknack->writer_id = writer_guid->eid;
   int sn_set_len = (set->num_bits + 31) / 32 * 4 + 12;
-  memcpy(&acknack->reader_sn_state, set, sizeof(frudp_sn_set_t));
+  memcpy(&acknack->reader_sn_state, set, sn_set_len);
   uint32_t *p_count = (uint32_t *)&acknack->reader_sn_state + sn_set_len / 4;
   *p_count = s_acknack_count++;
   uint8_t *p_next_submsg = (uint8_t *)p_count + 4;
