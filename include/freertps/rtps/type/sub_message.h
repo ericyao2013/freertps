@@ -16,6 +16,7 @@
 #define FRUDP_SUB_MESSAGE_H
 
 #include "freertps/rtps/type/sub_message_header.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus

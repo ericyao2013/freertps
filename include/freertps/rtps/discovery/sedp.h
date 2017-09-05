@@ -15,8 +15,10 @@
 #ifndef FREERTPS_SEDP_H
 #define FREERTPS_SEDP_H
 
+#include "freertps/config.h"
 #include "freertps/rtps/publisher.h"
 #include "freertps/rtps/subscriber.h"
+#include "freertps/rtps/type/guid.h"
 #include "freertps/rtps/type/part.h"
 #include "freertps/log.h"
 

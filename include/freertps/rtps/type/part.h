@@ -15,17 +15,19 @@
 #ifndef FRUDP_PART_H
 #define FRUDP_PART_H
 
-#include "freertps/log.h"
-#include "freertps/psm/udp.h"
 #include "freertps/rtps/type/protocol_version.h"
 #include "freertps/rtps/type/locator.h"
 #include "freertps/rtps/type/guid_prefix.h"
+#include "freertps/rtps/type/time.h"
+#include "freertps/rtps/type/vendor_id.h"
 
 #include <stdbool.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef uint32_t frudp_builtin_endpoint_set_t;
 
 typedef struct frudp_part
 {

@@ -27,10 +27,10 @@ extern "C" {
 
 typedef struct frudp_header
 {
-  uint32_t magic_word; // RTPS in ASCII
-  frudp_pver_t pver;   // protocol version
-  frudp_vid_t  vid;    // vendor ID
-  frudp_guid_prefix_t guid_prefix;
+  uint32_t               magic_word; // RTPS in ASCII
+  frudp_pver_t           pver;   // protocol version
+  frudp_vid_t            vid;    // vendor ID
+  frudp_guid_prefix_t    guid_prefix;
 } __attribute__((packed)) frudp_header_t;
 
 #ifdef __cplusplus

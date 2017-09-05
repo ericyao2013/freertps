@@ -157,7 +157,7 @@ void frudp_send_sedp_msgs(frudp_part_t *part)
     hb_submsg->count = 0;
     submsg_wpos += 4 + hb_submsg->header.len;
     int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
-    uint32_t dst_addr = freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr);
+    uint32_t dst_addr = freertps_htonl(part->metatraffic_unicast_locator.address.udp4.address);
     uint16_t dst_port = part->metatraffic_unicast_locator.port;
     _SEDP_INFO("\tsending %d bytes of SEDP pub catchup messages to %s:%d\r\n",
            payload_len, frudp_print_ip(dst_addr), dst_port);
@@ -208,7 +208,7 @@ void frudp_send_sedp_msgs(frudp_part_t *part)
     hb_submsg->count = 0;
     submsg_wpos += 4 + hb_submsg->header.len;
     int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
-    uint32_t dst_addr = part->metatraffic_unicast_locator.addr.udp4.addr;
+    uint32_t dst_addr = part->metatraffic_unicast_locator.address.udp4.address;
     uint16_t dst_port = part->metatraffic_unicast_locator.port;
     _SEDP_INFO("\tsending %d bytes of SEDP sub catchup messages to %s:%d\r\n",
            payload_len, frudp_print_ip(freertps_htonl(dst_addr)), dst_port);
@@ -397,7 +397,7 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
 
         int payload_len = &msg->submsgs[submsg_wpos] - ((uint8_t *)msg);
         //FREERTPS_INFO("         sending %d bytes\n", payload_len);
-        frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr),
+        frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.address.udp4.address),
                  part->metatraffic_unicast_locator.port,
                  (const uint8_t *)msg, payload_len);
 
@@ -535,7 +535,7 @@ bool frudp_publish_user_msg_frag(
       frudp_part_t *part = frudp_part_find(&w->reader_guid.prefix);
       if (!part)
         continue; // shouldn't happen; this implies inconsistency somewhere
-      frudp_tx(freertps_htonl(part->default_unicast_locator.addr.udp4.addr),
+      frudp_tx(freertps_htonl(part->default_unicast_locator.address.udp4.address),
                part->default_unicast_locator.port,
                (const uint8_t *)msg,
                udp_payload_len);
@@ -638,7 +638,7 @@ bool frudp_publish_user_msg(frudp_pub_t *pub,
         hb->writer_id = w->writer_eid;
 
         frudp_locator_t loc = part->default_unicast_locator;
-        frudp_tx(freertps_htonl(loc.addr.udp4.addr), loc.port,
+        frudp_tx(freertps_htonl(loc.address.udp4.address), loc.port,
                  (const uint8_t *)msg, udp_payload_len);
 
       }

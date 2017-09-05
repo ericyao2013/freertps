@@ -28,9 +28,15 @@ extern "C"
 
 typedef struct fr_time
 {
-  int32_t  seconds;
-  uint32_t fraction;
-} __attribute__((packed)) fr_time_t;
+  int32_t  seconds;    // time in seconds
+  uint32_t fraction;   // time in sec/2^32
+} __attribute__((packed)) fr_time_t;    // time = seconds + (fraction / 2^(32))
+
+typedef struct
+{
+  int32_t sec;
+  uint32_t nanosec;
+} frudp_duration_t;
 
 typedef fr_time_t fr_duration_t;
 

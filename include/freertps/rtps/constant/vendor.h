@@ -42,7 +42,7 @@ extern "C" {
 #define FREERTPS_VID_EPROSIMA      0x010f // "eProsima";
 #define FREERTPS_VID_PVORTEX_CLOUD 0x0120 // "PrismTech Vortex Cloud";
 
-#define FREERTPS_VID_UNKNOWN {0,0}
+#define FREERTPS_VID_UNKNOWN       {0,0}
 
 #ifdef __cplusplus
 }

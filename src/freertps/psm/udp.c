@@ -674,7 +674,7 @@ void frudp_tx_acknack(const frudp_guid_prefix_t *guid_prefix,
   uint8_t *p_next_submsg = (uint8_t *)p_count + 4;
   int payload_len = p_next_submsg - (uint8_t *)msg;
 
-  frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr),
+  frudp_tx(freertps_htonl(part->metatraffic_unicast_locator.address.udp4.address),
            part->metatraffic_unicast_locator.port,
            (const uint8_t *)msg, payload_len);
 }

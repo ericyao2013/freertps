@@ -12,10 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_PARAMETER_LIST_ITEM_H
-#define FREERTPS_PARAMETER_LIST_ITEM_H
-
-#include "freertps/rtps/type/parameter_id.h"
+#ifndef FREERTPS_ACTIVE_PSMS_H
+#define FREERTPS_ACTIVE_PSMS_H
 
 #include <stdint.h>
 
@@ -23,20 +21,19 @@
 extern "C" {
 #endif
 
-typedef struct frudp_parameter_list_item
+typedef union rtps_active_psms
 {
-  frudp_parameterid_t pid;
-  uint16_t            len;
-  uint8_t             value[];
-} __attribute__((packed)) frudp_parameter_list_item_t;
+    uint32_t val;
+    struct rtps_active_psms_mask
+    {
+      uint32_t udp : 1;
+      uint32_t ser : 1;
+    } s;
+} __attribute__((packed)) rtps_active_psms_t;
 
-#define FRUDP_PLIST_ADVANCE(list_item) \
-  do { \
-    list_item = (frudp_parameter_list_item_t *) \
-                (((uint8_t *)list_item) + 4 + list_item->len); \
-  } while (0)
+extern union rtps_active_psms g_rtps_active_psms;
 
 #ifdef __cplusplus
 }
 #endif
-#endif /* FREERTPS_PARAMETER_LIST_ITEM_H */
+#endif /* FREERTPS_ACTIVE_PSMS_H */

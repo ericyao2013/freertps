@@ -16,6 +16,7 @@
 #define FREERTPS_GUID_PREFIX_H
 
 #include "freertps/rtps/type/entity_id.h"
+
 #include <stdint.h>
 #include <stdbool.h>
 

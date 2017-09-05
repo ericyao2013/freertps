@@ -15,6 +15,7 @@
 #ifndef FREERTPS_SUBSCRIPTION_H
 #define FREERTPS_SUBSCRIPTION_H
 
+#include "freertps/config.h"
 #include "freertps/rtps/reader.h"
 #include "freertps/rtps/type/entity_id.h"
 

@@ -680,8 +680,8 @@ static void frudp_sedp_publish(const char *topic_name,
   loc = (frudp_locator_t *)param->value;
   loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
   loc->port = frudp_ucast_user_port();
-  memset(loc->addr.udp4.zeros, 0, 12);
-  loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+  memset(loc->address.udp4.zeros, 0, 12);
+  loc->address.udp4.address = g_frudp_config.unicast_addr;
 
   FRUDP_PLIST_ADVANCE(param);
   /////////////////////////////////////////////////////////////

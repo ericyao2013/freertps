@@ -17,6 +17,7 @@
 
 #include "freertps/rtps/type/entity_id.h"
 #include "freertps/rtps/type/guid_prefix.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -27,8 +28,8 @@ extern "C" {
 
 typedef struct frudp_guid
 {
-  frudp_guid_prefix_t prefix;
-  frudp_eid_t eid;
+  frudp_guid_prefix_t    prefix;
+  frudp_eid_t            eid;
 } __attribute__((packed)) frudp_guid_t;
 
 bool frudp_guid_identical(const frudp_guid_t * const a,

@@ -170,13 +170,13 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_METATRAFFIC_UNICAST_LOCATOR:
       loc = (frudp_locator_t *)pval;
-      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork()))
+      if (frudp_udp_is_same_network(freertps_htonl(loc->address.udp4.address), getIp(), getNetwork()))
       {
         part->metatraffic_unicast_locator = *loc; // todo: worry about alignment
         if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
         {
           _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d\r\n",
-                     frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                     frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                      loc->port);
         }
         else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
@@ -187,7 +187,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       }
       else
         _SPDP_INFO("\tSPDP metatraffic unicast locator udp4: \t\t%s:%d (but not on same network)\r\n",
-                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                    loc->port);
       break;
     ////////////////////////////////////////////////////////////////////////////
@@ -197,7 +197,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
       {
         _SPDP_INFO("\tSPDP metatraffic multicast locator udp4: \t%s:%d\r\n",
-                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                    loc->port);
       }
       else if (loc->kind == FRUDP_LOCATOR_KIND_UDPV6)
@@ -209,20 +209,20 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_DEFAULT_UNICAST_LOCATOR:
       loc = (frudp_locator_t *)pval;
-      if (frudp_udp_is_same_network(freertps_htonl(loc->addr.udp4.addr), getIp(), getNetwork()))
+      if (frudp_udp_is_same_network(freertps_htonl(loc->address.udp4.address), getIp(), getNetwork()))
       {
         part->default_unicast_locator = *loc; // todo: worry about alignment
         if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
         {
           _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d\r\n",
-                     frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                     frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                      loc->port);
         }
       }
       else
       {
         _SPDP_INFO("\tSPDP unicast locator udp4: \t\t\t%s:%d (but not on same network)\r\n",
-                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                    loc->port);
       }
       break;
@@ -233,7 +233,7 @@ static void frudp_spdp_rx_data(frudp_receiver_state_t *rcvr,
       if (loc->kind == FRUDP_LOCATOR_KIND_UDPV4)
       {
         _SPDP_INFO("\tSPDP multicast locator udp4: \t\t\t%s:%d\r\n",
-                   frudp_print_ip(freertps_htonl(loc->addr.udp4.addr)),
+                   frudp_print_ip(freertps_htonl(loc->address.udp4.address)),
                    loc->port);
       }
       else
@@ -476,8 +476,8 @@ void frudp_spdp_bcast(frudp_part_t *part)
   loc = (frudp_locator_t *)param_list->value;
   loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
   loc->port = frudp_mcast_builtin_port();
-  memset(loc->addr.udp4.zeros, 0, 12);
-  loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
+  memset(loc->address.udp4.zeros, 0, 12);
+  loc->address.udp4.address = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
 
   FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
@@ -487,8 +487,8 @@ void frudp_spdp_bcast(frudp_part_t *part)
   loc = (frudp_locator_t *)param_list->value;
   loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
   loc->port = frudp_ucast_builtin_port();
-  memset(loc->addr.udp4.zeros, 0, 12);
-  loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+  memset(loc->address.udp4.zeros, 0, 12);
+  loc->address.udp4.address = g_frudp_config.unicast_addr;
 
   FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
@@ -499,8 +499,8 @@ void frudp_spdp_bcast(frudp_part_t *part)
   loc = (frudp_locator_t *)param_list->value;
   loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
   loc->port = frudp_mcast_user_port();
-  memset(loc->addr.udp4.zeros, 0, 12);
-  loc->addr.udp4.addr = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
+  memset(loc->address.udp4.zeros, 0, 12);
+  loc->address.udp4.address = freertps_htonl(FRUDP_DEFAULT_MCAST_GROUP);
 
   FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
@@ -510,8 +510,8 @@ void frudp_spdp_bcast(frudp_part_t *part)
   loc = (frudp_locator_t *)param_list->value;
   loc->kind = FRUDP_LOCATOR_KIND_UDPV4;
   loc->port = frudp_ucast_user_port();
-  memset(loc->addr.udp4.zeros, 0, 12);
-  loc->addr.udp4.addr = g_frudp_config.unicast_addr;
+  memset(loc->address.udp4.zeros, 0, 12);
+  loc->address.udp4.address = g_frudp_config.unicast_addr;
 
   FRUDP_PLIST_ADVANCE(param_list);
   /////////////////////////////////////////////////////////////
@@ -571,7 +571,7 @@ void frudp_spdp_bcast(frudp_part_t *part)
 
   // Aggreagte to Global/Multicast a unicast SPDP message
   if (part != NULL) {
-    addr = freertps_htonl(part->metatraffic_unicast_locator.addr.udp4.addr);
+    addr = freertps_htonl(part->metatraffic_unicast_locator.address.udp4.address);
     port = part->metatraffic_unicast_locator.port;
 
     if (!frudp_tx(addr, port, (const uint8_t *)msg, payload_len))
@@ -600,7 +600,7 @@ void frudp_print_participants_debug(void)
     FREERTPS_INFO("| %d\t| %s | %s | %s | %d | %d | %d |\r\n",
                   i,
                   match->name,
-                  frudp_print_ip(freertps_htonl(match->default_unicast_locator.addr.udp4.addr)),
+                  frudp_print_ip(freertps_htonl(match->default_unicast_locator.address.udp4.address)),
                   frudp_print_guid_prefix(&match->guid_prefix),
                   bail,
                   match->last_spdp.seconds,

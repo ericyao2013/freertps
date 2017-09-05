@@ -15,7 +15,8 @@
 #ifndef FRUDP_QOS_H
 #define FRUDP_QOS_H
 
-#include "freertps/psm/udp.h"
+#include "freertps/rtps/type/time.h"
+
 #include <stdlib.h>
 
 #ifdef __cplusplus

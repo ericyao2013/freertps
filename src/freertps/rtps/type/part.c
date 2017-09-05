@@ -16,6 +16,7 @@
 
 #include "freertps/config.h"
 #include "freertps/log.h"
+#include "freertps/psm/udp.h"
 
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid_prefix.h"

@@ -39,18 +39,6 @@ typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 #include "freertps/rtps/type/qos.h"
 #include "freertps/rtps/discovery/disco.h"
 
-typedef union rtps_active_psms
-{
-    uint32_t val;
-    struct rtps_active_psms_mask
-    {
-      uint32_t udp : 1;
-      uint32_t ser : 1;
-    } s;
-} __attribute__((packed)) rtps_active_psms_t;
-
-extern union rtps_active_psms g_rtps_active_psms;
-
 void freertps_create_sub(const char *topic_name,
                          const char *type_name,
                          freertps_msg_cb_t msg_cb);

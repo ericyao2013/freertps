@@ -48,14 +48,6 @@ typedef struct
 
 typedef struct
 {
-  int32_t sec;
-  uint32_t nanosec;
-} frudp_duration_t;
-
-typedef uint32_t frudp_builtin_endpoint_set_t;
-
-typedef struct
-{
   uint32_t len;
   uint8_t data[];
 } frudp_rtps_string_t;

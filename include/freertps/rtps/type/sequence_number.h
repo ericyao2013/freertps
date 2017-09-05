@@ -23,8 +23,8 @@ extern "C" {
 
 typedef struct frudp_sn
 {
-  int32_t high;
-  uint32_t low;
+  int32_t     high;
+  uint32_t    low;
 } __attribute__((packed)) frudp_sn_t; // sequence number
 
 extern const frudp_sn_t g_frudp_sn_unknown;

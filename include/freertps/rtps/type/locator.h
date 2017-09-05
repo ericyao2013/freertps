@@ -37,9 +37,9 @@ typedef struct frudp_locator
     struct
     {
       uint8_t zeros[12];
-      uint32_t addr;
+      uint32_t address;
     } udp4;
-  } addr; 
+  } address;
 } __attribute__((packed)) frudp_locator_t;
 
 #ifdef __cplusplus

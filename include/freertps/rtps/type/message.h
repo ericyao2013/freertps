@@ -16,6 +16,7 @@
 #define FRUDP_MESSAGE_H
 
 #include "freertps/rtps/type/message_header.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -24,8 +25,8 @@ extern "C" {
 
 typedef struct frudp_msg
 {
-  frudp_header_t header;
-  uint8_t submsgs[];
+  frudp_header_t    header;
+  uint8_t           submsgs[];
 } __attribute__((packed)) frudp_msg_t;
 
 #ifdef __cplusplus

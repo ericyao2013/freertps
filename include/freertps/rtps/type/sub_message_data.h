@@ -18,6 +18,7 @@
 #include "freertps/rtps/type/sub_message_header.h"
 #include "freertps/rtps/type/entity_id.h"
 #include "freertps/rtps/type/sequence_number.h"
+
 #include <stdint.h>
 
 #ifdef __cplusplus
