@@ -596,20 +596,18 @@ bool frudp_publish_user_msg(frudp_pub_t *pub,
   submsg_wpos += 4 + data_submsg->header.len;
 
   ///////////////////////////////////////////////////////////////////////
-  /*
   frudp_submsg_heartbeat_t *hb =
     (frudp_submsg_heartbeat_t *)&msg->submsgs[submsg_wpos];
   hb->header.id = FRUDP_SUBMSG_ID_HEARTBEAT;
-  hb->header.flags = 0x3; // todo: spell this out
+  hb->header.flags = 0x1; // todo: spell this out
   hb->header.len = 28;
-  hb->first_sn.low = 1; // todo
-  hb->first_sn.high = 0; // todo
-  hb->last_sn = d->writer_sn;
+  hb->first_sn = pub->next_sn; // todo
+  hb->last_sn.high = 0;
+  hb->last_sn.low = 0;
   static int hb_count = 0;
   hb->count = hb_count++;
 
   submsg_wpos += 4 + hb->header.len;
-  */
 
   const int udp_payload_len =
     (uint8_t *)&msg->submsgs[submsg_wpos] - (uint8_t *)msg;
@@ -636,8 +634,9 @@ bool frudp_publish_user_msg(frudp_pub_t *pub,
         // also, update the reader/writer ID's for the heartbeat submsg
         // actually.. i don't think we have to send heartbeats to best-effort..
 
-        //hb->reader_id = d->reader_id;
-        //hb->writer_id = d->writer_id;
+        hb->reader_id = w->reader_guid.eid;
+        hb->writer_id = w->writer_eid;
+
         frudp_locator_t loc = part->default_unicast_locator;
         frudp_tx(freertps_htonl(loc.addr.udp4.addr), loc.port,
                  (const uint8_t *)msg, udp_payload_len);
