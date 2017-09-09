@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_MAGN_H
-#define FREERTPS_MAGN_H
+#ifndef FREERTPS_ALS_H
+#define FREERTPS_ALS_H
 
 #include <stdbool.h>
 
@@ -21,12 +21,13 @@
 extern "C" {
 #endif
 
-void magn_init(void);
-void magn_fini(void);
+void als_init(void);
+void als_fini(void);
 
-bool magn_poll_accels(float *xyz);
+bool als_poll_accels(float *i);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_MAGN_H
+
+#endif /* FREERTPS_ALS_H */

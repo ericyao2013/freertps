@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 void imu_init(void);
+void imu_fini(void);
 
 bool imu_poll_accels(float *xyz);
 

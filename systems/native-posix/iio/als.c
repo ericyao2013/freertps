@@ -12,21 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_MAGN_H
-#define FREERTPS_MAGN_H
+#include "freertps/periph/als.h"
+#include "freertps/config.h"
+#include "iio_base.h"
 
-#include <stdbool.h>
+#ifndef SYS_FAKE_ALS
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void magn_init(void);
-void magn_fini(void);
-
-bool magn_poll_accels(float *xyz);
-
-#ifdef __cplusplus
+void als_init(void)
+{
+  iio_init("als");
 }
-#endif
-#endif // FREERTPS_MAGN_H
+
+void als_fini(void)
+{
+  iio_fini();
+}
+
+bool als_poll_accels(float *i)
+{
+  i[0] = get_channel_value_double("illuminance", "raw") / 1000; //16384.0f; //1000.0;
+  return true;
+}
+
+#endif // SYS_FAKE_IMU

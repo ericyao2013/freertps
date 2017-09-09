@@ -22,6 +22,7 @@ extern "C" {
 #endif
 
 void gyro_init(void);
+void gyro_fini(void);
 
 bool gyro_poll_accels(float *xyz);
 
