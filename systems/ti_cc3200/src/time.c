@@ -16,6 +16,8 @@
 #include <time.h>
 #include "hw_memmap.h"
 #include "simplelink.h"
+#include "hw_types.h"
+#include "prcm.h"
 
 uint32_t systime_usecs()
 {
@@ -31,7 +33,7 @@ uint32_t systime_usecs()
 fr_time_t fr_time_now(void)
 {
   fr_time_t now = TIME_INVALID;
-  uint64_t ulSecs; // Time in Second Unit
+  uint32_t ulSecs; // Time in Second Unit
   uint16_t usMsec; // Precision of Time in Milisecond Unit
 
   PRCMRTCGet(&ulSecs, &usMsec);

@@ -7,8 +7,8 @@
   <license>Apache License 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  
-  <exec_depend>ament_cmake</exec_depend>
+
+  <build_depend>rosidl_parser</build_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

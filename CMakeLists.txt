@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.5.0)
 set(PROJECT_NAME freertps)
 project(${PROJECT_NAME})
 
-#set(freertps_standalone OFF CACHE BOOL "standalone build")
+set(freertps_standalone OFF CACHE BOOL "standalone build")
 
 # in the future, consider target_include_directories() instead...
 if(NOT freertps_standalone)
@@ -31,11 +31,10 @@ function(freertps_add_executable exe)
   endif()
 endfunction()
 
-set(SYSTEM "native-posix" CACHE STRING "the target system name")
-message("-- system: [${SYSTEM}]")
+set(SYSTEM "ti_cc3200" CACHE STRING "the target system name")
+message("system: [${SYSTEM}]")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC")
-# Disable optimisation : -O2
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC") # Disable optimisation : -O2
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -fPIC")
 # ament_export_definitions()....in the future
 
@@ -52,7 +51,9 @@ if(NOT "${SYSTEM_EXTRA_LIBS}" STREQUAL "")
   string(REGEX REPLACE " " ";" SYSTEM_EXTRA_LIBS ${SYSTEM_EXTRA_LIBS})
   foreach(syslib ${SYSTEM_EXTRA_LIBS})
     #include(systems/${syslib})
-    add_subdirectory(systems/${syslib})
+    if(EXISTS "systems/${syslib}")
+      add_subdirectory(systems/${syslib})
+    endif()
   endforeach()
 endif()
 
@@ -81,12 +82,8 @@ include_directories(build/msgs)
 if (NOT freertps_standalone)
   ament_export_libraries(freertps freertps_system_${SYSTEM})
 
-  find_package(ament_cmake_ros REQUIRED)
+  find_package(ament_cmake REQUIRED)
 
-  find_package(ament_lint_auto REQUIRED)
-  ament_lint_auto_find_test_dependencies()
-  add_subdirectory(test)
-  
   if (AMENT_ENABLE_TESTING)
     find_package(ament_cmake_gtest REQUIRED)
 
@@ -110,25 +107,28 @@ if (NOT freertps_standalone)
     RUNTIME DESTINATION bin
   )
 else()
-  file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
-    execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  if (DEFINED SYSTEM_APPS)
     file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  endif()
+    if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
+      execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+      file(GLOB msgs_SOURCES "build/msgs/src/*.c")
+    endif()
 
-  if (NOT msgs_SOURCES STREQUAL "")
-    # try to build the apps that use ROS messages
-    add_library(msgs ${msgs_SOURCES})
-    set(ROSIDL_LIBS "msgs" CACHE STRING "")
-    # build the applications for this system
-    string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
-    foreach(app ${SYSTEM_APPS})
-      add_subdirectory(apps/${app})
-    endforeach()
-  else()
-    set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
-  endif()
+    if (NOT msgs_SOURCES STREQUAL "")
+      # try to build the apps that use ROS messages
+      add_library(msgs ${msgs_SOURCES})
+      set(ROSIDL_LIBS "msgs" CACHE STRING "")
 
+      # build the applications for this system
+      string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
+      foreach(app ${SYSTEM_APPS})
+        add_subdirectory(apps/${app})
+      endforeach()
+    else()
+      set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
+    endif()
+  endif()
+  
   # now, build the standalone apps. this lets at least some things build
   # on systems without the ROS2 messages installed
   if(DEFINED SYSTEM_NO_ROSIDL_APPS)

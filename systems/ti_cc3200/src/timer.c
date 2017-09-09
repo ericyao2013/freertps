@@ -1,7 +1,5 @@
 #include "freertps/timer.h"
 
-// Free-RTOS includes
-#include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"

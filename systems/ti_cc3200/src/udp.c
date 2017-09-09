@@ -15,6 +15,8 @@
 #include "freertps/freertps.h"
 #include "freertps/rtps/constant/vendor.h"
 #include "freertps/rtps/discovery/disco.h"
+#include "freertps/rtps/type/config.h"
+#include "freertps/utility.h"
 #include "freertps/psm/udp.h"
 #include "freertps/psm/bswap.h"
 
@@ -27,8 +29,8 @@
 #include "metal/systime.h"
 
 #include "simplelink.h"
-#include "uart_if.h"
-#include "common/network_if.h"
+
+extern const uint8_t g_enet_mac[6];
 
 uint8_t *getMacAddress()
 {
@@ -46,12 +48,12 @@ bool frudp_init(void)
   FREERTPS_DEBUG("udp_init()\r\n");
   enet_init();
   uint32_t ip = getIp();
-  uint8_t *g_enet_mac = getMacAddress();
+  uint8_t *enet_mac_tmp = getMacAddress();
   FREERTPS_INFO("using address %s for unicast\r\n", frudp_print_ip(ip));
   g_frudp_config.unicast_addr = freertps_htonl(ip);
   g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
   g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
-  memcpy(&g_frudp_config.guid_prefix.prefix[2], g_enet_mac, 6);
+  memcpy(&g_frudp_config.guid_prefix.prefix[2], enet_mac_tmp, 6);
   frudp_generic_init();
   // not sure about endianness here.
   // 4 bytes left. let's use the system time in microseconds since power-up

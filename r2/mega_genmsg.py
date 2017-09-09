@@ -155,7 +155,7 @@ def uncamelcase(camelcase):
 
 def print_uncamelcase(c):
   print("%s -> %s" % (c, uncamelcase(c)))
-  
+
 def camelcase_to_lower_samples():
   print_uncamelcase("String")
   print_uncamelcase("UInt32")
@@ -255,9 +255,7 @@ def deserialize_field(field, align, f):
 ################################################3
 # begin global code awesomeness
 ament_prefix = os.environ['AMENT_PREFIX_PATH']
-ifaces_path = os.path.join(ament_prefix, 'share', 'ament_index', 'resource_index', 'rosidl_interfaces')
-share_path = os.path.join(ament_prefix, 'share')
-if not os.path.isdir(ifaces_path) or not os.path.isdir(share_path):
+if not ament_prefix:
   print("ament_index for rosidl_interfaces seems to be empty. Perhaps this workspace hasn't been built yet?")
   sys.exit(1)
 
@@ -265,10 +263,15 @@ msg_tree_root = os.path.join('build','msgs')
 if not os.path.exists(msg_tree_root):
   os.makedirs(msg_tree_root)
   os.makedirs(os.path.join(msg_tree_root,'src'))
-for pkg_name in os.listdir(ifaces_path):
-  full_path = os.path.join(ifaces_path, pkg_name)
+for pkg_path in ament_prefix.split(":"):
+  pkg_name = os.path.basename(os.path.normpath(pkg_path))
+  full_path = os.path.join(pkg_path, 'share', 'ament_index', 'resource_index', 'rosidl_interfaces', pkg_name)
+
+  if not os.path.exists(full_path):
+    continue
+
   pkg_output_path = os.path.join(msg_tree_root, pkg_name)
-  pkg_share_path = os.path.join(share_path, pkg_name)
+  pkg_share_path = os.path.join(pkg_path, 'share', pkg_name)
   if not os.path.exists(pkg_output_path):
     os.makedirs(pkg_output_path)
   with open(full_path) as f:
@@ -279,7 +282,7 @@ for pkg_name in os.listdir(ifaces_path):
       msg_filename = os.path.join(pkg_share_path, 'msg', line.rstrip())
       msg_spec = rosidl_parser.parse_message_file(pkg_name, msg_filename)
       msg_name = '.'.join(line.rstrip().split('.')[0:-1])
-      print("  %s/%s" % (pkg_name, msg_name))
+      #print("  %s/%s" % (pkg_name, msg_name))
       header_fn = uncamelcase(msg_name) + '.h'
       header_path = os.path.join(pkg_output_path, header_fn)
       hf = open(header_path, 'w')
@@ -288,18 +291,18 @@ for pkg_name in os.listdir(ifaces_path):
       hf.write("#define %s\n\n" % include_guard)
       hf.write("#include <stdint.h>\n")
       hf.write("#include <stdbool.h>\n")
-      hf.write("#include \"freertps/type.h\"\n")
+      hf.write("#include \"freertps/rtps/type/type.h\"\n")
       includes = c_includes(msg_spec)
       if includes:
         for include in includes:
           hf.write("#include \"%s\"\n" % include)
       hf.write("\n")
-      
+
       ############################################################
       struct_type = "%s__%s" % (pkg_name, uncamelcase(msg_name))
       hf.write("typedef struct %s\n{\n" % struct_type)
       for field in msg_spec.fields:
-        print("    " + field.type.type + " " + field.name)
+        #print("    " + field.type.type + " " + field.name)
         c_typename = ""
         #if not field.type.is_array:
 
@@ -332,7 +335,7 @@ for pkg_name in os.listdir(ifaces_path):
       ####################
       source_fn = os.path.join(msg_tree_root, 'src', struct_type) + '.c'
       sf = open(source_fn, 'w')
-      sf.write("#include \"freertps/type.h\"\n")
+      sf.write("#include \"freertps/rtps/type/type.h\"\n")
       sf.write("#include <string.h>\n")
       sf.write("#include \"%s\"\n\n" % os.path.join(pkg_name, header_fn))
       ### first, emit the whole-enchilada serialization function
@@ -383,7 +386,7 @@ for pkg_name in os.listdir(ifaces_path):
           align = deserialize_field(field, align, sf) sf.write("  return true;\n") #return _wpos - _buf;\n")
         sf.write("}\n\n")
       '''
- 
+
       sf.write("const struct freertps_type %s =\n" % type_obj_name)
       sf.write("{\n");
       sf.write("  .rtps_typename = \"{0}::msg::dds_::{1}_\",\n".format(pkg_name, msg_name))

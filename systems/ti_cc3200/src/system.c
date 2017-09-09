@@ -16,6 +16,7 @@
 #include "freertps/log.h"
 #include "freertps/psm/system.h"
 #include "freertps/psm/udp.h"
+#include "freertps/rtps/type/config.h"
 
 void freertps_system_init(void)
 {

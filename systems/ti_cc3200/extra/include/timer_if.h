@@ -1,7 +1,7 @@
 //*****************************************************************************
-// pinmux.c
+// timer_if.h
 //
-// configure the device pins for different peripheral signals
+// timer interface header file: Prototypes and Macros for timer APIs
 //
 // Copyright (C) 2014 Texas Instruments Incorporated - http://www.ti.com/ 
 // 
@@ -36,82 +36,45 @@
 //
 //*****************************************************************************
 
-// This file was automatically generated on 7/21/2014 at 3:06:20 PM
-// by TI PinMux version 3.0.334
+#ifndef __TIMER_IF_H__
+#define __TIMER_IF_H__
+
+//*****************************************************************************
+//
+// If building with a C++ compiler, make all of the definitions in this header
+// have a C binding.
 //
 //*****************************************************************************
-
-#include "pinmux.h"
-#include "hw_types.h"
-#include "hw_memmap.h"
-#include "hw_gpio.h"
-#include "pin.h"
-#include "rom.h"
-#include "rom_map.h"
-#include "gpio.h"
-#include "prcm.h"
-#include "i2c_if.h"
-
-//*****************************************************************************
-void
-PinMuxConfig(void)
+#ifdef __cplusplus
+extern "C"
 {
-    //
-    // Enable Peripheral Clocks 
-    //
-    MAP_PRCMPeripheralClkEnable(PRCM_UARTA0, PRCM_RUN_MODE_CLK);
+#endif
 
-    //
-    // Configure PIN_55 for UART0 UART0_TX
-    //
-    MAP_PinTypeUART(PIN_55, PIN_MODE_3);
 
-    //
-    // Configure PIN_57 for UART0 UART0_RX
-    //
-    MAP_PinTypeUART(PIN_57, PIN_MODE_3);
+/****************************************************************************/
+/*								MACROS										*/
+/****************************************************************************/
+#define PERIODIC_TEST_CYCLES    80000000
+#define PERIODIC_TEST_LOOPS     5
 
-    //
-    // Enable Peripheral Clocks
-    //
-    MAP_PRCMPeripheralClkEnable(PRCM_GPIOA1, PRCM_RUN_MODE_CLK);
-
-    //
-    // Configure PIN_64 for GPIOOutput
-    //
-    MAP_PinTypeGPIO(PIN_64, PIN_MODE_0, false);
-    MAP_GPIODirModeSet(GPIOA1_BASE, 0x2, GPIO_DIR_MODE_OUT);
-
-    //
-    // Configure PIN_01 for GPIOOutput
-    //
-    MAP_PinTypeGPIO(PIN_01, PIN_MODE_0, false);
-    MAP_GPIODirModeSet(GPIOA1_BASE, 0x4, GPIO_DIR_MODE_OUT);
-
-    //
-    // Configure PIN_02 for GPIOOutput
-    //
-    MAP_PinTypeGPIO(PIN_02, PIN_MODE_0, false);
-    MAP_GPIODirModeSet(GPIOA1_BASE, 0x8, GPIO_DIR_MODE_OUT);
-
-    //
-    // Enable Peripheral Clocks
-    //
-    MAP_PRCMPeripheralClkEnable(PRCM_I2CA0, PRCM_RUN_MODE_CLK);
-
-    //
-    // Configure PIN_01 for I2CO 2IC_SCL
-    //
-    MAP_PinTypeI2C(PIN_01, PIN_MODE_1);
-
-    //
-    // Configure PIN_02 for I2CO 2IC_SDA
-    //
-    MAP_PinTypeI2C(PIN_02, PIN_MODE_1);
-
-#define F_CPU 80000000
-#define I2C_BASE              I2CA0_BASE
-
-    MAP_PRCMPeripheralReset(PRCM_I2CA0);
-    MAP_I2CMasterInitExpClk(I2C_BASE, F_CPU, true);
+extern void Timer_IF_Init( unsigned long ePeripheralc, unsigned long ulBase,
+    unsigned long ulConfig, unsigned long ulTimer, unsigned long ulValue);
+extern void Timer_IF_IntSetup(unsigned long ulBase, unsigned long ulTimer, 
+                   void (*TimerBaseIntHandler)(void));
+extern void Timer_IF_InterruptClear(unsigned long ulBase);
+extern void Timer_IF_Start(unsigned long ulBase, unsigned long ulTimer, 
+                unsigned long ulValue);
+extern void Timer_IF_Stop(unsigned long ulBase, unsigned long ulTimer);
+extern void Timer_IF_ReLoad(unsigned long ulBase, unsigned long ulTimer, 
+                unsigned long ulValue);
+extern unsigned int Timer_IF_GetCount(unsigned long ulBase, unsigned long ulTimer);
+void Timer_IF_DeInit(unsigned long ulBase,unsigned long ulTimer);
+//*****************************************************************************
+//
+// Mark the end of the C bindings section for C++ compilers.
+//
+//*****************************************************************************
+#ifdef __cplusplus
 }
+#endif
+#endif //  __TIMER_IF_H__

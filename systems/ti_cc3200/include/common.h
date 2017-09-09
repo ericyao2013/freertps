@@ -88,7 +88,7 @@ extern "C"
                  }\
             }
 
-#define SPAWN_TASK_PRIORITY     9
+#define SPAWN_TASK_PRIORITY     5
 #define SL_STOP_TIMEOUT         200
 #define UNUSED(x)               ((x) = (x))
 #define SUCCESS                 0

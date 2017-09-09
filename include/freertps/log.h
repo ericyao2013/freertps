@@ -24,7 +24,8 @@ extern "C" {
 #endif
 
 #ifdef USE_CC3200
-#include "uart_if.h"
+extern void Error(char *format,...);
+extern int Report(const char *format, ...);
 
 #define LOG_REPORT(...) do { Report(__VA_ARGS__); } while (0)
 #define LOG_ERROR(...) do { Error(__VA_ARGS__); } while (0)

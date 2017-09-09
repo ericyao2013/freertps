@@ -26,7 +26,6 @@
 // simplelink includes
 #include "simplelink.h"
 #include "wlan.h"
-#include "network_if.h"
 
 #include "common.h"
 #include "uart_if.h"
@@ -59,6 +58,8 @@ static uint16_t g_enet_allowed_udp_ports_wpos;
 
 static uint16_t g_enet_allowed_udp_sockets[ENET_MAX_ALLOWED_UDP_PORTS];
 static uint16_t g_enet_allowed_udp_sockets_wpos;
+
+const uint8_t g_enet_mac[6] = ENET_MAC;
 
 //static uint8_t  g_enet_udpbuf[BUF_SIZE] __attribute__((aligned(8)));
 
@@ -94,7 +95,7 @@ enet_link_status_t enet_get_link_status(void)
 }
 
 
-bool enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
+void enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                          const uint8_t *payload, const uint16_t payload_len)
 {
   uint8_t dest_mac[6] = { 0x01, 0x00, 0x5e,
@@ -103,7 +104,8 @@ bool enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                           (uint8_t) (mcast_ip & 0x0000ff) };
 
   uint32_t ip = getIp();
-  return enet_send_udp_ucast(dest_mac,
+
+  enet_send_udp_ucast(dest_mac,
                       mcast_ip,
                       mcast_port,
                       ip,
@@ -112,7 +114,7 @@ bool enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
                       payload_len);
 }
 
-bool enet_send_udp_ucast(const uint8_t *dest_mac,
+void enet_send_udp_ucast(const uint8_t *dest_mac,
                          const uint32_t dest_ip,
                          const uint16_t dest_port,
                          const uint32_t source_ip,
@@ -120,7 +122,7 @@ bool enet_send_udp_ucast(const uint8_t *dest_mac,
                          const uint8_t *payload,
                          const uint16_t payload_len)
 {
-  return udp_send(dest_ip, dest_port, payload, payload_len);
+  udp_send(dest_ip, dest_port, payload, payload_len);
 }
 
 uint_fast8_t enet_process_rx_ring(void)

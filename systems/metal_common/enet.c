@@ -21,6 +21,7 @@ static volatile uint16_t g_enet_rxpool_ptrs_rpos;
 static uint16_t g_enet_allowed_udp_ports[ENET_MAX_ALLOWED_UDP_PORTS];
 static uint16_t g_enet_allowed_udp_ports_wpos;
 
+const uint8_t g_enet_mac[6] = ENET_MAC;
 static uint8_t  g_enet_udpbuf[1500] __attribute__((aligned(8)));
 
 ///////////////////////////////////////////////////////////////////////////

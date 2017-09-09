@@ -6,10 +6,9 @@
 #include "metal/enet_headers.h"
 #include "metal/enet_config.h"
 
-const uint8_t g_enet_mac[6] = ENET_MAC;
-
 void enet_init(void);
 
+extern const uint8_t g_enet_mac[6];
 typedef enum { ENET_LINK_DOWN, ENET_LINK_UP } enet_link_status_t;
 enet_link_status_t enet_get_link_status(void);
 

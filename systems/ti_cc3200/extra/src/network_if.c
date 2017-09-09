@@ -54,6 +54,9 @@
 #include "osi.h"
 #endif
 
+#include "FreeRTOS.h"
+#include "task.h"
+
 // common interface includes
 #include "network_if.h"
 #ifndef NOTERM
@@ -90,7 +93,7 @@ const char     pcDigits[] = "0123456789"; /* variable used by itoa function */
 
 #define SSID_NAME           "ssid"             /* AP SSID */
 #define SECURITY_TYPE       SL_SEC_TYPE_WPA_WPA2    /* Security type (OPEN or WEP or WPA*/
-#define SECURITY_KEY        "key"              /* Password of the secured AP */
+#define SECURITY_KEY        "password"              /* Password of the secured AP */
 
 //*****************************************************************************
 // SimpleLink Asynchronous Event Handlers -- Start
@@ -954,10 +957,8 @@ Network_IF_ConnectAP(char *pcSsid, SlSecParams_t SecurityParams)
     // Send the information
     //
     UART_PRINT("Device IP Address is %d.%d.%d.%d \r\n\r\n",
-            SL_IPV4_BYTE(ulIP, 3),
-            SL_IPV4_BYTE(ulIP, 2),
-            SL_IPV4_BYTE(ulIP, 1),
-            SL_IPV4_BYTE(ulIP, 0));
+            SL_IPV4_BYTE(ulIP, 3),SL_IPV4_BYTE(ulIP, 2),
+            SL_IPV4_BYTE(ulIP, 1),SL_IPV4_BYTE(ulIP, 0));
     return 0;
 }
 
