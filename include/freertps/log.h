@@ -16,7 +16,7 @@
 #define FREERTPS_LOG_H
 
 #ifndef USE_CC3200
-#include <stdio.h>
+
 #endif
 
 #ifdef __cplusplus
@@ -24,11 +24,14 @@ extern "C" {
 #endif
 
 #ifdef USE_CC3200
-#include "uart_if.h"
+extern void Error(char *format,...);
+extern int Report(const char *format, ...);
 
 #define LOG_REPORT(...) do { Report(__VA_ARGS__); } while (0)
 #define LOG_ERROR(...) do { Error(__VA_ARGS__); } while (0)
 #else
+#include <stdio.h>
+
 #define LOG_REPORT(...) printf(__VA_ARGS__)
 #define LOG_ERROR(...) printf(__VA_ARGS__)
 #endif
