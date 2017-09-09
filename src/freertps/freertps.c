@@ -41,9 +41,8 @@ frudp_sub_t *freertps_create_sub(const char *topic_name,
   // assume for now that we are only using UDP. in the future, this can
   // become smarter to handle when different (or multiple?) physical layer
   // are initialized
-  frudp_add_user_sub(topic_name, type_name, msg_cb);
+  return frudp_add_user_sub(topic_name, type_name, msg_cb);
   //g_rtps_psm.create_sub(topic_name, type
-  return NULL;
 }
 
 frudp_pub_t *freertps_create_pub(const char *topic_name,

@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_IMU_H
-#define FREERTPS_IMU_H
+#include "freertps/periph/gyro.h"
+#include "freertps/config.h"
+#include "iio_base.h"
 
-#include <stdbool.h>
+#ifndef SYS_FAKE_GYRO
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void imu_init(void);
-
-bool imu_poll_accels(float *xyz);
-
-#ifdef __cplusplus
+void gyro_init(void)
+{
+  iio_init("gyro_3d");
 }
-#endif
-#endif // FREERTPS_IMU_H
+
+void gyro_fini(void)
+{
+  iio_fini();
+}
+
+bool gyro_poll_accels(float *xyz)
+{
+  xyz[0] = get_channel_value_double("anglvel_x", "raw") / 174; //16384.0f; //1000.0;
+  xyz[1] = get_channel_value_double("anglvel_y", "raw") / 174; //16384.0f; //1000.0;
+  xyz[2] = get_channel_value_double("anglvel_z", "raw") / 174; //16384.0f; //1000.0;
+  return true;
+}
+
+#endif // SYS_FAKE_GYRO

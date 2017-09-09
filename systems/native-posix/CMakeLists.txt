@@ -4,7 +4,10 @@ add_library(freertps_system_native-posix  time.c
                                           system.c 
                                           fake_imu.c 
                                           fake_led.c
-                                          ser.c)
+                                          ser.c
+                                          iio/iio_base.c
+                                          iio/gyro.c
+                                          iio/imu.c)
 target_link_libraries(freertps_system_native-posix freertps)
 set(SYSTEM_EXTRA_LIBS  "" CACHE STRING "")
 set(SYSTEM_BONUS_LIBS "m" CACHE STRING "") # not the best variable name

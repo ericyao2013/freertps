@@ -45,7 +45,7 @@ extern uint32_t g_frudp_num_subs;
 // with a #define switch somewhere to have it use more memory for string
 // buffers, etc.
 
-void frudp_add_user_sub(const char *topic_name,
+frudp_sub_t * frudp_add_user_sub(const char *topic_name,
                         const char *type_name,
                         freertps_msg_cb_t msg_cb);
 

@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_IMU_H
-#define FREERTPS_IMU_H
+#ifndef FREERTPS_MAGN_H
+#define FREERTPS_MAGN_H
 
 #include <stdbool.h>
 
@@ -21,11 +21,11 @@
 extern "C" {
 #endif
 
-void imu_init(void);
+void magn_init(void);
 
-bool imu_poll_accels(float *xyz);
+bool magn_poll_accels(float *xyz);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FREERTPS_IMU_H
+#endif // FREERTPS_MAGN_H

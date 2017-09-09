@@ -1,9 +1,10 @@
-#include <stdio.h>
 #include "freertps/freertps.h"
-#include <string.h>
 #include "freertps/periph/imu.h"
 #include "freertps/timer.h"
 #include "sensor_msgs/imu.h"
+
+#include <stdio.h>
+#include <string.h>
 
 frudp_pub_t *g_pub = NULL;
 

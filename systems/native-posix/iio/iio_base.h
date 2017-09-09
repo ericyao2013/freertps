@@ -12,20 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_IMU_H
-#define FREERTPS_IMU_H
+#ifndef SYSTEMS_NATIVE_POSIX_IIO_BASE_H_
+#define SYSTEMS_NATIVE_POSIX_IIO_BASE_H_
 
-#include <stdbool.h>
-
-#ifdef __cplusplus
-extern "C" {
+#ifdef __APPLE__
+#include <iio/iio.h>
+#else
+#include <iio.h>
 #endif
 
-void imu_init(void);
+void iio_init(const char *name);
+void iio_fini(void);
 
-bool imu_poll_accels(float *xyz);
+double get_channel_value_double(const char *name_chn, const char *name_value);
+char * get_channel_value_string(const char *name_chn, const char *name_value);
 
-#ifdef __cplusplus
-}
-#endif
-#endif // FREERTPS_IMU_H
+#endif /* SYSTEMS_NATIVE_POSIX_IIO_BASE_H_ */

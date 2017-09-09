@@ -16,8 +16,7 @@
 #define FREERTPS_LED_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 // todo: extend this for multiple LEDs as well, maybe by using plurals, like

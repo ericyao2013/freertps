@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include "freertps/freertps.h"
+
+#include <stdio.h>
 
 void chatter_cb(const void *msg, uint32_t len)
 {

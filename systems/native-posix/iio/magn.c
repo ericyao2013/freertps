@@ -12,20 +12,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FREERTPS_IMU_H
-#define FREERTPS_IMU_H
+#include "freertps/periph/magn.h"
+#include "freertps/config.h"
+#include "iio_base.h"
 
-#include <stdbool.h>
+#ifndef SYS_FAKE_IMU
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void imu_init(void);
-
-bool imu_poll_accels(float *xyz);
-
-#ifdef __cplusplus
+void magn_init(void)
+{
+  iio_init("magn_3d");
 }
-#endif
-#endif // FREERTPS_IMU_H
+
+void magn_fini(void)
+{
+  iio_fini();
+}
+
+bool magn_poll_accels(float *xyz)
+{
+  xyz[0] = get_channel_value_double("magn_x", "raw") / 1000.0;
+  xyz[1] = get_channel_value_double("magn_y", "raw") / 1000.0;
+  xyz[2] = get_channel_value_double("magn_z", "raw") / 1000.0;
+  return true;
+}
+
+#endif // SYS_FAKE_IMU

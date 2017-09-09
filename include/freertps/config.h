@@ -71,6 +71,10 @@ extern "C"
 #define VERBOSE_SEDP
 #define VERBOSE_SPDP
 
+#define SYS_FAKE_IMU
+#define SYS_FAKE_GYRO
+#define SYS_FAKE_MAGN
+
 
 //#define VERBOSE_MSG_SERIALIZATION
 

@@ -55,26 +55,27 @@ void frudp_add_reader(const frudp_reader_t *match)
   g_frudp_num_readers++;
 }
 
-void frudp_add_user_sub(const char *topic_name,
-                        const char *type_name,
-                        freertps_msg_cb_t msg_cb)
+frudp_sub_t *frudp_add_user_sub(const char *topic_name,
+                                const char *type_name,
+                                freertps_msg_cb_t msg_cb)
 {
   frudp_eid_t sub_eid = frudp_create_user_id(FRUDP_ENTITY_KIND_USER_READER_NO_KEY);
   FREERTPS_DEBUG("frudp_add_user_sub(%s, %s) on EID 0x%08x\r\n",
                  topic_name, type_name,
                  (unsigned)freertps_htonl(sub_eid.u));
 
-  frudp_sub_t sub;
+  frudp_sub_t *sub = malloc(sizeof(frudp_sub_t));
   // for now, just copy the pointers. maybe in the future we can/should have
   // an option for storage of various kind (static, malloc, etc.) for copies.
-  sub.topic_name = topic_name;
-  sub.type_name = type_name;
-  sub.reader_eid = sub_eid;
-  sub.msg_cb = msg_cb;
-  sub.data_cb = NULL;
-  sub.reliable = false;
-  frudp_add_sub(&sub);
-  frudp_sedp_publish_sub(&sub); // can't do this yet; spdp hasn't started bcast
+  sub->topic_name = topic_name;
+  sub->type_name = type_name;
+  sub->reader_eid = sub_eid;
+  sub->msg_cb = msg_cb;
+  sub->data_cb = NULL;
+  sub->reliable = false;
+  frudp_add_sub(sub);
+  frudp_sedp_publish_sub(sub); // can't do this yet; spdp hasn't started bcast
+  return sub;
 }
 
 void frudp_add_sub(const frudp_sub_t *s)

@@ -1,5 +1,9 @@
 #include "freertps/periph/imu.h"
+#include "freertps/config.h"
+
 #include <stdio.h>
+
+#ifdef SYS_FAKE_IMU
 
 void imu_init(void)
 {
@@ -13,3 +17,5 @@ bool imu_poll_accels(float *xyz)
   xyz[2] = 3;
   return true;
 }
+
+#endif // SYS_FAKE_IMU

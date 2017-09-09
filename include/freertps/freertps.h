@@ -19,25 +19,25 @@
 extern "C" {
 #endif
 
-#include <stdio.h>
-#include <stdint.h>
-
-// NOTE: the prefix freertps_udp_ is too long to type, so it will often
-// be shortened to frudp_
-typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
-
-//#include "freertps/rtps/type/config.h"
 #include "freertps/rtps/publisher.h"
 #include "freertps/rtps/subscriber.h"
 #include "freertps/rtps/type/qos.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // Temporaly include
+//#include "freertps/rtps/type/config.h"
 #include "freertps/psm/system.h"
 #include "freertps/psm/udp.h"
 #include "freertps/rtps/type/qos.h"
 #include "freertps/rtps/discovery/disco.h"
 ///////////////////////////////////////////////////////////////////////////////
+
+#include <stdio.h>
+#include <stdint.h>
+
+// NOTE: the prefix freertps_udp_ is too long to type, so it will often
+// be shortened to frudp_
+typedef void (*freertps_msg_cb_t)(const void *msg, uint32_t len);
 
 frudp_sub_t *freertps_create_sub(const char *topic_name,
                                  const char *type_name,
