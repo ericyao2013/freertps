@@ -1,5 +1,5 @@
 
-// Standard includes. 
+// Standard includes.
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -33,8 +33,8 @@
 #include "gpio_if.h"
 #include "common.h"
 
-#include "common/pinmux.h"
-#include "common/bma222.h"
+#include "pinmux.h"
+#include "bma222.h"
 
 #include "freertps/freertps.h"
 #include "freertps/timer.h"
@@ -42,7 +42,7 @@
 //#define MODE_IMU
 #define MODE_TALKER
 //#define MODE_LISTENER
-#define MODE_MSG
+//#define MODE_MSG
 
 // Messages
 #ifdef MODE_IMU
@@ -400,9 +400,9 @@ void talker_task(void *p)
 //  freertps_timer_set_freq(10, timer_cb);
 
 #ifndef MODE_MSG
-  pub = freertps_create_pub("/chatter", "std_msgs::msg::dds_::String_");
+  pub = freertps_create_pub("/chatter", "std_msgs::msg::dds_::String_", get_default_qos_reliable());
 #else
-  pub = freertps_create_pub("/chatter", std_msgs__string__type.rtps_typename);
+  pub = freertps_create_pub("/chatter", std_msgs__string__type.rtps_typename, get_default_qos_reliable());
 #endif
   freertps_start(); // all pubs/subs are created. let's start!
 
