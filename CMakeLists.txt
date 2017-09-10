@@ -20,7 +20,7 @@ function(freertps_add_executable exe)
   add_executable(${exe} ${ARGN})
   set_target_properties(${exe} PROPERTIES LINKER_LANGUAGE C)
   foreach(syslib ${SYSTEM_EXTRA_LIBS})
-    message("adding dependency on ${syslib} for ${exe}")
+    #message("adding dependency on ${syslib}")
     add_dependencies(${exe} ${syslib})
     #include(systems/${syslib})
   endforeach()
@@ -32,10 +32,9 @@ function(freertps_add_executable exe)
 endfunction()
 
 set(SYSTEM "ti_cc3200" CACHE STRING "the target system name")
-message("-- system: [${SYSTEM}]")
+message("system: [${SYSTEM}]")
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC")
-# Disable optimisation : -O2
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -g -fPIC") # Disable optimisation : -O2
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -g -fPIC")
 # ament_export_definitions()....in the future
 
@@ -85,10 +84,6 @@ if (NOT freertps_standalone)
 
   find_package(ament_cmake REQUIRED)
 
-  #find_package(ament_lint_auto REQUIRED)
-  #ament_lint_auto_find_test_dependencies()
-  #add_subdirectory(test)
-
   if (AMENT_ENABLE_TESTING)
     find_package(ament_cmake_gtest REQUIRED)
 
@@ -111,65 +106,29 @@ if (NOT freertps_standalone)
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION bin
   )
-
-  file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
-    execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
-    file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  endif()
-
-  if (NOT msgs_SOURCES STREQUAL "")
-    # try to build the apps that use ROS messages
-    add_library(msgs ${msgs_SOURCES})
-    set(ROSIDL_LIBS "msgs")
-
-    if (SYSTEM_APPS)
-        message("SYSTEM_APPS = '${SYSTEM_APPS}'")
-        message("try to build the apps that use ROS messages")
-        # build the applications for this system
-        string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
-        foreach(app ${SYSTEM_APPS})
-          add_subdirectory(apps/${app})
-        endforeach()
-    endif()
-
-    install(
-        DIRECTORY build/msgs/
-        DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-      )
-  endif()
 else()
-  file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
-    execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+  if (DEFINED SYSTEM_APPS)
     file(GLOB msgs_SOURCES "build/msgs/src/*.c")
-  endif()
-
-  if (NOT msgs_SOURCES STREQUAL "")
-    # try to build the apps that use ROS messages
-    add_library(msgs ${msgs_SOURCES})
-    set(ROSIDL_LIBS "msgs")
-
-    if (SYSTEM_APPS)
-        message("SYSTEM_APPS = '${SYSTEM_APPS}'")
-        message("try to build the apps that use ROS messages")
-        # build the applications for this system
-        string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
-        foreach(app ${SYSTEM_APPS})
-          add_subdirectory(apps/${app})
-        endforeach()
+    if(msgs_SOURCES STREQUAL "" AND DEFINED ENV{AMENT_PREFIX_PATH})
+      execute_process(COMMAND r2/mega_genmsg.py WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+      file(GLOB msgs_SOURCES "build/msgs/src/*.c")
     endif()
 
-    install(
-        DIRECTORY build/msgs/
-        DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-      )
-  else()
-    set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
-  endif()
+    if (NOT msgs_SOURCES STREQUAL "")
+      # try to build the apps that use ROS messages
+      add_library(msgs ${msgs_SOURCES})
+      set(ROSIDL_LIBS "msgs" CACHE STRING "")
 
+      # build the applications for this system
+      string(REGEX REPLACE " " ";" SYSTEM_APPS ${SYSTEM_APPS})
+      foreach(app ${SYSTEM_APPS})
+        add_subdirectory(apps/${app})
+      endforeach()
+    else()
+      set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
+    endif()
+  endif()
+  
   # now, build the standalone apps. this lets at least some things build
   # on systems without the ROS2 messages installed
   if(DEFINED SYSTEM_NO_ROSIDL_APPS)

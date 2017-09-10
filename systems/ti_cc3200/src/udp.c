@@ -28,7 +28,6 @@
 #include "metal/systime.h"
 
 #include "simplelink.h"
-#include "network_if.h"
 
 uint8_t *getMacAddress()
 {
