@@ -1,0 +1,20 @@
+include_directories(
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/inc
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/driverlib
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/oslib
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/simplelink
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/simplelink/include
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/simplelink/source
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/third_party/FreeRTOS/source
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/third_party/FreeRTOS/source/include
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/third_party/FreeRTOS/source/portable/GCC/ARM_CM4
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware/framework/pm
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware/framework/timer
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware/driver/
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware/driver/hal
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware/soc
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/cc3200-sdk/middleware
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/extra/include
+    ${PROJECT_SOURCE_DIR}/systems/ti_cc3200/include
+)

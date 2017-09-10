@@ -26,7 +26,6 @@
 // simplelink includes
 #include "simplelink.h"
 #include "wlan.h"
-#include "network_if.h"
 
 #include "common.h"
 #include "uart_if.h"
