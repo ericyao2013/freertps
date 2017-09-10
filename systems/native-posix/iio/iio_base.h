@@ -15,6 +15,9 @@
 #ifndef SYSTEMS_NATIVE_POSIX_IIO_BASE_H_
 #define SYSTEMS_NATIVE_POSIX_IIO_BASE_H_
 
+#include "freertps/config.h"
+
+#if !defined(SYS_FAKE_IMU) || !defined(SYS_FAKE_GYRO) || !defined(SYS_FAKE_MAGN)
 #ifdef __APPLE__
 #include <iio/iio.h>
 #else
@@ -28,3 +31,5 @@ double get_channel_value_double(const char *name_chn, const char *name_value);
 char * get_channel_value_string(const char *name_chn, const char *name_value);
 
 #endif /* SYSTEMS_NATIVE_POSIX_IIO_BASE_H_ */
+
+#endif

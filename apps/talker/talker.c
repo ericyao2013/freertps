@@ -8,7 +8,8 @@ int main(int argc, char **argv)
   freertps_system_init();
   frudp_pub_t *pub = freertps_create_pub
                        ("/chatter",
-                        std_msgs__string__type.rtps_typename);
+                        std_msgs__string__type.rtps_typename,
+                        get_default_qos_reliable());
   frudp_disco_start();
 
   struct std_msgs__string msg;

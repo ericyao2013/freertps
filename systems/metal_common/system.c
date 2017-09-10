@@ -1,6 +1,7 @@
 #include "freertps/psm/system.h"
 #include "freertps/psm/udp.h"
 #include "freertps/freertps.h"
+#include "freertps/rtps/type/config.h"
 #include "metal/metal.h"
 
 void freertps_system_init(void)

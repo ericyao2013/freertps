@@ -220,7 +220,10 @@ int main(void)
   SCB_EnableICache();
   freertps_system_init();
   cam_init();
-  g_pub = freertps_create_pub("image", "sensor_msgs::msg::dds_::Image_");
+  g_pub = freertps_create_pub(
+          "image",
+          "sensor_msgs::msg::dds_::Image_",
+          get_default_qos_reliable());
   frudp_disco_start();
   cam_set_image_cb(image_cb);
   cam_start_image_capture();

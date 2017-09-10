@@ -3,6 +3,7 @@
 #include "freertps/psm/bswap.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/constant/vendor.h"
+#include "freertps/rtps/type/config.h"
 
 #include "metal/enet_config.h"
 #include "metal/enet.h"

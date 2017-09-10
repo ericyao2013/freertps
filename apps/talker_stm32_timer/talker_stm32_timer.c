@@ -32,8 +32,10 @@ int main(int argc, char **argv)
 
   printf("hello, world!\r\n");
   freertps_system_init();
-  g_pub = freertps_create_pub
-            ("/chatter", "std_msgs::msg::dds_::String_");
+  g_pub = freertps_create_pub(
+          "/chatter",
+          "std_msgs::msg::dds_::String_",
+          get_default_qos_reliable());
   while (freertps_system_ok())
   {
     frudp_listen(1000000);
