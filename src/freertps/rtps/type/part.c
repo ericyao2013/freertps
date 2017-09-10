@@ -20,6 +20,7 @@
 #include "freertps/psm/udp.h"
 #include "freertps/psm/bswap.h"
 
+#include "freertps/rtps/constant/vendor.h"
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid_prefix.h"
 #include "freertps/rtps/discovery/disco.h"
@@ -49,21 +50,30 @@ frudp_part_t *frudp_part_find(const frudp_guid_prefix_t *guid_prefix)
 bool frudp_part_create(void)
 {
   FREERTPS_DEBUG("frudp_part_create()\r\n");
+
+  // Single call check
   if (g_frudp_participant_init_complete)
   {
     FREERTPS_ERROR("woah there partner. freertps currently only allows one participant.\r\n");
     return false;
   }
 
+  // Set Vendor ID
+  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
+  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
+
+  // Set Domain ID
   g_frudp_config.domain_id = FRUDP_DOMAIN_ID;
   FREERTPS_INFO("Create domain id %d\r\n", (int)g_frudp_config.domain_id);
+
+  // Set Participant ID
   if (!frudp_init_participant_id())
   {
     FREERTPS_ERROR("unable to initialize participant ID\r\n");
     return false;
   }
-  //frudp_generic_init();
-  //frudp_disco_init();
+
+  // Set Single call check
   g_frudp_participant_init_complete = true;
   FREERTPS_INFO("prefix: %s \r\n", frudp_print_guid_prefix(&g_frudp_config.guid_prefix));
 

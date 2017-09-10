@@ -51,7 +51,6 @@ static volatile uint16_t g_enet_rxpool_wpos = ENET_RXPOOL_OFFSET;
 static volatile uint8_t *g_enet_rxpool_start[ENET_RXPOOL_NPTR] ALIGN4;
 static volatile uint16_t g_enet_rxpool_len[ENET_RXPOOL_NPTR] ALIGN4;
 static volatile uint16_t g_enet_rxpool_ptrs_wpos;
-static volatile uint16_t g_enet_rxpool_ptrs_rpos;
 
 static uint16_t g_enet_allowed_udp_ports[ENET_MAX_ALLOWED_UDP_PORTS];
 static uint16_t g_enet_allowed_udp_ports_wpos;

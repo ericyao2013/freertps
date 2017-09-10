@@ -1,5 +1,7 @@
+## Add TI-CC3200 Common stack
 include(${PROJECT_SOURCE_DIR}/systems/${SYSTEM}/cmake/ticc3200.cmake)
 
+## Add TI-CC3200 SDK SimpleLink
 set(CC3200_SDK_DIR "${CMAKE_SOURCE_DIR}/systems/${SYSTEM}/cc3200-sdk")
 set(CC3200_SDK_VERSION "1.0.0")
 
@@ -22,6 +24,7 @@ include_directories(
     cc3200-sdk/inc
 )
 
+## Add project files
 add_library(freertps_system_${SYSTEM}
     src/time.c
     src/udp.c
@@ -43,6 +46,7 @@ endif()
 
 add_subdirectory(extra)
 
+## Install bin and lib
 install(
         TARGETS freertps_system_${SYSTEM}
         ARCHIVE DESTINATION lib

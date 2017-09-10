@@ -15,16 +15,18 @@
 bool frudp_init(void)
 {
   enet_init();
+
   FREERTPS_INFO("metal udp init()\r\n");
-  FREERTPS_INFO("using address %d.%d.%d.%d for unicast\r\n",
+  FREERTPS_INFO("using address %s for unicast\r\n (new code)", frudp_print_ip(FRUDP_IP4_ADDR));
+  FREERTPS_INFO("using address %d.%d.%d.%d for unicast (original code)\r\n",
                 (FRUDP_IP4_ADDR >> 24) & 0xff,
                 (FRUDP_IP4_ADDR >> 16) & 0xff,
                 (FRUDP_IP4_ADDR >>  8) & 0xff,
                 (FRUDP_IP4_ADDR      ) & 0xff);
+
   g_frudp_config.unicast_addr = freertps_htonl(FRUDP_IP4_ADDR);
-  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
-  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
   memcpy(&g_frudp_config.guid_prefix.prefix[2], g_enet_mac, 6);
+
   frudp_generic_init();
   // not sure about endianness here.
   // 4 bytes left. let's use the system time in microseconds since power-up

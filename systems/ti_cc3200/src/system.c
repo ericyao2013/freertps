@@ -32,6 +32,6 @@ bool freertps_system_ok(void)
 bool frudp_init_participant_id(void)
 {
   FREERTPS_DEBUG("frudp_init_participant_id()\r\n");
-  g_frudp_config.participant_id = 0;
+  g_frudp_config.participant_id = 0; // Only one participant in board.
   return true;
 }

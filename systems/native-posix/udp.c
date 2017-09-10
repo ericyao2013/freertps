@@ -119,8 +119,6 @@ bool frudp_init(void)
   // some of the following stuff has been moved to frudp_part_create()
   //frudp_generic_init();
   // not sure about endianness here.
-  g_frudp_config.guid_prefix.prefix[0] = FREERTPS_VID_FREERTPS >> 8;
-  g_frudp_config.guid_prefix.prefix[1] = FREERTPS_VID_FREERTPS & 0xff;
   // todo: actually get mac address
   const uint8_t mac[6] = { 0x01, 0x23, 0x45, 0x67, 0x89, 0xab };
   memcpy(&g_frudp_config.guid_prefix.prefix[2], mac, 6);
