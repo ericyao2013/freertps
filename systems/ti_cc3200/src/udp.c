@@ -41,6 +41,21 @@ uint8_t *getMacAddress()
   return macAddressVal;
 }
 
+extern void enet_init();
+extern void enet_process_rx_ring();
+extern void enet_send_udp_mcast(const uint32_t mcast_ip, const uint16_t mcast_port,
+        const uint8_t *payload, const uint16_t payload_len);
+extern bool enet_send_udp_ucast(const uint8_t *dest_mac,
+        const uint32_t dest_ip,
+        const uint16_t dest_port,
+        const uint32_t source_ip,
+        const uint16_t source_port,
+        const uint8_t *payload,
+        const uint16_t payload_len);
+extern void enet_add_ucast_rx(const uint16_t port);
+extern bool enet_allow_udp_port(const uint16_t port);
+extern void enet_add_mcast_rx(const uint32_t group, const uint16_t port);
+
 bool frudp_init(void)
 {
   FREERTPS_DEBUG("udp_init()\r\n");
