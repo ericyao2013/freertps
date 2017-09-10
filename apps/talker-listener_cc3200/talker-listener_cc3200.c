@@ -59,7 +59,7 @@
 #define APPLICATION_VERSION     "1.1.0"
 #define UART_PRINT              Report
 //#define SPAWN_TASK_PRIORITY     5
-#define OSI_STACK_SIZE          2048
+#define OSI_STACK_SIZE          12288
 #define APP_NAME                "FreeRTOS-FreeRTSP"
 
 //*****************************************************************************
@@ -299,7 +299,7 @@ void chatter_cb(const void *msg)
   GPIO_IF_LedOff(MCU_ORANGE_LED_GPIO);
 }
 #else
-void chatter_cb(const void *msg)
+void chatter_cb(const void *msg, uint32_t len)
 {
   GPIO_IF_LedOn(MCU_ORANGE_LED_GPIO);
   uint32_t str_len = *((uint32_t *) msg);
@@ -330,9 +330,9 @@ void listener_task(void *p)
 
   freertps_system_init();
 #ifndef MODE_MSG
-  freertps_create_sub("/chatter", "std_msgs::msg::dds_::String_", chatter_cb);
+  freertps_create_sub("chatter", "std_msgs::msg::dds_::String_", chatter_cb);
 #else
-  freertps_create_sub("/chatter", std_msgs__string__type.rtps_typename, chatter_cb);
+  freertps_create_sub("chatter", std_msgs__string__type.rtps_typename, chatter_cb);
 #endif
   freertps_start(); // all pubs/subs are created. let's start!
 
@@ -400,9 +400,9 @@ void talker_task(void *p)
 //  freertps_timer_set_freq(10, timer_cb);
 
 #ifndef MODE_MSG
-  pub = freertps_create_pub("/chatter", "std_msgs::msg::dds_::String_", get_default_qos_reliable());
+  pub = freertps_create_pub("chatter", "std_msgs::msg::dds_::String_", get_default_qos_reliable());
 #else
-  pub = freertps_create_pub("/chatter", std_msgs__string__type.rtps_typename, get_default_qos_reliable());
+  pub = freertps_create_pub("chatter", std_msgs__string__type., get_default_qos_reliable());
 #endif
   freertps_start(); // all pubs/subs are created. let's start!
 
