@@ -33,8 +33,6 @@ add_library(freertps_system_${SYSTEM}
     src/enet_mac.c
     src/enet.c)
 
-target_link_libraries(freertps_system_${SYSTEM} freertps)
-
 set(SYSTEM_BONUS_LIBS "m" CACHE STRING "") # not the best variable name
 
 set(SYSTEM_EXTRA_LIBS  "ti_cc3200_extra" CACHE STRING "extra system libs")
