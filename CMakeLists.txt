@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-#SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS "")
-#SET(CMAKE_SHARED_LIBRARY_LINK_CXX_FLAGS "")
-
 set(PROJECT_NAME freertps)
 project(${PROJECT_NAME})
 
@@ -128,7 +125,7 @@ else()
       set(ROSIDL_LIBS "" CACHE STRING "") # no ROS IDL library exists; don't try
     endif()
   endif()
-  
+
   # now, build the standalone apps. this lets at least some things build
   # on systems without the ROS2 messages installed
   if(DEFINED SYSTEM_NO_ROSIDL_APPS)

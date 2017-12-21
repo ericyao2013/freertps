@@ -65,7 +65,7 @@ void freertps_system_init(void)
   }
   else
     */
-    g_rtps_psm = g_rtps_psm_udp;
+  g_rtps_psm = g_rtps_psm_udp;
 
   g_rtps_psm.init();
 

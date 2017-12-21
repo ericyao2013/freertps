@@ -89,3 +89,11 @@ bool frudp_add_ucast_rx(const uint16_t port)
 {
   return enet_allow_udp_port(port);
 }
+
+long getIp() {
+    return FRUDP_IP4_ADDR;
+}
+
+long getNetwork() {
+    return 0;
+}

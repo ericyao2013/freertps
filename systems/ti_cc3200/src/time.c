@@ -38,7 +38,7 @@ fr_time_t fr_time_now(void)
 
   PRCMRTCGet(&ulSecs, &usMsec);
 
-  uint64_t time_frac = (ulSecs * 1000 + usMsec); // Time in Milisencond Unit
+  uint32_t time_frac = (ulSecs * 1000 + usMsec); // Time in Milisencond Unit
 
   now.seconds = ulSecs;
   now.fraction = time_frac;

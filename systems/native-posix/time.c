@@ -8,11 +8,11 @@
 #include <mach/mach.h>
 #endif
 
-static uint64_t frac_sec(uint64_t nsec)
+static uint32_t frac_sec(uint64_t nsec)
 {
   // convert nanoseconds to the RTPS fractional seconds
   // FUTURE: provide faster macros for this which lose precision
-  const uint64_t frac_sec_lcm = nsec * 8388608;
+  const uint32_t frac_sec_lcm = nsec * 8388608;
   return frac_sec_lcm / 1953125;
 }
 

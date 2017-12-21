@@ -62,7 +62,7 @@ frudp_pub_t *frudp_create_pub(const char *topic_name,
   //TODO fix by full structure
   p->qos.kind = FRUDP_QOS_RELIABILITY_KIND_RELIABLE;
   if (qos != NULL) {
-	  p->qos.kind = qos->kind;
+    p->qos.kind = qos->kind;
   }
 
   if (data_submsgs) // it's for a reliable connection
@@ -264,14 +264,14 @@ void frudp_publish(frudp_pub_t *pub, frudp_submsg_data_t *submsg)
   frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
   fr_time_t t = fr_time_now();
   uint16_t submsg_wpos = 0;
-  
+
   frudp_submsg_t *ts_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
   ts_submsg->header.id = FRUDP_SUBMSG_ID_INFO_TS;
   ts_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
   ts_submsg->header.len = 8;
   memcpy(ts_submsg->contents, &t, 8);
   submsg_wpos += 4 + 8;
-  
+
   ///////////////////////////////////////////////////////////////////////
   //frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];
   memcpy(&msg->submsgs[submsg_wpos], submsg, 4 + submsg->header.len);
@@ -373,14 +373,14 @@ void frudp_pub_rx_acknack(frudp_pub_t *pub,
 
         frudp_msg_t *msg = frudp_init_msg((frudp_msg_t *)g_pub_tx_buf);
         uint16_t submsg_wpos = 0;
-        
 
-		frudp_submsg_t *dst_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
-		dst_submsg->header.id = FRUDP_SUBMSG_ID_INFO_DEST;
-		dst_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
-		dst_submsg->header.len = FRUDP_GUID_PREFIX_LEN;
-		memcpy(dst_submsg->contents, guid_prefix, FRUDP_GUID_PREFIX_LEN);
-		submsg_wpos += 4 + FRUDP_GUID_PREFIX_LEN;
+
+        frudp_submsg_t *dst_submsg = (frudp_submsg_t *)&msg->submsgs[submsg_wpos];
+        dst_submsg->header.id = FRUDP_SUBMSG_ID_INFO_DEST;
+        dst_submsg->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN;
+        dst_submsg->header.len = FRUDP_GUID_PREFIX_LEN;
+        memcpy(dst_submsg->contents, guid_prefix, FRUDP_GUID_PREFIX_LEN);
+        submsg_wpos += 4 + FRUDP_GUID_PREFIX_LEN;
 
         ///////////////////////////////////////////////////////////////////////
         //frudp_submsg_data_t *data_submsg = (frudp_submsg_data_t *)&msg->submsgs[submsg_wpos];

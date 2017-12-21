@@ -177,17 +177,23 @@ static int frudp_create_sock(void)
 bool frudp_add_ucast_rx(const uint16_t port)
 {
   FREERTPS_INFO("add ucast rx port %d\n", port);
+
   // we may have already added this when searching for our participant ID
   // so, let's spin through and see if it's already there
   for (int i = 0; i < g_frudp_rx_socks_used; i++)
+  {
     if (g_frudp_rx_socks[i].port == port)
     {
       FREERTPS_INFO("  found port match in slot %d\n", i);
       return true; // it's already here
     }
+  }
+
   int s = frudp_create_sock();
   if (s < 0)
+  {
     return false;
+  }
   struct sockaddr_in rx_bind_addr;
   memset(&rx_bind_addr, 0, sizeof(rx_bind_addr));
   rx_bind_addr.sin_family = AF_INET;
@@ -235,7 +241,7 @@ static bool set_sock_reuse(int s)
 bool frudp_add_mcast_rx(in_addr_t group, uint16_t port) //,
                      //const freertps_udp_rx_callback_t rx_cb)
 {
-  FREERTPS_DEBUG("frudp_add_mcast_rx%s:%d)\r\n",
+  FREERTPS_DEBUG("frudp_add_mcast_rx(%s:%d)\r\n",
             frudp_print_ip(group),
             port);
 

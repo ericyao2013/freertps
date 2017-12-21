@@ -169,13 +169,13 @@ void enet_rx_raw(const uint8_t *pkt, const uint16_t pkt_len)
   g_enet_rxpool_start[wp] = &g_enet_rxpool[g_enet_rxpool_wpos];
   g_enet_rxpool_len[wp] = pkt_len;
   memcpy((void *)g_enet_rxpool_start[wp], pkt, pkt_len);
-  //printf("ethernet rx %d into rxpool at 0x%08x\r\n", 
+  //printf("ethernet rx %d into rxpool at 0x%08x\r\n",
   //       rxn, (unsigned)g_enet_rxpool_start[wp]);
   g_enet_rxpool_ptrs_wpos++;
   if (g_enet_rxpool_ptrs_wpos >= ENET_RXPOOL_NPTR)
     g_enet_rxpool_ptrs_wpos = 0;
 
-  // make sure we end up with the rxpool write pointer on a 2-byte offset 
+  // make sure we end up with the rxpool write pointer on a 2-byte offset
   // address (to keep the ethernet payloads 4-byte aligned) by incrementing
   // the pointer by a multiple of 4
   g_enet_rxpool_wpos += ((pkt_len + 3) & ~0x3);
@@ -280,7 +280,7 @@ static bool enet_dispatch_arp(const uint8_t *data, const uint16_t len)
       freertps_htons(arp_pkt->proto_type) != ENET_ARP_PROTO_IPV4)
   {
     printf("unknown ARP hw type (0x%x) or protocol type (0x%0x)\r\n",
-           (unsigned)freertps_htons(arp_pkt->hw_type), 
+           (unsigned)freertps_htons(arp_pkt->hw_type),
            (unsigned)freertps_htons(arp_pkt->proto_type));
     return false; // this function only handles ARP for IPv4 over ethernet
   }

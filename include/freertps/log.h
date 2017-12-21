@@ -37,19 +37,19 @@ extern int Report(const char *format, ...);
 // maybe make this smarter someday
 #ifdef DEBUG
 #define FREERTPS_DEBUG(...) \
-  do { LOG_REPORT("[%d] [freertps DEBUG] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%u] [freertps DEBUG] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #else
 #define FREERTPS_DEBUG(...) ((void)0)
 #endif
 
 #define FREERTPS_INFO(...) \
-  do { LOG_REPORT("[%d] [freertps INFO] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%u] [freertps INFO] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_WARNING(...) \
-  do { LOG_REPORT("[%d] [freertps WARNING] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
+  do { LOG_REPORT("[%u] [freertps WARNING] ", fr_time_now().fraction); LOG_REPORT(__VA_ARGS__); } while (0)
 #define FREERTPS_ERROR(...) \
-  do { LOG_ERROR("[%d] [freertps ERROR] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[%u] [freertps ERROR] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
 #define FREERTPS_FATAL(...) \
-  do { LOG_ERROR("[%d] [freertps FATAL] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
+  do { LOG_ERROR("[%u] [freertps FATAL] ", fr_time_now().fraction); LOG_ERROR(__VA_ARGS__); } while (0)
 
 
 #ifdef __cplusplus

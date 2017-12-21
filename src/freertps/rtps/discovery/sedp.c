@@ -74,8 +74,9 @@ static uint8_t g_sedp_msg_buf[FRUDP_SEDP_MSG_BUFLEN];
 void frudp_sedp_init(void)
 {
   _SEDP_DEBUG("frudp_sedp_init()\r\n");
-  _SEDP_INFO("SEDP => Simple Endpoint Discovery Protocol\r\n");
+  _SEDP_INFO("SEDP => Initialize Simple Endpoint Discovery Protocol\r\n");
 
+  // Init array of buffers subscriber.
   for (int i = 0; i < FRUDP_MAX_SUBS; i++)
   {
     frudp_submsg_data_t *d =
@@ -84,6 +85,7 @@ void frudp_sedp_init(void)
     g_sedp_sub_writer_data_submsgs[i] = d;
   }
 
+  // Initialize array of buffers publisher.
   for (int i = 0; i < FRUDP_MAX_PUBS; i++)
   {
     frudp_submsg_data_t *d =
@@ -92,18 +94,20 @@ void frudp_sedp_init(void)
     g_sedp_pub_writer_data_submsgs[i] = d;
   }
 
+  // Create discover publisher of subscribers.
   g_sedp_sub_pub = frudp_create_pub(
     NULL, // no topic name
     NULL, // no type name
-	NULL,
+    NULL,
     g_sedp_sub_writer_id,
     g_sedp_sub_writer_data_submsgs,
     FRUDP_MAX_SUBS);
 
+  // Create discover publisher of publishers.
   g_sedp_pub_pub = frudp_create_pub(
     NULL, // no topic name
     NULL, // no type name
-	NULL,
+    NULL,
     g_sedp_pub_writer_id,
     g_sedp_pub_writer_data_submsgs,
     FRUDP_MAX_PUBS);
@@ -130,6 +134,8 @@ void frudp_sedp_init(void)
 void frudp_sedp_start(void)
 {
   _SEDP_DEBUG("frudp_sedp_start()\r\n");
+  _SEDP_INFO("SEDP => Start Simple Endpoint Discovery Protocol\r\n");
+
   frudp_sedp_bcast();
   g_frudp_sedp_last_bcast = fr_time_now();
 }
@@ -137,6 +143,7 @@ void frudp_sedp_start(void)
 void frudp_sedp_fini(void)
 {
   _SEDP_DEBUG("sedp fini\r\n");
+  _SEDP_INFO("SEDP => Release Simple Endpoint Discovery Protocol\r\n");
 }
 
 //#ifdef VERBOSE_SEDP
@@ -221,6 +228,7 @@ void frudp_sedp_debug(void)
 void frudp_sedp_clean(void)
 {
   _SEDP_DEBUG("frudp_sedp_clean()\r\n");
+
 
   for (unsigned i = 0; i < g_frudp_num_readers; i++)
   {
