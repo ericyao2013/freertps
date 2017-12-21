@@ -302,7 +302,13 @@ void frudp_publish(frudp_pub_t *pub, frudp_submsg_data_t *submsg)
   frudp_tx(FRUDP_DEFAULT_MCAST_GROUP,
            frudp_mcast_builtin_port(),
            (const uint8_t *)msg, payload_len);
-  pub->next_submsg_idx++;
+
+  //TODO review this code
+  if (pub->next_submsg_idx < FRUDP_MAX_PUBS - 1) {
+      pub->next_submsg_idx++;
+  } else {
+      pub->next_submsg_idx = 0;
+  }
 
   /////////////////////////////////////////////////////////////
   /*
