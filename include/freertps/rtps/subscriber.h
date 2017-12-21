@@ -61,7 +61,12 @@ bool frudp_subscribe(const frudp_entity_id_t reader_id,
 /**
  *
  */
-void frudp_add_sub(const frudp_sub_t *s);
+frudp_sub_t * frudp_create_sub(const char *topic_name,
+        const char *type_name,
+        frudp_eid_t sub_eid,
+        freertps_msg_cb_t msg_cb,
+        frudp_rx_data_cb_t data_cb,
+        bool reliable);
 
 #ifdef __cplusplus
 }

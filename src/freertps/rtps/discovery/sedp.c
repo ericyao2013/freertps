@@ -112,23 +112,23 @@ void frudp_sedp_init(void)
     g_sedp_pub_writer_data_submsgs,
     FRUDP_MAX_PUBS);
 
-  frudp_sub_t sedp_sub_sub;
-  sedp_sub_sub.topic_name = NULL;
-  sedp_sub_sub.type_name = NULL;
-  sedp_sub_sub.reader_eid = g_sedp_sub_reader_id;
-  sedp_sub_sub.data_cb = frudp_sedp_rx_sub_data;
-  sedp_sub_sub.msg_cb = NULL;
-  sedp_sub_sub.reliable = true;
-  frudp_add_sub(&sedp_sub_sub);
+  // Subscribe to the subscriber announcers
+  frudp_create_sub(
+    NULL, // no topic name
+    NULL, // no type name
+    g_sedp_sub_reader_id,
+    NULL,
+    frudp_sedp_rx_sub_data,
+    true);
 
-  frudp_sub_t sedp_pub_sub; // subscribe to the publisher announcers
-  sedp_pub_sub.topic_name = NULL;
-  sedp_pub_sub.type_name = NULL;
-  sedp_pub_sub.reader_eid = g_sedp_pub_reader_id;
-  sedp_pub_sub.data_cb = frudp_sedp_rx_pub_data;
-  sedp_pub_sub.msg_cb = NULL;
-  sedp_pub_sub.reliable = true;
-  frudp_add_sub(&sedp_pub_sub);
+  // Subscribe to the publisher announcers
+  frudp_create_sub(
+    NULL, // no topic name
+    NULL, // no type name
+    g_sedp_pub_reader_id,
+    NULL,
+    frudp_sedp_rx_pub_data,
+    true);
 }
 
 void frudp_sedp_start(void)

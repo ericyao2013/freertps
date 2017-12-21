@@ -64,30 +64,43 @@ frudp_sub_t *frudp_add_user_sub(const char *topic_name,
                  topic_name, type_name,
                  (unsigned)freertps_htonl(sub_eid.u));
 
-  frudp_sub_t *sub = malloc(sizeof(frudp_sub_t));
   // for now, just copy the pointers. maybe in the future we can/should have
   // an option for storage of various kind (static, malloc, etc.) for copies.
-  sub->topic_name = topic_name;
-  sub->type_name = type_name;
-  sub->reader_eid = sub_eid;
-  sub->msg_cb = msg_cb;
-  sub->data_cb = NULL;
-  sub->reliable = false;
-  frudp_add_sub(sub);
+  frudp_sub_t *sub = frudp_create_sub(topic_name,
+                   type_name,
+                   sub_eid,
+                   msg_cb,
+                   NULL,
+                   false);
+
   frudp_sedp_publish_sub(sub); // can't do this yet; spdp hasn't started bcast
   return sub;
 }
 
-void frudp_add_sub(const frudp_sub_t *s)
+frudp_sub_t * frudp_create_sub(const char *topic_name,
+        const char *type_name,
+        frudp_eid_t sub_eid,
+        freertps_msg_cb_t msg_cb,
+        frudp_rx_data_cb_t data_cb,
+        bool reliable)
 {
-  if (g_frudp_num_subs >= FRUDP_MAX_SUBS - 1)
-    return; // no room. sorry.
+  if (g_frudp_num_subs >= FRUDP_MAX_SUBS - 1) {
+    return NULL; // no room. sorry.
+  }
 
-  g_frudp_subs[g_frudp_num_subs] = *s;
+  frudp_sub_t *s = &g_frudp_subs[g_frudp_num_subs];
   g_frudp_num_subs++;
 
-  FREERTPS_INFO("Add sub %d: reader_eid = 0x%08x\r\n", g_frudp_num_subs, freertps_htonl((unsigned)s->reader_eid.u));
+  s->topic_name = topic_name;
+  s->type_name = type_name;
+  s->reader_eid = sub_eid;
+  s->msg_cb = msg_cb;
+  s->data_cb = data_cb;
+  s->reliable = reliable;
+
+  FREERTPS_INFO("Create sub (%d) : 0x%08x\r\n", g_frudp_num_subs, freertps_htonl((uint32_t)s->reader_eid.u));
   //frudp_subscribe(s->entity_id, g_frudp_entity_id_unknown, NULL, s->msg_cb);
+  return s;
 }
 
 void frudp_debug_readers(void)
