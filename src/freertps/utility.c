@@ -32,3 +32,52 @@ const char *frudp_print_ip(const long ip)
            (unsigned int)FREERTPS_IPV4_BYTE(ip,0));
   return buffer;
 }
+
+const char * append_to_string(const char *string_append, char *string_dest)
+{
+  char tmp[strlen(string_dest)];
+  memcpy(tmp, string_dest, strlen(string_dest));
+
+  memcpy(string_dest, string_append, strlen(string_append));
+  memmove(string_dest+strlen(string_append),tmp,sizeof(tmp));
+  string_dest[sizeof(tmp) + strlen(string_append)] = 0;
+}
+
+uint16_t serialize_string_alligned(const char *string, uint8_t *buffer)
+{
+  int string_len = string ? strlen(string) : 0;
+
+  // Second copy
+  memcpy(buffer, string, string_len + 1);
+
+  return (string_len + 4) & ~0x3; // params must be 32-bit aligned
+}
+
+void deserialize_string_alligned(uint8_t *buffer, uint16_t length, char *string)
+{
+//  const char *string = malloc(sizeof(char) * (length + 1));
+  memcpy(string, buffer, length + 1);
+//  return string;
+}
+
+void display_buffer(uint8_t *buffer, uint16_t length)
+{
+  printf("size = %d\n", length);
+  printf("|           |           |           |           |           |           |           |           |\n");
+
+  for(int i = 0 ; i < length ; ++i)
+  {
+    printf("%02x ", buffer[i]);
+
+//    if (i != 0 && i % 9 == 0)
+//    {
+//    	printf("\n");
+//    }
+  }
+  printf("\n");
+}
+
+
+
+
+

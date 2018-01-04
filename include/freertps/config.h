@@ -28,8 +28,9 @@ extern "C"
 #define FRUDP_MAX_READERS FRUDP_MAX_PUBS*10
 #define FRUDP_MAX_WRITERS FRUDP_MAX_SUBS*10
 
-#define FRUDP_MAX_TOPIC_NAME_LEN 128
+#define FRUDP_MAX_TOPIC_NAME_LEN 128 // The length of the DDS topic must not exceed 256 characters. RTI Connext limit to 248.
 #define FRUDP_MAX_TYPE_NAME_LEN  128
+#define FRUDP_MAX_PARTITION_NAME_LEN 128 // The actual length of a partition field may be limited to 256 characters. (RTI limit to 248.
 
 #define FRUDP_BUFFER_SIZE        8192
 #define FRUDP_PUB_BUFLEN         2048

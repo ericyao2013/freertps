@@ -21,6 +21,7 @@
 #include "freertps/rtps/type/config.h"
 #include "freertps/rtps/type/guid.h"
 #include "freertps/rtps/type/qos.h"
+#include "freertps/rtps/type/partition.h"
 #include "freertps/rtps/discovery/disco.h"
 #include "freertps/rtps/discovery/sedp.h"
 #include "freertps/rtps/discovery/spdp.h"
@@ -437,6 +438,9 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   frudp_guid_t *guid;
   frudp_qos_history_t *qos_his;
   frudp_qos_reliability_t *qos_rel;
+//  frudp_partition_t *partition;
+  int size;
+  char *partition;
   memset(&g_topic_info, 0, sizeof(sedp_topic_info_t));
 
   frudp_parameter_list_item_t *item = (frudp_parameter_list_item_t *)data;
@@ -476,6 +480,13 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       {
         _SEDP_ERROR("\tcouldn't parse topic name\r\n");
       }
+      break;
+    ////////////////////////////////////////////////////////////////////////////
+    case FRUDP_PID_PARTITION:
+//      partition = (frudp_partition_t *)pval;
+      size = pval[4] - 2 - 1;
+      partition = malloc(sizeof(char) * size);
+      deserialize_string_alligned((pval+10), size, partition);
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TYPE_NAME:
@@ -607,6 +618,19 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     return;
   }
 
+  // Concat partition + topic base.
+  if (partition != NULL && partition[0] != 0)
+  {
+    char tmpTopic[strlen(g_topic_info.topic_name)];
+    memcpy(tmpTopic, g_topic_info.topic_name, strlen(g_topic_info.topic_name));
+
+    memcpy(g_topic_info.topic_name, partition, strlen(partition));
+    memmove(g_topic_info.topic_name+strlen(partition),"/",1);
+    memmove(g_topic_info.topic_name+strlen(partition)+1,tmpTopic,sizeof(tmpTopic));
+    g_topic_info.topic_name[strlen(partition) + 1 + sizeof(tmpTopic)] = 0;
+    free(partition);
+  }
+
   if (is_pub) // this is information about someone else's publication
     frudp_sedp_rx_pub_info(&g_topic_info);
   else // this is information about someone else's subscription
@@ -652,6 +676,32 @@ static void frudp_sedp_publish(const char *topic_name,
              topic_name,
              (unsigned)freertps_htonl(pub->writer_eid.u));
 
+  // split topic_partition vs topic_base_name
+  char *topic_partition = NULL;
+  char *topic_base_name = NULL;
+
+  char *pch = strrchr(topic_name, '/'); // Find last "/"
+  int pos = pch - topic_name; // get position of this last "/"
+  if (pos <= 0)
+  {
+    // Without partition
+    topic_partition = malloc(sizeof(char));
+    memcpy(topic_partition, "", 1);
+    if (pos == 0)
+    {
+      topic_base_name = topic_name + 1;
+    } else {
+      topic_base_name = topic_name;
+    }
+    //topic_base_name = (pos == 0) ? topic_name + 1 : topic_name;
+  } else {
+    // With partition
+    topic_partition = malloc(sizeof(char) * (pos));
+    strncpy(topic_partition, topic_name, pos);
+    topic_partition[pos] = 0;
+    topic_base_name = topic_name + pos + 1;
+  }
+
   frudp_submsg_data_t *d = (frudp_submsg_data_t *)g_sedp_msg_buf;
   d->header.id = FRUDP_SUBMSG_ID_DATA;
   d->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN |
@@ -665,6 +715,7 @@ static void frudp_sedp_publish(const char *topic_name,
   //d->writer_sn = g_frudp_sn_unknown;
   d->writer_sn.high = 0;
   d->writer_sn.low = 0; // todo: increment this
+
   //frudp_parameter_list_item_t *inline_qos_param =
   //  (frudp_parameter_list_item_t *)d->data;
   /*
@@ -685,7 +736,6 @@ static void frudp_sedp_publish(const char *topic_name,
   frudp_locator_t *loc = NULL;
 
   /////////////////////////////////////////////////////////////
-  // FRUDP_PID_UNICAST_LOCATOR
   param->pid = FRUDP_PID_UNICAST_LOCATOR;
   param->len = sizeof(frudp_locator_t);
   loc = (frudp_locator_t *)param->value;
@@ -694,11 +744,11 @@ static void frudp_sedp_publish(const char *topic_name,
   memset(loc->address.udp4.zeros, 0, 12);
   loc->address.udp4.address = g_frudp_config.unicast_addr;
 
-  FRUDP_PLIST_ADVANCE(param);
   /////////////////////////////////////////////////////////////
+  FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_PROTOCOL_VERSION;
   param->len = 4;
-  param->value[0] = 2;
+  param->value[0] = 2; // TODO use protocol version structure
   param->value[1] = 1;
   param->value[2] = 0;
   param->value[3] = 0; // pad to 4-byte boundary
@@ -721,16 +771,12 @@ static void frudp_sedp_publish(const char *topic_name,
   guid.eid = eid;
   memcpy(param->value, &guid, 16);
 
-//#ifdef VERBOSE_SEDP
-//  FREERTPS_INFO("reader_guid = 0x%08x\n", htonl(reader_guid.entity_id.u));
-//#endif
-
   /////////////////////////////////////////////////////////////
-  if (topic_name)
+  if (topic_base_name)
   {
     FRUDP_PLIST_ADVANCE(param);
     param->pid = FRUDP_PID_TOPIC_NAME;
-    set_string_alligned(topic_name, param);
+    set_string_alligned(topic_base_name, param);
   }
 
   /////////////////////////////////////////////////////////////
@@ -765,26 +811,32 @@ static void frudp_sedp_publish(const char *topic_name,
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_PARTITION;
-  param->len = 12;
+//  frudp_partition_t *partition = (frudp_partition_t *)param->value;
+//  partition->partition_number = 1;
   param->value[0] = 1;
   param->value[1] = 0;
   param->value[2] = 0;
   param->value[3] = 0;
-  param->value[4] = 3;
+
+  param->value[4] = strlen(topic_partition) + 2 + 1;
   param->value[5] = 0;
   param->value[6] = 0;
   param->value[7] = 0;
-  param->value[8] = 114;
-  param->value[9] = 116;
-  param->value[10] = 0;
-  param->value[11] = 0;
+
+  append_to_string("rt", topic_partition);
+  int size = serialize_string_alligned(topic_partition, param->value + 8);
+  param->len = size + 4 + 4;
+  free(topic_partition);
 
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_SENTINEL;
   param->len = 0;
+
+  /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   d->header.len = param->value - 4 - (uint8_t *)&d->extraflags;
+
   frudp_publish(pub, d); // this will be either on the sub or pub publisher
 }
 

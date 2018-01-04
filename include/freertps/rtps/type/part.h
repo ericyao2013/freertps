@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_PART_H
-#define FRUDP_PART_H
+#ifndef FRUDP_PARTICIPANT_H
+#define FRUDP_PARTICIPANT_H
 
 #include "freertps/rtps/type/protocol_version.h"
 #include "freertps/rtps/type/locator.h"
@@ -29,6 +29,7 @@ extern "C" {
 
 typedef uint32_t frudp_builtin_endpoint_set_t;
 
+//TODO Rename to participant (part != partition)
 typedef struct frudp_part
 {
   frudp_pver_t pver;
@@ -55,4 +56,4 @@ void frudp_debug_participants(void);
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_PART_H
+#endif // FRUDP_PARTICIPANT_H

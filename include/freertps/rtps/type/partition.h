@@ -12,24 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef FRUDP_UTILITY_H
-#define FRUDP_UTILITY_H
+#ifndef FRUDP_PARTITION_H
+#define FRUDP_PARTITION_H
 
-#include <stdint.h>
+#include <stdlib.h>
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
 
-const char *frudp_print_ip(const long ip);
+typedef struct frudp_partition
+{
+  uint32_t partition_number;
+  char *names[];
+} __attribute__((packed)) frudp_partition_t;
 
-const char * append_to_string(const char *string_append, char *string_dest);
-uint16_t serialize_string_alligned(const char *string, uint8_t *buffer);
-void deserialize_string_alligned(uint8_t *buffer, uint16_t length, char *string);
-void display_buffer(uint8_t *buffer, uint16_t length);
 
 #ifdef __cplusplus
 }
 #endif
-#endif // FRUDP_UTILITY_H
+#endif // FRUDP_PARTITION_H

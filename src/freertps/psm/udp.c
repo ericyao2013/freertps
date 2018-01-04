@@ -583,6 +583,7 @@ bool frudp_parse_string(char *buf, uint32_t buf_len, frudp_rtps_string_t *s)
   int wpos = 0;
   for (; wpos < s->len && wpos < buf_len-1; wpos++)
     buf[wpos] = s->data[wpos];
+
   buf[wpos] = 0;
   if (wpos < buf_len - 1)
     return true;
