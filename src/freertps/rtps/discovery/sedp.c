@@ -440,7 +440,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   frudp_qos_reliability_t *qos_rel;
 //  frudp_partition_t *partition;
   int size;
-  char partition[128];
+  char partition[FRUDP_MAX_TOPIC_NAME_LEN];
   memset(&g_topic_info, 0, sizeof(sedp_topic_info_t));
 
   frudp_parameter_list_item_t *item = (frudp_parameter_list_item_t *)data;
@@ -621,7 +621,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   // Concat partition + topic base.
   if (partition != NULL && partition[0] != 0)
   {
-    char name[128];
+    char name[FRUDP_MAX_TOPIC_NAME_LEN];
     memset(name, 0, sizeof(name));
     strncpy(name, g_topic_info.topic_name, strlen(g_topic_info.topic_name));
     memset(g_topic_info.topic_name, 0, sizeof(g_topic_info.topic_name));
