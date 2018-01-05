@@ -440,7 +440,7 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   frudp_qos_reliability_t *qos_rel;
 //  frudp_partition_t *partition;
   int size;
-  char *partition;
+  char partition[128];
   memset(&g_topic_info, 0, sizeof(sedp_topic_info_t));
 
   frudp_parameter_list_item_t *item = (frudp_parameter_list_item_t *)data;
@@ -485,8 +485,8 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     case FRUDP_PID_PARTITION:
 //      partition = (frudp_partition_t *)pval;
       size = pval[4] - 2 - 1;
-      partition = malloc(sizeof(char) * size);
       deserialize_string_alligned((pval+10), size, partition);
+      partition[size] = 0;
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TYPE_NAME:
@@ -621,14 +621,13 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   // Concat partition + topic base.
   if (partition != NULL && partition[0] != 0)
   {
-    char tmpTopic[strlen(g_topic_info.topic_name)];
-    memcpy(tmpTopic, g_topic_info.topic_name, strlen(g_topic_info.topic_name));
-
-    memcpy(g_topic_info.topic_name, partition, strlen(partition));
-    memmove(g_topic_info.topic_name+strlen(partition),"/",1);
-    memmove(g_topic_info.topic_name+strlen(partition)+1,tmpTopic,sizeof(tmpTopic));
-    g_topic_info.topic_name[strlen(partition) + 1 + sizeof(tmpTopic)] = 0;
-    free(partition);
+    char name[128];
+    memset(name, 0, sizeof(name));
+    strncpy(name, g_topic_info.topic_name, strlen(g_topic_info.topic_name));
+    memset(g_topic_info.topic_name, 0, sizeof(g_topic_info.topic_name));
+    strncpy(g_topic_info.topic_name, partition, strlen(partition));
+    g_topic_info.topic_name[strlen(partition)] = '/';
+    strncat(g_topic_info.topic_name, name, strlen(name));
   }
 
   if (is_pub) // this is information about someone else's publication
@@ -696,7 +695,7 @@ static void frudp_sedp_publish(const char *topic_name,
     //topic_base_name = (pos == 0) ? topic_name + 1 : topic_name;
   } else {
     // With partition
-    topic_partition = malloc(sizeof(char) * (pos));
+    topic_partition = malloc(sizeof(char) * (pos + 1));
     strncpy(topic_partition, topic_name, pos);
     topic_partition[pos] = 0;
     topic_base_name = topic_name + pos + 1;
