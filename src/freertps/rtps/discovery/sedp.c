@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "freertps/config.h"
 #include "freertps/freertps.h"
 #include "freertps/utility.h"
 #include "freertps/rtps/constant/parameter_id.h"
@@ -438,9 +439,13 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
   frudp_guid_t *guid;
   frudp_qos_history_t *qos_his;
   frudp_qos_reliability_t *qos_rel;
-//  frudp_partition_t *partition;
+
   int size;
-  char partition[FRUDP_MAX_TOPIC_NAME_LEN];
+  char topic_partition[FRUDP_MAX_PARTITION_NAME_LEN];
+  char topic_base_name[FRUDP_MAX_TOPIC_NAME_LEN];
+  memset(topic_partition, 0, FRUDP_MAX_PARTITION_NAME_LEN);
+  memset(topic_base_name, 0, FRUDP_MAX_TOPIC_NAME_LEN);
+
   memset(&g_topic_info, 0, sizeof(sedp_topic_info_t));
 
   frudp_parameter_list_item_t *item = (frudp_parameter_list_item_t *)data;
@@ -469,12 +474,12 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TOPIC_NAME:
-      if (frudp_parse_string_prefix(g_topic_info.topic_name,
-                                             sizeof(g_topic_info.topic_name),
+      if (frudp_parse_string_prefix(topic_base_name,
+                                             sizeof(topic_base_name),
                                              (frudp_rtps_string_t *)pval,
                                              ""))
       {
-        _SEDP_INFO("\tSEDP topic name: \t\t\t\t[%s]\r\n", g_topic_info.topic_name);
+        _SEDP_INFO("\tSEDP topic name: \t\t\t\t[%s]\r\n", topic_base_name);
       }
       else
       {
@@ -483,10 +488,9 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_PARTITION:
-//      partition = (frudp_partition_t *)pval;
       size = pval[4] - 2 - 1;
-      deserialize_string_alligned((pval+10), size, partition);
-      partition[size] = 0;
+      deserialize_string_alligned((pval+10), size, topic_partition);
+      _SEDP_INFO("\tSEDP Partition : \t\t\t\t[%s]\r\n", topic_partition);
       break;
     ////////////////////////////////////////////////////////////////////////////
     case FRUDP_PID_TYPE_NAME:
@@ -610,24 +614,15 @@ static void frudp_sedp_rx_pubsub_data(frudp_receiver_state_t *rcvr,
     item = (frudp_parameter_list_item_t *)(((uint8_t *)item) + 4 + item->len);
   }
 
+  concat_partition(topic_partition, topic_base_name, g_topic_info.topic_name);
+  _SEDP_INFO("\tSEDP full topic : \t\t\t\t[%s]\r\n", g_topic_info.topic_name);
+
   // make sure we have received all necessary parameters
   if (!strlen(g_topic_info.type_name) ||
       !strlen(g_topic_info.topic_name) ||
       frudp_guid_identical(&g_topic_info.guid, &g_frudp_guid_unknown)) {
     _SEDP_ERROR("\tinsufficient SEDP information\r\n");
     return;
-  }
-
-  // Concat partition + topic base.
-  if (partition != NULL && partition[0] != 0)
-  {
-    char name[FRUDP_MAX_TOPIC_NAME_LEN];
-    memset(name, 0, sizeof(name));
-    strncpy(name, g_topic_info.topic_name, strlen(g_topic_info.topic_name));
-    memset(g_topic_info.topic_name, 0, sizeof(g_topic_info.topic_name));
-    strncpy(g_topic_info.topic_name, partition, strlen(partition));
-    g_topic_info.topic_name[strlen(partition)] = '/';
-    strncat(g_topic_info.topic_name, name, strlen(name));
   }
 
   if (is_pub) // this is information about someone else's publication
@@ -676,31 +671,11 @@ static void frudp_sedp_publish(const char *topic_name,
              (unsigned)freertps_htonl(pub->writer_eid.u));
 
   // split topic_partition vs topic_base_name
-  char *topic_partition = NULL;
-  char *topic_base_name = NULL;
+  char topic_partition[FRUDP_MAX_PARTITION_NAME_LEN];
+  char topic_base_name[FRUDP_MAX_TOPIC_NAME_LEN];
+  split_partition(topic_name, topic_partition, topic_base_name);
 
-  char *pch = strrchr(topic_name, '/'); // Find last "/"
-  int pos = pch - topic_name; // get position of this last "/"
-  if (pos <= 0)
-  {
-    // Without partition
-    topic_partition = malloc(sizeof(char));
-    memcpy(topic_partition, "", 1);
-    if (pos == 0)
-    {
-      topic_base_name = topic_name + 1;
-    } else {
-      topic_base_name = topic_name;
-    }
-    //topic_base_name = (pos == 0) ? topic_name + 1 : topic_name;
-  } else {
-    // With partition
-    topic_partition = malloc(sizeof(char) * (pos + 1));
-    strncpy(topic_partition, topic_name, pos);
-    topic_partition[pos] = 0;
-    topic_base_name = topic_name + pos + 1;
-  }
-
+  // Make RTPS message
   frudp_submsg_data_t *d = (frudp_submsg_data_t *)g_sedp_msg_buf;
   d->header.id = FRUDP_SUBMSG_ID_DATA;
   d->header.flags = FRUDP_FLAGS_LITTLE_ENDIAN |
@@ -771,7 +746,7 @@ static void frudp_sedp_publish(const char *topic_name,
   memcpy(param->value, &guid, 16);
 
   /////////////////////////////////////////////////////////////
-  if (topic_base_name)
+  if (strlen(topic_base_name) > 0)
   {
     FRUDP_PLIST_ADVANCE(param);
     param->pid = FRUDP_PID_TOPIC_NAME;
@@ -810,8 +785,7 @@ static void frudp_sedp_publish(const char *topic_name,
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);
   param->pid = FRUDP_PID_PARTITION;
-//  frudp_partition_t *partition = (frudp_partition_t *)param->value;
-//  partition->partition_number = 1;
+
   param->value[0] = 1;
   param->value[1] = 0;
   param->value[2] = 0;
@@ -825,7 +799,6 @@ static void frudp_sedp_publish(const char *topic_name,
   append_to_string("rt", topic_partition);
   int size = serialize_string_alligned(topic_partition, param->value + 8);
   param->len = size + 4 + 4;
-  free(topic_partition);
 
   /////////////////////////////////////////////////////////////
   FRUDP_PLIST_ADVANCE(param);

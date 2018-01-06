@@ -25,8 +25,13 @@ extern "C"
 const char *frudp_print_ip(const long ip);
 
 const char * append_to_string(const char *string_append, char *string_dest);
+
 uint16_t serialize_string_alligned(const char *string, uint8_t *buffer);
-void deserialize_string_alligned(uint8_t *buffer, uint16_t length, char *string);
+void deserialize_string_alligned(const uint8_t *buffer, uint16_t length, char *string);
+
+void split_partition(const char * topic_name, char * topic_partition, char * topic_base_name);
+void concat_partition(const char * topic_partition, const char * topic_base_name, char * topic_name);
+
 void display_buffer(uint8_t *buffer, uint16_t length);
 
 #ifdef __cplusplus
