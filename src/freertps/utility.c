@@ -36,16 +36,17 @@ const char *frudp_print_ip(const long ip)
   return buffer;
 }
 
-const char * append_to_string(const char *string_append, char *string_dest)
+void append_to_string(const char *string_append, char *string_dest)
 {
-  char tmp[strlen(string_dest)];
-  memcpy(tmp, string_dest, strlen(string_dest));
+  uint16_t size = strlen(string_dest) + strlen(string_append);
+  char tmp[size];
+  memset(tmp, 0, size);
 
-  memcpy(string_dest, string_append, strlen(string_append));
-  memmove(string_dest+strlen(string_append),tmp,sizeof(tmp));
-  string_dest[sizeof(tmp) + strlen(string_append)] = 0;
+  strcpy(tmp, string_append);
+  strcat(tmp, string_dest);
 
-  return string_dest;
+  // Return
+  strcpy(string_dest, tmp);
 }
 
 uint16_t serialize_string_alligned(const char *string, uint8_t *buffer)
@@ -103,14 +104,24 @@ void split_partition(const char * topic_name, char * topic_partition, char * top
 
 void concat_partition(const char * topic_partition, const char * topic_base_name, char * topic_name)
 {
+  memset(topic_name, 0, FRUDP_MAX_TOPIC_NAME_LEN);
+
   // Concat partition + topic base.
-  if (topic_partition != NULL && topic_partition[0] != 0)
+  if (strlen(topic_partition) == 0)
   {
-    memset(topic_name, 0, FRUDP_MAX_TOPIC_NAME_LEN);
+    // Without Parition
+    if (topic_name[0] != '/')
+    {
+      // Start with /
+      strcpy(topic_name, "/");
+    }
+  } else {
+    // With Patition
     strcpy(topic_name, topic_partition);
-    strcat(topic_name + 1, "/");
-    strcat(topic_name + strlen(topic_name), topic_base_name);
+    strcat(topic_name, "/");
   }
+
+  strcat(topic_name, topic_base_name);
 }
 
 
