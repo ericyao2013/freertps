@@ -505,6 +505,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
     */
     FREERTPS_INFO("    couldn't find a matched reader for this DATA: %s\r\n",
                   frudp_print_guid(&writer_guid));
+#ifdef DEBUG
     FREERTPS_INFO("    available readers:\r\n");
     for (unsigned i = 0; i < g_frudp_num_readers; i++)
     {
@@ -513,6 +514,7 @@ static bool frudp_rx_data(RX_MSG_ARGS)
                     frudp_print_guid(&match->writer_guid),
                     (unsigned)freertps_htonl(match->reader_eid.u));
     }
+#endif
   }
   //FREERTPS_ERROR("  ahh unknown data scheme: 0x%04x\r\n", (unsigned)scheme);
   return true;

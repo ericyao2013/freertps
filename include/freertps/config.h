@@ -56,6 +56,7 @@ extern "C"
 #define FRUDP_MAGIC_WORLD 0x53505452 // RTPS in ASCII
 
 
+#ifdef VERBOSE_ENABLE
 #define DEBUG
 
 #define EXCESSIVELY_VERBOSE_MSG_RX
@@ -75,7 +76,7 @@ extern "C"
 #define SYS_FAKE_IMU
 #define SYS_FAKE_GYRO
 #define SYS_FAKE_MAGN
-
+#endif
 
 //#define VERBOSE_MSG_SERIALIZATION
 

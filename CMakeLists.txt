@@ -5,6 +5,10 @@ project(${PROJECT_NAME})
 
 set(freertps_standalone OFF CACHE BOOL "standalone build")
 
+if(CMAKE_BUILD_TYPE MATCHES DEBUG)
+  add_definitions(-DVERBOSE_ENABLE)
+endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
 # in the future, consider target_include_directories() instead...
 if(NOT freertps_standalone)
   find_package(ament_cmake REQUIRED)
