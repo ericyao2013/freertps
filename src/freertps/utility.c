@@ -83,6 +83,8 @@ void display_buffer(uint8_t *buffer, uint16_t length)
   printf("\n");
 }
 
+#define SEPARATOR '/'
+
 void split_partition(const char * topic_name, char * topic_partition, char * topic_base_name)
 {
   memset(topic_partition, 0, FRUDP_MAX_PARTITION_NAME_LEN);
@@ -123,6 +125,4 @@ void concat_partition(const char * topic_partition, const char * topic_base_name
 
   strcat(topic_name, topic_base_name);
 }
-
-
 
